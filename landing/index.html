@@ -1,0 +1,3332 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Интерактивити — конструктор интерактивных сценариев для учёбы и бизнеса</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --bg-elevated: #12121a;
+      --text: #e4e4e7;
+      --text-muted: #a1a1aa;
+      --accent: #6366f1;
+      --accent-soft: rgba(99, 102, 241, 0.2);
+      --border: rgba(255,255,255,0.08);
+      --node-size: 56px;
+      --hero-height: 100vh;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; height: 100%; overflow: hidden; }
+    body {
+      font-family: 'Manrope', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow: hidden;
+      padding-left: 0;
+      padding-top: 48px;
+      height: 100%;
+    }
+    .font-display { font-family: 'Unbounded', sans-serif; }
+
+    /* ----- Novel-style: one scene at a time, switch by click/choice ----- */
+    .landing-slides {
+      position: relative;
+      height: calc(100vh - 48px);
+      overflow: hidden;
+    }
+    .landing-slide {
+      position: absolute !important;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      overflow-x: hidden;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.35s ease, visibility 0.35s ease;
+      z-index: 1;
+    }
+    .landing-slide.active {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      z-index: 2;
+    }
+    .landing-slide .slide-next-hint {
+      position: absolute;
+      bottom: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      pointer-events: none;
+    }
+    /* ----- Единый стиль слайда: карточка как в Демо ----- */
+    .slide-card {
+      background: linear-gradient(180deg, transparent 0%, var(--accent-soft) 12%, transparent 32%);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      max-width: 1000px;
+      margin: 0 auto;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    /* Картинка сверху — единая высота и положение на всех слайдах */
+    .slide-card .slide-img-placeholder {
+      flex-shrink: 0;
+      width: 100%;
+      height: 90px;
+      min-height: 90px;
+      max-width: 100%;
+      margin: 0;
+      background: linear-gradient(135deg, var(--bg) 0%, var(--accent-soft) 100%);
+      border-radius: 16px 16px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+    /* Первый слайд: hero-картинка в полном размере, текст поверх */
+    .intro-slide .intro-slide-hero {
+      flex-shrink: 0;
+      width: 100%;
+      margin: 0;
+      border-radius: 16px 16px 0 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .intro-slide .intro-slide-hero img {
+      display: block;
+      width: 100%;
+      height: auto;
+      vertical-align: middle;
+      border-radius: 16px 16px 0 0;
+    }
+    /* Баннер продукта для раздела "Почему сценарии?" */
+    .product-banner {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 0.75rem;
+      position: relative;
+    }
+    .product-banner img {
+      width: 100%;
+      max-width: 1100px;
+      height: auto;
+      display: block;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+    }
+    .intro-slide .intro-slide-hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      /* Оверлей начинается выше (с 40%), заголовок будет поверх */
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        transparent 40%,
+        rgba(10, 10, 15, 0.12) 52%,
+        rgba(10, 10, 15, 0.28) 65%,
+        rgba(10, 10, 15, 0.5) 78%,
+        rgba(10, 10, 15, 0.75) 90%,
+        rgba(10, 10, 15, 1) 100%
+      );
+      border-radius: 16px 16px 0 0;
+      pointer-events: none;
+    }
+    .slide-card .slide-card-body {
+      flex: 1;
+      min-height: 0;
+      padding: 0.75rem 1.25rem 1rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .slide-card h1, .slide-card h2 { text-align: center; margin-bottom: 0.5rem; }
+    .slide-card > .slide-card-body > p,
+    .slide-card .slide-card-body > p { text-align: center; margin-bottom: 0.75rem; font-size: 0.95rem; }
+    .slide-card .text-left { text-align: left; }
+    .slide-card ul.text-left { margin: 0 auto; }
+    .intro-slide .slide-card { flex-direction: column; position: relative; }
+    .intro-slide .slide-card-body {
+      position: absolute;
+      top: 78%;
+      left: 0;
+      right: 0;
+      transform: translateY(-50%);
+      z-index: 2;
+      overflow: hidden;
+      padding: clamp(0.5rem, 1.5vh, 1rem) 1.25rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .intro-slide .slide-card-body .intro-slide-inner {
+      max-height: 100%;
+      overflow: hidden;
+      width: 100%;
+    }
+    .intro-slide .slide-card-body .intro-slide-inner h1 {
+      font-size: clamp(0.95rem, 3.2vh, 2.25rem);
+      letter-spacing: 0.02em;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.4), 0 0 20px rgba(0,0,0,0.3);
+      margin-bottom: 0;
+    }
+    .intro-slide .intro-lead {
+      margin: clamp(0.2rem, 0.9vh, 0.75rem) 0 clamp(0.2rem, 0.7vh, 0.5rem);
+      font-size: clamp(0.85rem, 1.7vh, 1.1rem);
+      line-height: 1.45;
+    }
+    .intro-slide .intro-sublead {
+      margin: clamp(0.15rem, 0.5vh, 0.5rem) auto 0;
+      font-size: clamp(0.8rem, 1.5vh, 0.95rem);
+      line-height: 1.45;
+    }
+    .intro-slide-footer {
+      position: fixed;
+      bottom: 2.25rem;
+      left: 0;
+      right: 0;
+      z-index: 140;
+      padding: 0.2rem 0.5rem;
+      text-align: center;
+      pointer-events: auto;
+    }
+    .intro-lead {
+      margin: 0.75rem 0 0.5rem;
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: var(--text);
+    }
+    .intro-sublead {
+      margin: 0.5rem auto 0;
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: var(--text-muted);
+      max-width: 40rem;
+    }
+    .intro-docs-link {
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .intro-docs-link:hover { color: var(--accent); border-color: var(--accent); }
+    .contacts-list, .documents-list {
+      list-style: none;
+      text-align: left;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    .contacts-list p { margin-bottom: 0.75rem; text-align: center; }
+    .contacts-list a { color: var(--accent); text-decoration: none; }
+    .contacts-list a:hover { text-decoration: underline; }
+    .documents-list { padding: 0; }
+    .documents-list li { margin-bottom: 0.75rem; }
+    .documents-list .doc-link {
+      color: var(--accent);
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-block;
+      padding: 0.35rem 0;
+    }
+    .documents-list .doc-link:hover { text-decoration: underline; }
+
+    /* ----- Auth / LMS access form ----- */
+    .form-section .slide-card-body {
+      max-width: 520px;
+      margin: 0 auto;
+    }
+    .form-section .slide-card-body > h2 {
+      text-align: center;
+      margin-bottom: 0.25rem;
+    }
+    .form-section .slide-card-body > p {
+      text-align: center;
+      margin-bottom: 1rem;
+      color: var(--text-muted);
+    }
+    .auth-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      gap: 1.5rem;
+      align-items: flex-start;
+    }
+    @media (max-width: 780px) {
+      .auth-layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .auth-tabs {
+      display: inline-flex;
+      padding: 0.15rem;
+      border-radius: 999px;
+      background: var(--bg-elevated);
+      margin-bottom: 0.75rem;
+    }
+    .auth-tab {
+      flex: 1;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      padding: 0.35rem 0.9rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      cursor: default;
+    }
+    .auth-tab-active {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .auth-form label {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+    .auth-form input[type="email"],
+    .auth-form input[type="password"] {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.6rem;
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text);
+      font-size: 0.9rem;
+      box-sizing: border-box;
+    }
+    .auth-form input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent-soft);
+    }
+    /* Поля формы заявки «Курс под ключ» стилизуем так же, как authEmail/authPassword */
+    .features-request-form input[type="text"],
+    .features-request-form input[type="email"],
+    .features-request-form textarea {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.6rem;
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text);
+      font-size: 0.9rem;
+      box-sizing: border-box;
+      resize: vertical;
+    }
+    .features-request-form textarea {
+      min-height: 3.5rem;
+    }
+    .features-request-form input:focus,
+    .features-request-form textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent-soft);
+    }
+    @keyframes features-field-shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-4px); }
+      40% { transform: translateX(4px); }
+      60% { transform: translateX(-3px); }
+      80% { transform: translateX(3px); }
+    }
+    .features-request-form .shake {
+      animation: features-field-shake 0.24s ease;
+    }
+    .auth-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      margin-top: 0.5rem;
+    }
+    .auth-primary {
+      flex: 1;
+    }
+    .auth-secondary {
+      background: transparent;
+      border-color: var(--border-strong);
+      color: var(--text);
+    }
+    .auth-secondary:hover {
+      background: var(--bg-elevated);
+    }
+    .auth-link {
+      margin-top: 0.25rem;
+      border: none;
+      background: none;
+      padding: 0;
+      color: var(--accent);
+      font-size: 0.85rem;
+      text-align: left;
+      cursor: pointer;
+    }
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .auth-divider::before,
+    .auth-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+      margin: 0 0.5rem;
+    }
+    .auth-social {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      align-items: stretch;
+      justify-content: center;
+    }
+    .auth-google {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: #fff;
+      color: #111827;
+      border-color: #e5e7eb;
+    }
+    .auth-google:hover {
+      background: #f9fafb;
+    }
+    .auth-google-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: #ea4335;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .auth-hint {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+    
+    /* ----- Интерактивные flip-карточки — размер как у демо (min 280px, высота ~200px) ----- */
+    .flip-cards {
+      display: grid;
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 1000px;
+      margin: 0 auto;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+    .flip-cards.col-2 { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+    .flip-cards.col-3 { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+    /* 4 карточки — длинные прямоугольные строки в один столбец, все влезают на экран */
+    .flip-cards.col-4 {
+      grid-template-columns: 1fr;
+      grid-template-rows: repeat(4, 1fr);
+      gap: 0.75rem;
+      flex: 1;
+      min-height: 0;
+      /* increased length by ~20% */
+      max-width: 1080px;
+    }
+    .flip-cards.col-4 .flip-card {
+      min-height: 0;
+    }
+    .flip-cards.col-4 .flip-card-inner {
+      min-height: 0;
+    }
+    .flip-cards.col-4 .flip-card-front {
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 0 1.25rem;
+      gap: 1rem;
+    }
+    .flip-cards.col-4 .flip-card-emoji {
+      font-size: 1.75rem;
+      margin-bottom: 0;
+      flex-shrink: 0;
+    }
+    .flip-cards.col-4 .flip-card-front h3,
+    .flip-cards.col-4 .flip-card-front h4 {
+      text-align: left;
+      font-size: 1rem;
+      margin: 0;
+    }
+    .flip-cards.col-4 .flip-card-back {
+      padding: 0.75rem 1.25rem 1.5rem;
+      justify-content: center;
+      overflow-y: visible;
+    }
+    .flip-cards.col-4 .flip-card-back p {
+      font-size: 0.85rem;
+      margin: 0;
+    }
+    .slide-card-body:has(.flip-cards.col-4) {
+      justify-content: flex-start;
+      padding-top: 0.5rem;
+    }
+    .slide-card-body:has(.flip-cards.col-4) > h2 { margin-bottom: 0.25rem; }
+    .slide-card-body:has(.flip-cards.col-4) > p { margin-bottom: 0.5rem; }
+
+    /* Увеличенные карточки тарифов, чтобы описание свободно помещалось */
+    #pricing .flip-cards.col-3 .flip-card-inner {
+      min-height: 260px;
+    }
+    @media (max-width: 768px) {
+      #pricing .flip-cards.col-3 .flip-card-inner {
+        min-height: 220px;
+      }
+    }
+
+    /* Для слайда «Как это работает» убираем лишний скролл при анимации карточек */
+    #how .slide-card-body {
+      overflow: hidden;
+    }
+    /* Увеличим ширину карточек на слайде «Как это работает» на ~20% и добавим нижний отступ */
+    #how .slide-card { max-width: 1200px; }
+    #how .flip-cards.col-4 { max-width: 1200px; }
+    #how .slide-card-body { padding-bottom: 1.5rem; }
+    @media (max-width: 640px) {
+      .flip-cards:not(.col-4) { grid-template-columns: 1fr; }
+    }
+    .flip-card {
+      min-height: 200px;
+      perspective: 600px;
+      cursor: pointer;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+    }
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 200px;
+      transition: transform 0.5s ease;
+      transform-style: preserve-3d;
+    }
+    .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+    .flip-card-front,
+    .flip-card-back {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: 20px;
+      padding: 1.5rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      box-sizing: border-box;
+    }
+    .flip-card-front { color: var(--text); }
+    .flip-card-back {
+      transform: rotateY(180deg);
+      overflow-y: auto;
+      justify-content: flex-start;
+      text-align: left;
+      padding: 1.25rem 1.5rem;
+    }
+    .flip-card-back p, .flip-card-back ul { font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5; }
+    .flip-card-emoji { font-size: 2.5rem; margin-bottom: 0.75rem; line-height: 1; }
+    .flip-card-front h3, .flip-card-front h4 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      text-align: center;
+      margin: 0;
+      line-height: 1.35;
+    }
+    .flip-card:hover {
+      transform: translateY(-4px);
+    }
+    .flip-card:hover .flip-card-front {
+      border-color: var(--accent);
+      box-shadow: 0 14px 34px rgba(0,0,0,0.45);
+      background: radial-gradient(circle at top left, rgba(129, 140, 248, 0.35), transparent 55%), var(--bg-elevated);
+    }
+
+    /* ----- Всплывающее сообщение о cookie (справа внизу) ----- */
+    @keyframes cookie-remind {
+      0%, 88% { transform: translateX(0) scale(1); box-shadow: 0 8px 24px rgba(0,0,0,0.35); border-color: var(--border); }
+      90% { transform: translateX(0) scale(1.03); box-shadow: 0 8px 28px rgba(99,102,241,0.35); border-color: rgba(99,102,241,0.5); }
+      92% { transform: translateX(2px) scale(1.03); box-shadow: 0 8px 28px rgba(99,102,241,0.4); }
+      94% { transform: translateX(-2px) scale(1.03); box-shadow: 0 8px 28px rgba(99,102,241,0.4); }
+      96% { transform: translateX(1px) scale(1.02); box-shadow: 0 8px 26px rgba(99,102,241,0.35); }
+      100% { transform: translateX(0) scale(1); box-shadow: 0 8px 24px rgba(0,0,0,0.35); border-color: var(--border); }
+    }
+    .cookie-consent {
+      position: fixed;
+      right: 1rem;
+      bottom: 15vh;
+      z-index: 140;
+      width: 100%;
+      max-width: 280px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+      text-align: center;
+      animation: cookie-remind 10s ease-in-out infinite;
+    }
+    .cookie-consent.hidden {
+      transform: translateX(120%);
+      opacity: 0;
+      pointer-events: none;
+      animation: none;
+    }
+    .cookie-consent-text {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.35;
+      margin: 0 0 0.5rem;
+      text-align: center;
+    }
+    .cookie-consent-accept {
+      margin-top: 0.25rem;
+      width: 100%;
+      padding: 0.4rem 0.75rem;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      transition: filter 0.2s;
+    }
+    .cookie-consent-accept:hover { filter: brightness(1.1); }
+    /* ----- Навигация: стрелки < и > в одном стиле ----- */
+    .slide-nav {
+      position: fixed;
+      bottom: 56px;
+      left: 0;
+      right: 0;
+      z-index: 120;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 1.5rem;
+      pointer-events: none;
+    }
+    .slide-nav button {
+      pointer-events: auto;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    }
+    .slide-nav button:hover:not(:disabled) {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      transform: scale(1.05);
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.25);
+    }
+    .slide-nav button:disabled {
+      opacity: 0.35;
+      cursor: default;
+    }
+    .slide-nav button svg {
+      width: 26px;
+      height: 26px;
+    }
+    .landing-progress {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 150;
+      min-height: 1.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.35rem 0.5rem;
+      background: rgba(10, 10, 15, 0.85);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid var(--border);
+    }
+    .landing-progress-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--border);
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .landing-progress-dot:hover { background: var(--text-muted); }
+    .landing-progress-dot.active {
+      background: var(--accent);
+      transform: scale(1.25);
+    }
+    .landing-progress-counter {
+      margin-left: 0.35rem;
+      color: var(--text-muted);
+      font-size: 0.7rem;
+    }
+
+    /* Карточка теперь у .slide-card; секция без своей рамки */
+    section.landing-slide.graph-node-section {
+      border: none;
+      background: transparent;
+      margin: 0;
+      max-width: none;
+    }
+
+    /* ----- Hero (first slide) ----- */
+    .hero.landing-slide {
+      min-height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 50% at 50% 0%, var(--accent-soft) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .hero-inner {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      min-height: 420px;
+    }
+
+    /* Initial scene card */
+    .hero-scene {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 3rem;
+      transform-origin: center center;
+      will-change: transform;
+    }
+    .hero-scene h1 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+    .hero-scene p {
+      color: var(--text-muted);
+      margin-bottom: 2.5rem;
+      text-align: center;
+    }
+    .hero-choices {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      width: 100%;
+      max-width: 480px;
+    }
+    .hero-choice {
+      padding: 1rem 1.25rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, transform 0.2s;
+    }
+    .hero-choice:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    /* Graph container (hidden until after choice) */
+    .hero-graph-wrap {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .hero-graph-wrap.active {
+      pointer-events: auto;
+    }
+    .hero-graph-svg {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+      height: 100%;
+      max-width: 700px;
+      max-height: 380px;
+      overflow: visible;
+    }
+    .hero-graph-svg path.edge {
+      fill: none;
+      stroke: var(--border);
+      stroke-width: 2;
+      stroke-dasharray: 400;
+      stroke-dashoffset: 400;
+    }
+    .hero-graph-svg path.edge.active {
+      stroke: var(--accent);
+      stroke-width: 2.5;
+    }
+    .hero-graph-svg .node {
+      cursor: default;
+    }
+    .hero-graph-svg .node circle {
+      fill: var(--bg-elevated);
+      stroke: var(--border);
+      stroke-width: 2;
+      transition: fill 0.2s, stroke 0.2s;
+    }
+    .hero-graph-svg .node.active circle {
+      fill: var(--accent-soft);
+      stroke: var(--accent);
+    }
+    .hero-graph-svg .node text {
+      fill: var(--text-muted);
+      font-size: 11px;
+      font-family: 'Manrope', sans-serif;
+      text-anchor: middle;
+    }
+    .hero-graph-svg .node.top text {
+      fill: var(--text);
+      font-size: 12px;
+    }
+
+    /* Result scene (scaled up from chosen node) */
+    .hero-result {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 3rem;
+      transform-origin: center center;
+      transform: scale(0.3);
+      opacity: 0;
+      will-change: transform, opacity;
+    }
+    .hero-result.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .hero-result h2 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      text-align: center;
+    }
+    .hero-result p {
+      color: var(--text-muted);
+      text-align: center;
+      max-width: 480px;
+      margin-bottom: 2rem;
+    }
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.875rem 1.75rem;
+      background: var(--accent);
+      color: #fff;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: filter 0.2s, transform 0.2s;
+    }
+    .hero-cta:hover {
+      filter: brightness(1.1);
+      transform: translateY(-2px);
+    }
+    .hero-back {
+      margin-top: 1.25rem;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      border: none;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    .hero-back:hover { color: var(--text); }
+
+    /* Анимация появления текста только на заголовке первой карточки «Как это работает».
+       Буквы «проявляются» слева направо за 3 секунды, размер карточки не меняется. */
+    #how .flip-cards.col-4 .flip-card:nth-child(1) .how-scenes-title {
+      display: inline-block;
+      position: relative;
+      /* цвет текста для currentColor */
+      color: var(--text);
+      /* прячем заливку букв, оставляем только градиент внутри контура */
+      -webkit-text-fill-color: transparent;
+      background-image: linear-gradient(
+        to right,
+        currentColor 0,
+        currentColor 100%
+      );
+      background-repeat: no-repeat;
+      background-size: 0% 100%;
+      background-position: 0 0;
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+    #how.active .flip-cards.col-4 .flip-card:nth-child(1) .how-scenes-title {
+      animation: how-scenes-title-reveal 3s ease-out forwards;
+    }
+    @keyframes how-scenes-title-reveal {
+      0% {
+        background-size: 0% 100%;
+      }
+      100% {
+        background-size: 100% 100%;
+      }
+    }
+
+    /* Хаотичное движение букв на заголовке второй карточки «Как это работает».
+       Алгоритм как в «Карьерный рывок»: буквы разлетаются и собираются в ровную строку. */
+    #how .flip-cards.col-4 .flip-card:nth-child(2) .how-choices-title {
+      position: relative;
+      display: inline-block;
+    }
+    #how .flip-cards.col-4 .flip-card:nth-child(2) .how-choices-letter {
+      position: absolute;
+      display: inline-block;
+      will-change: transform, left, top;
+      white-space: pre;
+    }
+    #how .flip-cards.col-4 .flip-card:nth-child(2) .how-choices-letter.scattered {
+      animation: how-choices-float 0.8s ease-in-out infinite alternate;
+    }
+    @keyframes how-choices-float {
+      0%   { transform: translate(0, 0) rotate(-4deg); }
+      25%  { transform: translate(10px, -15px) rotate(6deg); }
+      50%  { transform: translate(-8px, 12px) rotate(10deg); }
+      75%  { transform: translate(14px, 8px) rotate(-7deg); }
+      100% { transform: translate(-6px, -10px) rotate(5deg); }
+    }
+
+    /* Ракета на третьей карточке «Как это работает»: прилёт без изменения размера карточки. */
+    #how .flip-cards.col-4 .flip-card:nth-child(3) .how-launch-rocket {
+      display: inline-block;
+      transform-origin: center center;
+      opacity: 0; /* по умолчанию ракета скрыта до старта анимации */
+    }
+
+    /* Анимация столбиков на карточке «4. Отчёты».
+       Заменяем эмодзи на мини-график, чтобы размер карточки оставался как у остальных. */
+    #how .flip-cards.col-4 .flip-card:nth-child(4) .how-report-bars {
+      display: inline-flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 1.2em;
+    }
+    #how .flip-cards.col-4 .flip-card:nth-child(4) .how-report-bar {
+      width: 0.18em;
+      height: 100%;
+      border-radius: 999px 999px 0 0;
+      background: #38bdf8;
+      animation: how-report-bars-pulse 3s ease-in-out infinite;
+      transform-origin: bottom center;
+    }
+    #how .flip-cards.col-4 .flip-card:nth-child(4) .how-report-bar.bar-1 {
+      background: #38bdf8;
+      animation-delay: 0s;
+    }
+    #how .flip-cards.col-4 .flip-card:nth-child(4) .how-report-bar.bar-2 {
+      background: #22c55e;
+      animation-delay: 0.2s;
+    }
+    #how .flip-cards.col-4 .flip-card:nth-child(4) .how-report-bar.bar-3 {
+      background: #f97316;
+      animation-delay: 0.4s;
+    }
+    @keyframes how-report-bars-pulse {
+      0%   { transform: scaleY(0.3); }
+      25%  { transform: scaleY(0.9); }
+      50%  { transform: scaleY(0.5); }
+      75%  { transform: scaleY(1); }
+      100% { transform: scaleY(0.3); }
+    }
+
+    /* ----- Sections: единый стиль карточки (как Демо) ----- */
+    section.landing-slide {
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100%;
+      box-sizing: border-box;
+    }
+    section.landing-slide .slide-card {
+      width: 100%;
+    }
+    .intro-slide-inner, .role-slide-inner, .for-you-slide-inner {
+      max-width: 640px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .role-choices {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+    @media (min-width: 600px) {
+      .role-choices { grid-template-columns: repeat(3, 1fr); }
+    }
+    .role-choice {
+      padding: 1rem 1rem 1.1rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+      gap: 0.25rem;
+    }
+    .role-choice:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+    .role-choice-emoji {
+      font-size: 1.45rem;
+      line-height: 1;
+      margin-bottom: 0.1rem;
+    }
+    .role-choice-title {
+      font-weight: 600;
+      font-size: 0.98rem;
+    }
+    .role-choice-caption {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .role-choice-icon {
+      width: 56px;
+      height: 56px;
+      display: block;
+      border-radius: 10px;
+      object-fit: cover;
+      margin-bottom: 0.25rem;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.02);
+    }
+    .for-you-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+    }
+    .for-you-role-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      object-fit: cover;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.02);
+    }
+    .for-you-header .font-display { margin-bottom: 0; }
+    .for-you-slide ul.for-you-list {
+      list-style: none;
+      text-align: left;
+      max-width: 480px;
+      margin: 0 auto 1.5rem;
+      padding: 0;
+    }
+    .for-you-slide ul.for-you-list li {
+      padding: 0.5rem 0;
+      margin-bottom: 0.25rem;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    .for-you-slide ul.for-you-list li .benefit-emoji {
+      flex-shrink: 0;
+      font-size: 1.1rem;
+      margin-top: 0.1rem;
+    }
+    section h2 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(1.75rem, 3vw, 2.25rem);
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    section p {
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .section-problem .slide-card { text-align: center; }
+    .product-intro {
+      max-width: 560px;
+      margin: 0 auto 1.25rem;
+      text-align: left;
+    }
+    .product-intro-title {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(1rem, 2.2vw, 1.2rem);
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+    .product-intro p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin: 0;
+    }
+    .product-intro p + p { margin-top: 0.75rem; }
+    /* Слайд «Интерактивные сценарии»: всё в vh/vw — при зуме контент уменьшается, без скролла */
+    .product-slide {
+      padding: clamp(0.8rem, 1.8vh, 2rem);
+    }
+    .product-slide .slide-card-body {
+      justify-content: flex-start;
+      overflow: hidden;
+      padding: clamp(1rem, 2vh, 2rem) clamp(0.9rem, 2.2vw, 1.8rem) clamp(0.8rem, 2vh, 1.75rem);
+    }
+    /* Отступ снизу, чтобы карточки не заходили на навигационную панель, но без лишнего воздуха */
+    .product-slide .slide-card-body { padding-bottom: calc(2.5rem + env(safe-area-inset-bottom)) !important; }
+    .product-slide .product-slide-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin-bottom: clamp(1.6rem, 3vh, 3rem);
+      flex-shrink: 0;
+      font-size: clamp(1.1rem, 2.8vmin, 1.85rem);
+    }
+    .product-title-spacer {
+      height: clamp(1.6rem, 3vh, 3rem);
+    }
+    .product-slide-logo {
+      height: 1.15em;
+      width: auto;
+      vertical-align: middle;
+      display: inline-block;
+      margin-right: 0.35rem;
+    }
+    .product-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(0.75rem, 2vh, 2.5rem);
+      align-items: stretch;
+      width: 100%;
+      max-width: 1040px;
+      margin: 0 auto;
+      flex: 1;
+      min-height: 0;
+    }
+    .product-layout-cards {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(0.35rem, 0.7vh, 0.75rem);
+      min-width: 0;
+      min-height: 0;
+      padding-top: 0;
+    }
+    .product-slide .product-layout-cards .flip-cards.col-4 {
+      flex: 1;
+      min-height: 0;
+      grid-template-rows: repeat(4, 1fr);
+      gap: clamp(0.4rem, 0.9vh, 1rem);
+    }
+    .product-slide .product-layout-cards .flip-card-front,
+    .product-slide .product-layout-cards .flip-card-back {
+      padding: clamp(0.4rem, 0.8vh, 0.85rem) clamp(0.5rem, 1vw, 1.25rem);
+    }
+    /* Левые карточки на слайде «О продукте» — делаем шрифт крупнее */
+    .product-slide .product-layout-cards .flip-card-front h4,
+    .product-slide .product-layout-cards .flip-card-back p {
+      font-size: clamp(0.9rem, 1.9vh, 1.1rem);
+    }
+    .product-slide .product-layout-cards .flip-card-emoji {
+      font-size: clamp(1.3rem, 2.2vh, 2.1rem);
+    }
+    .product-cards-hint {
+      font-size: clamp(0.7rem, 1.4vh, 0.875rem);
+      color: var(--text-muted);
+      margin: 0 0 clamp(0.6rem, 1.2vh, 1rem);
+      text-align: center;
+    }
+    .product-layout-text {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(0.45rem, 1vh, 1.1rem);
+      padding: clamp(0.4rem, 0.9vh, 1rem) clamp(0.75rem, 1.4vw, 1.35rem) clamp(0.5rem, 1.1vh, 1.1rem);
+      background: rgba(15, 18, 32, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      border-radius: clamp(10px, 1.8vh, 18px);
+      align-self: stretch;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .product-layout-text .product-intro {
+      margin: 0;
+      max-width: none;
+      flex: 3 1 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .product-diagram-wrap {
+      flex: 1 1 0;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-top: clamp(0.3rem, 0.7vh, 0.9rem);
+      padding-bottom: clamp(0.3rem, 0.7vh, 0.9rem);
+    }
+    .product-layout-text .product-intro p:first-child {
+      margin-top: 0.1rem;
+    }
+    /* Правая текстовая карточка — делаем текст чуть компактнее */
+    .product-layout-text .product-intro p {
+      line-height: 1.55;
+      font-size: clamp(0.9rem, 1.6vh, 1.1rem);
+      margin: 0;
+    }
+    .product-layout-text .product-intro p + p {
+      margin-top: clamp(0.6rem, 1.1vh, 1rem);
+    }
+    .product-diagram {
+      max-width: 100%;
+      max-height: 100%;
+      height: auto;
+      min-height: 0;
+      object-fit: contain;
+      object-position: center bottom;
+      border-radius: clamp(6px, 1vh, 10px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+      display: block;
+    }
+    @media (max-width: 768px) {
+      .product-slide .slide-card-body {
+        padding: clamp(0.6rem, 1.2vh, 1rem) clamp(0.6rem, 1.5vw, 1.25rem);
+      }
+      .product-slide .product-slide-title { margin-bottom: clamp(0.4rem, 1vh, 1.25rem); }
+      .product-layout {
+        grid-template-columns: 1fr;
+        gap: clamp(0.5rem, 1.5vh, 1.5rem);
+      }
+      .product-layout-text {
+        order: -1;
+        padding: clamp(0.5rem, 1vh, 1rem);
+      }
+      .product-diagram {
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+        max-height: min(18vh, 200px);
+      }
+    }
+    .section-problem .problem-content { margin-bottom: 1.5rem; }
+    .section-problem .problem-content,
+    .section-problem .solution-box { max-width: 560px; margin-left: auto; margin-right: auto; }
+    .section-problem .problem-content { text-align: left; }
+    .section-problem .problem-content h2,
+    .section-problem .problem-content p { text-align: center; }
+    .section-problem .problem-content h2 { margin-bottom: 1rem; }
+    .problem-list {
+      list-style: none;
+    }
+    .problem-list li {
+      padding: 0.75rem 0;
+      padding-left: 1.5rem;
+      border-left: 3px solid var(--accent);
+      margin-bottom: 0.5rem;
+      color: var(--text-muted);
+    }
+    .solution-box {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem;
+    }
+    .solution-box strong { color: var(--accent); }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    @media (max-width: 900px) {
+      .steps { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 500px) {
+      .steps { grid-template-columns: 1fr; }
+    }
+    .step {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+    }
+    .step-num {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+    }
+    .step h3 {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+    .step p {
+      font-size: 0.95rem;
+      margin-bottom: 0;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+    @media (max-width: 768px) {
+      .features { grid-template-columns: 1fr; }
+    }
+    .feature {
+      text-align: center;
+      padding: 2rem 1rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+    .feature-icon {
+      width: 56px;
+      height: 56px;
+      margin: 0 auto 1rem;
+      border-radius: 14px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+    .feature h3 { font-size: 1.15rem; margin-bottom: 0.5rem; }
+    .feature p { font-size: 0.95rem; margin-bottom: 0; }
+
+    .demo-section .slide-card { padding: 0; justify-content: center; }
+    .demo-section .slide-card-body {
+      overflow: hidden;
+      padding: 1rem 1.25rem 1.25rem;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .demo-section .slide-card-body > p { margin-bottom: 0.75rem; }
+    .demo-section h2 { text-align: center; margin-bottom: 0.25rem; }
+    .demo-section .demo-courses {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      max-width: 1000px;
+      margin: 0 auto;
+      flex: 1;
+      min-height: 0;
+      align-content: center;
+      max-height: 100%;
+      overflow: hidden;
+    }
+    @media (max-width: 900px) {
+      .demo-section .demo-courses {
+        grid-template-columns: 1fr;
+        grid-auto-rows: 1fr;
+      }
+      .demo-section .demo-course { min-height: 0; }
+      .demo-section .demo-course-img,
+      .demo-section .demo-course-placeholder { max-height: 100px; min-height: 60px; }
+      .demo-section .demo-course-body { padding: 0.5rem 0.75rem; }
+      .demo-section .demo-course-body h3 { font-size: 0.95rem; }
+      .demo-section .demo-course-body p { font-size: 0.8rem; margin-bottom: 0.35rem; }
+    }
+    .demo-section .demo-course {
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .demo-section .demo-course-img {
+      aspect-ratio: 16 / 9;
+      max-height: 120px;
+      min-height: 0;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .demo-section .demo-course-placeholder {
+      aspect-ratio: 16 / 9;
+      max-height: 120px;
+      min-height: 80px;
+      flex-shrink: 0;
+    }
+    .demo-section .demo-course-body {
+      padding: 0.75rem 1rem;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .demo-section .demo-course-body h3 { font-size: 1rem; margin-bottom: 0.25rem; }
+    .demo-section .demo-course-body p { font-size: 0.85rem; margin-bottom: 0.5rem; }
+    /* Для слайда «Возможности» показываем квадратные иконки целиком,
+       поэтому меняем форму карточек и не обрезаем изображения. */
+    #features .demo-course-img {
+      aspect-ratio: 1 / 1;
+      max-height: 180px;
+      object-fit: contain;
+      background: radial-gradient(circle at 10% 0%, rgba(148, 163, 184, 0.2), transparent 60%);
+      border-radius: 18px 18px 0 0;
+    }
+    #features .demo-course {
+      border-radius: 18px;
+      overflow: hidden;
+    }
+    #features .features-course-btn {
+      margin-top: auto;
+      align-self: center;
+      min-width: 120px;
+      text-align: center;
+      cursor: pointer;
+      /* make features buttons look like primary buttons by default */
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .4rem;
+      padding: .6rem .9rem;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      box-shadow: 0 6px 18px rgba(99, 102, 241, 0.12);
+      font-weight: 600;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease, color 0.12s ease;
+    }
+    #features .features-course-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(99, 102, 241, 0.18);
+    }
+    #features .features-course-btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+    }
+    /* keep smaller variant for auth-tab styling if present */
+    
+    /* Флип-эффект только для первой карточки «Курс под ключ» на слайде «Возможности» */
+    #features .features-course {
+      perspective: 1600px;
+    }
+    #features .features-course-inner {
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.5s ease;
+      min-height: 100%;
+    }
+    #features .features-course-front,
+    #features .features-course-back {
+      position: relative;
+      backface-visibility: hidden;
+    }
+    #features .features-course-back {
+      position: absolute;
+      inset: 0;
+      transform: rotateY(180deg);
+    }
+    #features .features-course.is-flipped .features-course-inner {
+      transform: rotateY(180deg);
+    }
+    .demo-courses {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .demo-course {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    }
+    .demo-course:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+    }
+    .demo-course-one-click {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      cursor: pointer;
+    }
+    .demo-course-one-click .demo-course-link { pointer-events: none; }
+    .demo-course:first-child { border-color: rgba(99, 102, 241, 0.4); }
+    .demo-course-img {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      display: block;
+    }
+    .demo-course-placeholder {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      background: linear-gradient(135deg, var(--bg) 0%, var(--accent-soft) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      font-size: 2.5rem;
+      font-family: 'Unbounded', sans-serif;
+      font-weight: 600;
+    }
+    .demo-course-body { padding: 1.25rem 1.5rem; }
+    .demo-course-body h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+      line-height: 1.35;
+    }
+    .demo-course-body p {
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      color: var(--text-muted);
+    }
+    .demo-course-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--accent);
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: gap 0.2s;
+    }
+    .demo-course-link:hover { gap: 0.6rem; }
+
+    .pricing {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+    @media (max-width: 600px) {
+      .pricing { grid-template-columns: 1fr; }
+    }
+    .price-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem;
+    }
+    .price-card.featured {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent-soft);
+    }
+    .price-card h3 { margin-bottom: 0.5rem; }
+    .price-card .price { font-size: 2rem; font-weight: 700; color: var(--accent); margin: 1rem 0; }
+    .price-card ul { list-style: none; margin-bottom: 1.5rem; }
+    .price-card li { padding: 0.35rem 0; color: var(--text-muted); font-size: 0.95rem; }
+    .price-card .btn {
+      display: block;
+      width: 100%;
+      padding: 0.875rem;
+      text-align: center;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: filter 0.2s;
+    }
+    .price-card .btn:hover { filter: brightness(1.1); }
+    .price-card .btn.secondary {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .form-section {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 3rem;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    .form-section h2 { text-align: center; margin-bottom: 1.5rem; }
+    .form-section p { text-align: center; margin-bottom: 2rem; }
+    .form-section label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+    .form-section input {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      margin-bottom: 1rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: inherit;
+    }
+    .form-section button[type="submit"] {
+      width: 100%;
+      padding: 0.875rem;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      margin-top: 0.5rem;
+    }
+    .form-section button[type="submit"]:hover { filter: brightness(1.1); }
+
+    .faq {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+      padding: 1.25rem 0;
+    }
+    .faq-item h4 {
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    .faq-item p {
+      font-size: 0.95rem;
+      margin-bottom: 0;
+    }
+
+    footer {
+      padding: 3rem 1.5rem;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    footer a { color: var(--text-muted); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+
+    /* ----- Site header (верхнее меню) ----- */
+    .site-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 200;
+      height: 48px;
+      max-height: 48px;
+      overflow: hidden;
+      background: rgba(10, 10, 15, 0.9);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+    .site-header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1000px;
+      height: 100%;
+      min-height: 0;
+      margin: 0 auto;
+      padding: 0 1rem;
+      gap: 0.75rem;
+    }
+    .site-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      text-decoration: none;
+      color: inherit;
+    }
+    .site-logo img {
+      height: 28px;
+      width: auto;
+      display: block;
+    }
+    .site-logo span {
+      font-family: 'Unbounded', sans-serif;
+      font-weight: 600;
+      font-size: 1.1rem;
+      letter-spacing: 0.02em;
+    }
+    .site-nav {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    .site-nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .site-nav a:hover { color: var(--text); }
+    .site-nav a.cta {
+      color: var(--accent);
+    }
+    .site-nav a.cta:hover { color: var(--accent); filter: brightness(1.15); }
+    .site-header-burger {
+      display: none;
+      width: 44px;
+      height: 44px;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .site-header-burger span {
+      width: 20px;
+      height: 2px;
+      background: currentColor;
+      position: relative;
+    }
+    .site-header-burger span::before,
+    .site-header-burger span::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: currentColor;
+      top: -6px;
+    }
+    .site-header-burger span::after { top: 6px; }
+    @media (max-width: 768px) {
+      .site-header-burger { display: flex; }
+      .site-nav {
+        position: fixed;
+        top: 48px;
+        left: 0;
+        right: 0;
+        background: var(--bg-elevated);
+        border-bottom: 1px solid var(--border);
+        flex-direction: column;
+        padding: 1rem;
+        gap: 0;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: opacity 0.2s, visibility 0.2s, transform 0.2s;
+      }
+      .site-nav.open {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+      .site-nav a {
+        padding: 0.75rem 1rem;
+        width: 100%;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="#hero" class="site-logo" aria-label="Интерактивити — на главную">
+        <img src="img/logo_mini.png" alt="" />
+        <span>ИНТЕРАКТИВИТИ</span>
+      </a>
+      <nav class="site-nav" id="siteNav">
+        <a href="#problem">О продукте</a>
+        <a href="#demo">Демо</a>
+        <a href="#pricing">Возможности</a>
+        <a href="#contacts">Контакты</a>
+        <a href="#form" class="cta">Войти</a>
+      </nav>
+      <button type="button" class="site-header-burger" id="siteBurger" aria-label="Меню" aria-expanded="false">
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="landing-slides" id="landingSlides">
+  <section class="intro-slide graph-node-section landing-slide active" id="intro" data-slide="0">
+    <div class="slide-card">
+      <div class="intro-slide-hero">
+        <img src="img/Fon1.png" alt="Кабинет методолога-продюсера: рабочий стол с ноутбуком и визуальным редактором сценариев, уютный закат за окнами" />
+      </div>
+      <div class="slide-card-body">
+        <div class="intro-slide-inner">
+          <h1 class="font-display">Интерактивити</h1>
+          <p class="intro-lead">Конструктор интерактивных сценариев для учёбы и бизнеса.</p>
+          <p class="intro-sublead">Собирайте сцены, выборы и исходы без кода — в одной LMS платформе.</p>
+        </div>
+      </div>
+      <footer class="intro-slide-footer">
+        <a href="#documents" class="intro-docs-link">Документы и политика конфиденциальности</a>
+      </footer>
+    </div>
+  </section>
+
+  <section class="section-problem product-slide graph-node-section landing-slide" id="problem" data-slide="1">
+      <div class="slide-card">
+      <div class="slide-card-body">
+        <h2 class="font-display">Конструктор интерактивных сценариев</h2>
+        <p class="text-muted" style="margin-top: 0; margin-bottom: 0.75rem;">Что это и зачем?</p>
+        <div class="product-title-spacer" aria-hidden="true"></div>
+        <div class="product-layout">
+          <div class="product-layout-cards">
+            <div class="flip-cards col-4">
+              <div class="flip-card" tabindex="0" title="Нажмите на карточку — подробности внутри">
+                <div class="flip-card-inner">
+                  <div class="flip-card-front">
+                    <span class="flip-card-emoji">🎓</span>
+                    <h4>Вы замечаете, что старые форматы онлайн‑обучения теряют эффективность для нового поколения?</h4>
+                  </div>
+                  <div class="flip-card-back">
+                    <p>Классический формат «лекция + тест» быстро утомляет — интерес к учёбе падает, особенно у нового поколения. В Интерактивити курс — это интерактивная история с выбором и последствиями, где хочется дойти до конца и попробовать себя в разных ролях.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="flip-card" tabindex="0" title="Нажмите на карточку — подробности внутри">
+                <div class="flip-card-inner">
+                  <div class="flip-card-front">
+                    <span class="flip-card-emoji">📚</span>
+                    <h4>Хотите увеличить показатели вовлечения, доходиости и применения знаний на практике?</h4>
+                  </div>
+                  <div class="flip-card-back">
+                    <p>Со временем доходимость классических курсов падает, а связь между выученным и реальной работой слабая. В Интерактивити вы строите ветвящиеся кейсы‑тренажёры: знания тут же применяются в ситуациях «как в жизни», а навыки переносятся в реальные решения.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="flip-card" tabindex="0" title="Нажмите на карточку — подробности внутри">
+                <div class="flip-card-inner">
+                  <div class="flip-card-front">
+                    <span class="flip-card-emoji">📊</span>
+                    <h4>Ищите новый формат для учебы или привлечения клиентов в бизнесе?</h4>
+                  </div>
+                  <div class="flip-card-back">
+                    <p>Обычно вы видите только факт прохождения курса или клика по квизу. В Интерактивити каждый выбор — это сегментация и данные: кто как действует, где отваливается, какие сценарии ведут к результату. Можно масштабировать курсы и продукт на основе аналитики.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="flip-card flip-card-demo" tabindex="0" title="Посмотреть демо курс">
+                <div class="flip-card-inner">
+                  <div class="flip-card-front">
+                    <span class="flip-card-emoji">▶️</span>
+                    <h4>Есть решение! Запустите демо!</h4>
+                  </div>
+                  <div class="flip-card-back">
+                    <p>Откройте готовый интерактивный курс <strong>PeopleGames</strong> и пройдите сценарий как ваш ученик. Увидите, как работает конструктор на живом примере.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="product-layout-text">
+            <div class="product-intro">
+              <p><strong>Интерактивный сценарий (ИС)</strong> — это история или кейс, в котором пользователь сам делает выбор: отвечает на вопросы, нажимает варианты, принимает решения. От каждого выбора зависит, что произойдёт дальше: сюжет ветвится, можно прийти к разным концовкам или переиграть и попробовать другой путь.</p>
+              <p><strong>Конструктор интерактивных сценариев (КИС)</strong> — инструмент для создания таких сценариев без программирования: визуальный редактор сцен, выборов и исходов и учебная платформа для назначения курсов и просмотра отчётов в одном месте.</p>
+            </div>
+            <div class="product-diagram-wrap">
+              <img class="product-diagram" src="img/Product.png" alt="Схема: интерактивный сценарий — узлы и ветвления" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="role-slide graph-node-section landing-slide" id="role" data-slide="2">
+    <div class="slide-card">
+      <div class="slide-card-body">
+        <div class="role-slide-inner">
+          <h2 class="font-display">Кто вы?</h2>
+          <p style="margin-bottom: 0.75rem;">Выберите роль — покажем, чем Интерактивити полезен лично вам.</p>
+          <div class="role-choices">
+            <button type="button" class="role-choice" data-role="teacher">
+              <img class="role-choice-icon" src="img/Roles/Role1.png" alt="Преподаватель" />
+              <span class="role-choice-title">Преподаватель</span>
+              <span class="role-choice-caption">Живые сценарии вместо сухих лекций.</span>
+            </button>
+            <button type="button" class="role-choice" data-role="methodist">
+              <img class="role-choice-icon" src="img/Roles/Role2.png" alt="Методист" />
+              <span class="role-choice-title">Методист</span>
+              <span class="role-choice-caption">Собираете кейсы и тренажёры без программиста.</span>
+            </button>
+            <button type="button" class="role-choice" data-role="producer">
+              <img class="role-choice-icon" src="img/Roles/Role3.png" alt="Продюсер" />
+              <span class="role-choice-title">Продюсер</span>
+              <span class="role-choice-caption">Масштабируете продукт интерактивными курсами.</span>
+            </button>
+            <button type="button" class="role-choice" data-role="marketer">
+              <img class="role-choice-icon" src="img/Roles/Role4.png" alt="Маркетолог" />
+              <span class="role-choice-title">Маркетолог</span>
+              <span class="role-choice-caption">Строите сценарии, которые прогревают и сегментируют.</span>
+            </button>
+            <button type="button" class="role-choice" data-role="manager">
+              <img class="role-choice-icon" src="img/Roles/Role5.png" alt="Руководитель" />
+              <span class="role-choice-title">Руководитель</span>
+              <span class="role-choice-caption">Обучаете команду в безопасных сценариях и видите результаты.</span>
+            </button>
+            <button type="button" class="role-choice" data-role="other">
+              <img class="role-choice-icon" src="img/Roles/Role6.png" alt="Другая роль" />
+              <span class="role-choice-title">Другая роль</span>
+              <span class="role-choice-caption">Подберём сценарии под вашу задачу.</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="for-you-slide graph-node-section landing-slide" id="forYou" data-slide="3">
+    <div class="slide-card">
+      <div class="slide-card-body">
+        <div class="for-you-slide-inner">
+          <div class="for-you-header">
+            <img id="forYouRoleIcon" class="for-you-role-icon" src="img/Roles/Role6.png" alt="" />
+            <h2 class="font-display" id="forYouTitle">Для вас</h2>
+          </div>
+          <ul id="forYouList" class="text-left for-you-list"></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="graph-node-section landing-slide" id="how" data-slide="4">
+    <div class="slide-card">
+      <div class="slide-card-body">
+        <h2 class="font-display">Как это работает</h2>
+        <p>Нажмите на карточку — шаги внутри.</p>
+        <div class="flip-cards col-4">
+          <div class="flip-card" tabindex="0">
+            <div class="flip-card-inner">
+              <div class="flip-card-front">
+                <span class="flip-card-emoji">📄</span>
+                <h4 class="how-scenes-title">1. Сцены и контент</h4>
+              </div>
+              <div class="flip-card-back">
+                <p>Добавляйте экраны с текстом, изображениями и медиа. Собирайте сценарий из сцен.</p>
+              </div>
+            </div>
+          </div>
+          <div class="flip-card" tabindex="0">
+            <div class="flip-card-inner">
+              <div class="flip-card-front">
+                <span class="flip-card-emoji">🔀</span>
+                <h4 class="how-choices-title">
+                  <span>2</span><span>.</span><span>&nbsp;</span>
+                  <span>В</span><span>ы</span><span>б</span><span>о</span><span>р</span><span>ы</span>
+                  <span>&nbsp;</span>
+                  <span>и</span>
+                  <span>&nbsp;</span>
+                  <span>в</span><span>е</span><span>т</span><span>в</span><span>л</span><span>е</span><span>н</span><span>и</span><span>я</span>
+                </h4>
+              </div>
+              <div class="flip-card-back">
+                <p>Настраивайте варианты ответов и переходы к следующим сценам. Ветвящаяся логика без кода.</p>
+              </div>
+            </div>
+          </div>
+          <div class="flip-card" tabindex="0">
+            <div class="flip-card-inner">
+              <div class="flip-card-front">
+                <span class="flip-card-emoji how-launch-rocket">🚀</span>
+                <h4>3. Назначение и запуск</h4>
+              </div>
+              <div class="flip-card-back">
+                <p>Назначайте курсы сотрудникам или ученикам в одной платформе. Запуск в один клик.</p>
+              </div>
+            </div>
+          </div>
+          <div class="flip-card" tabindex="0">
+            <div class="flip-card-inner">
+              <div class="flip-card-front">
+                <span class="flip-card-emoji how-report-bars" aria-hidden="true">
+                  <span class="how-report-bar bar-1"></span>
+                  <span class="how-report-bar bar-2"></span>
+                  <span class="how-report-bar bar-3"></span>
+                </span>
+                <h4>4. Отчёты</h4>
+              </div>
+              <div class="flip-card-back">
+                <p>Смотрите прогресс, результаты и время прохождения по каждому ученику или курсу.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section graph-node-section landing-slide" id="demo" data-slide="6">
+    <div class="slide-card">
+      <div class="slide-card-body">
+        <h2 class="font-display">Попробуйте демо</h2>
+        <p>Примеры курсов, собранных в Интерактивити. Запустите и почувствуйте формат «изнутри».</p>
+        <div class="demo-courses">
+          <article class="demo-course">
+            <a href="../PeopleGames/index.html" class="demo-course demo-course-one-click" target="_blank" rel="noopener">
+              <img class="demo-course-img" src="../PeopleGames/assets/images/First.png" alt="Офисные игры" />
+              <div class="demo-course-body">
+                <h3>Офисные игры: эволюция из пешки в гроссмейстера</h3>
+                <p>Интерактивная новелла по Берну: как не стать пешкой в корпоративных играх и выстроить свою стратегию.</p>
+                <span class="demo-course-link">Пройти курс →</span>
+              </div>
+            </a>
+          </article>
+          <article class="demo-course">
+            <div class="demo-course-placeholder">Скоро</div>
+            <div class="demo-course-body">
+              <h3>Переговоры без поражений</h3>
+              <p>Сценарий переговоров с ветвлениями: выбор тактики, реакция оппонента и итоговый контракт.</p>
+              <a href="#form" class="demo-course-link">Узнать о запуске →</a>
+            </div>
+          </article>
+          <article class="demo-course">
+            <div class="demo-course-placeholder">Скоро</div>
+            <div class="demo-course-body">
+              <h3>Лидер за 21 день</h3>
+              <p>Ежедневные микросценарии: решения в роли руководителя и обратная связь от команды.</p>
+              <a href="#form" class="demo-course-link">Узнать о запуске →</a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section graph-node-section landing-slide" id="features" data-slide="6">
+    <div class="slide-card">
+      <div class="slide-card-body">
+        <h2 class="font-display">Возможности</h2>
+        <p>Три формата работы: курс под ключ, доступ к LMS и конструктор (скоро).</p>
+        <div class="demo-courses">
+          <article class="demo-course features-course" id="featuresCourseKey">
+            <div class="features-course-inner">
+              <div class="features-course-front">
+                <img class="demo-course-img" src="img/key.png" alt="Курс под ключ на платформе Интерактивити" />
+                <div class="demo-course-body">
+                  <h3>Курс под ключ</h3>
+                  <p>Разработка технической части сценарного курса на нашей платформе: логика, переходы, трекинг и интеграции.</p>
+                  <button type="button" class="auth-tab auth-tab-active features-course-btn" data-action="request-course">
+                    Оставить заявку
+                  </button>
+                </div>
+              </div>
+              <div class="features-course-back">
+                <div class="demo-course-body">
+                  <h3>Оставить заявку</h3>
+                  <form class="auth-form features-request-form" action="#" method="get">
+                    <label for="featuresName">Имя</label>
+                    <input type="text" id="featuresName" name="name" placeholder="Как к вам обращаться?" />
+
+                    <label for="featuresContact">Контакт (email/телефон/др.)</label>
+                    <input type="text" id="featuresContact" name="contact" placeholder="you@company.ru, +7..." />
+
+                    <label for="featuresMessage">Сообщение</label>
+                    <textarea id="featuresMessage" name="message" rows="3">Здравствуйте! Хотим заказать у вас курс. Напишите нам!</textarea>
+
+                    <button type="button" class="auth-tab auth-tab-active features-course-btn features-send-btn">
+                      Отправить
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </article>
+          <article class="demo-course">
+            <img class="demo-course-img" src="img/lms.png" alt="Учебная платформа Интерактивити" />
+            <div class="demo-course-body">
+              <h3>Учебная платформа</h3>
+              <p>Назначение курсов, учёт прохождения и встроенная система управления обучением в одном месте.</p>
+              <button type="button" class="auth-tab auth-tab-active features-course-btn features-lms-btn">
+                Попробовать
+              </button>
+            </div>
+          </article>
+          <article class="demo-course">
+            <img class="demo-course-img" src="img/kon.png" alt="Конструктор Интерактивити" />
+            <div class="demo-course-body">
+              <h3>Конструктор</h3>
+              <p>Самостоятельная работа в визуальном конструкторе интерактивных сценариев. Скоро доступен.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="form" class="form-section graph-node-section landing-slide" data-slide="7" style="display:flex;align-items:center;justify-content:center;flex-direction:column;">
+    <div class="slide-card">
+      <!-- Top: header (full-width, independent) -->
+      <div class="auth-top" style="width:100%;text-align:center;padding:1rem 0;">
+        <h2 class="font-display">Интерактивити</h2>
+        <p style="margin:0.25rem 0 0;">Войдите или зарегистрируйтесь, чтобы получить доступ к платформе.</p>
+      </div>
+      <!-- Bottom: form area (independent width / centered) -->
+      <div class="auth-bottom" style="width:100%;display:flex;justify-content:center;">
+        <div class="slide-card-body" style="width:100%;max-width:920px;">
+          <style>
+            /* Compact layout for auth slide to avoid vertical scrollbar */
+            .slide-card { width: 100%; }
+            .slide-card .slide-card-body { padding: 1rem 1rem; }
+            /* Stack tabs above the form and center everything */
+            .slide-card .auth-layout { display: flex; flex-direction: column; gap: .75rem; align-items: center; justify-content: center; width: 100%; }
+            .slide-card .auth-tabs { display:flex; gap:.5rem; align-items:center; justify-content:center; }
+            /* Force narrow form width (doubled) */
+            .slide-card .auth-forms { width: 346px !important; max-width: 346px !important; margin: 0 auto !important; }
+            /* Ensure authorization title stays reasonably sized */
+            .slide-card h2, .slide-card .slide-card-body > h2 { font-size: clamp(1.25rem, 2.2vw, 1.75rem); margin-bottom: .5rem; }
+            .slide-card .auth-forms { flex: 0 1 346px; min-width: 240px; max-width: 346px; width: 346px !important; }
+            .slide-card .auth-social { width: 100%; flex: none; display: flex; flex-direction: column; gap: .5rem; align-items: stretch; margin-top: .5rem; }
+            .slide-card .auth-form { display: flex; flex-direction: column; gap: .4rem; margin: 0; }
+            .slide-card .auth-form label { font-size: .92rem; margin-bottom: .12rem; }
+            .slide-card .auth-form input { padding: .45rem .5rem; font-size: .95rem; }
+            .slide-card .auth-actions { display:flex; gap:.5rem; justify-content: flex-start; align-items: center; }
+            .slide-card .auth-primary, .slide-card .auth-secondary, .slide-card .auth-google { padding: .45rem .6rem; font-size: .95rem; width: auto; }
+            .slide-card .auth-google { width: 100%; display: inline-flex; align-items: center; justify-content: center; gap:.5rem; }
+            .slide-card .auth-divider { align-self: center; margin: 0 .5rem; }
+            .slide-card .auth-hint, .slide-card .auth-note { font-size: .85rem; margin: 0; color: var(--text-muted); }
+            .slide-card .modal { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 340px; max-width: 90%; padding: .75rem; box-shadow: 0 8px 24px rgba(0,0,0,.15); border-radius:8px; }
+            @media (max-width: 1100px) {
+              .slide-card h2, .slide-card .slide-card-body > h2 { font-size: clamp(1rem, 2vw, 1.4rem); }
+              .slide-card .auth-forms { max-width: 100%; min-width: 0; }
+              .auth-top { padding: .75rem 0; }
+            }
+            @media (max-width: 900px), (max-height: 800px) {
+              .slide-card .auth-layout { flex-direction: column; gap: .75rem; }
+              .slide-card .auth-social { width: 100%; flex: none; }
+              .slide-card .auth-forms { max-width: 100%; }
+              .slide-card .slide-card-body { padding: .6rem .6rem; }
+            }
+          </style>
+
+        <div class="auth-layout">
+          <div class="auth-tabs" role="tablist" aria-label="Авторизация">
+            <button type="button" class="auth-tab auth-tab-active" data-mode="login" role="tab" aria-selected="true">Войти</button>
+            <button type="button" class="auth-tab" data-mode="register" role="tab" aria-selected="false">Регистрация</button>
+          </div>
+
+          <div class="auth-forms">
+            <!-- Single form where fields adapt to selected tab -->
+            <form id="authForm" class="auth-form" action="#" method="post" novalidate>
+              <label for="authEmailField">Email</label>
+              <input type="email" id="authEmailField" name="email" placeholder="you@company.ru" autocomplete="email" required />
+
+              <div id="passwordField" class="password-field">
+                <label for="authPasswordField">Пароль</label>
+                <input type="password" id="authPasswordField" name="password" placeholder="Пароль" autocomplete="current-password" required />
+              </div>
+
+              <div class="auth-actions">
+                <button type="submit" class="btn auth-primary" id="authPrimary">Войти</button>
+                <button type="button" class="btn auth-secondary" id="authSecondary" hidden>Войти</button>
+              </div>
+
+              <button type="button" class="auth-link" id="forgotPasswordBtn">Забыли пароль?</button>
+
+              <div class="auth-divider" aria-hidden="true" style="margin-top:.5rem;"><span>или</span></div>
+
+              <div class="auth-social" aria-hidden="false">
+                <button type="button" class="btn auth-google" id="authGoogleBtn">
+                  <span class="auth-google-icon" aria-hidden="true">G</span>
+                  <span id="authGoogleLabel">Войти через Google</span>
+                </button>
+                <p class="auth-hint">Авторизация через Google будет подключена позже. Сейчас это только макет интерфейса.</p>
+              </div>
+            </form>
+          </div>
+
+          
+
+          <!-- Simple password recovery modal (visual only) -->
+          <div id="forgotModal" class="modal" hidden aria-hidden="true">
+            <div class="modal-body">
+              <h3>Восстановление пароля</h3>
+              <p>Введите ваш email, и мы отправим ссылку для восстановления пароля.</p>
+              <label for="recoverEmail">Email</label>
+              <input type="email" id="recoverEmail" placeholder="you@company.ru" autocomplete="email" />
+              <div style="display:flex;gap:.5rem;margin-top:.75rem;">
+                <button type="button" class="btn auth-primary" id="recoverSend">Отправить</button>
+                <button type="button" class="btn" id="recoverCancel">Отмена</button>
+              </div>
+            </div>
+          </div>
+
+          <script>
+            (function(){
+              const tabs = document.querySelectorAll('.auth-tab');
+              const emailField = document.getElementById('authEmailField');
+              const passwordField = document.getElementById('passwordField');
+              const passwordInput = document.getElementById('authPasswordField');
+              const primaryBtn = document.getElementById('authPrimary');
+              const googleLabel = document.getElementById('authGoogleLabel');
+              const authGoogleBtn = document.getElementById('authGoogleBtn');
+
+              function switchMode(mode){
+                tabs.forEach(t => {
+                  const is = t.dataset.mode === mode;
+                  t.classList.toggle('auth-tab-active', is);
+                  t.setAttribute('aria-selected', String(is));
+                });
+                const isRegister = mode === 'register';
+                // password is required for both modes (registration also asks password)
+                if (passwordInput) passwordInput.required = true;
+                // no secondary inline switch button — tabs are used for navigation
+                // forgot password visible only on login
+                const forgotBtn = document.getElementById('forgotPasswordBtn');
+                if (forgotBtn) forgotBtn.hidden = isRegister;
+                // primary button label change
+                primaryBtn.textContent = isRegister ? 'Создать аккаунт' : 'Войти';
+                // google label
+                googleLabel.textContent = isRegister ? 'Зарегистрироваться через Google' : 'Войти через Google';
+                // save auth mode
+                try { localStorage.setItem('interactivity_auth_mode', mode); } catch (e) {}
+              }
+
+              tabs.forEach(t => t.addEventListener('click', () => switchMode(t.dataset.mode)));
+
+              // Forgot password modal (visual only)
+              const forgotBtn = document.getElementById('forgotPasswordBtn');
+              const forgotModal = document.getElementById('forgotModal');
+              const recoverCancel = document.getElementById('recoverCancel');
+              const recoverSend = document.getElementById('recoverSend');
+              forgotBtn && forgotBtn.addEventListener('click', () => {
+                forgotModal.hidden = false;
+                forgotModal.setAttribute('aria-hidden','false');
+              });
+              recoverCancel && recoverCancel.addEventListener('click', () => {
+                forgotModal.hidden = true;
+                forgotModal.setAttribute('aria-hidden','true');
+              });
+              recoverSend && recoverSend.addEventListener('click', () => {
+                recoverSend.textContent = 'Отправлено';
+                setTimeout(() => {
+                  recoverSend.textContent = 'Отправить';
+                  forgotModal.hidden = true;
+                  forgotModal.setAttribute('aria-hidden','true');
+                }, 1200);
+              });
+
+              // Ensure initial state (use saved mode, если есть)
+              var initialMode = 'login';
+              try {
+                var savedMode = localStorage.getItem('interactivity_auth_mode');
+                if (savedMode === 'register' || savedMode === 'login') initialMode = savedMode;
+              } catch (e) {}
+              switchMode(initialMode);
+            })();
+          </script>
+          <script type="module">
+            import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.48.0';
+
+            const SUPABASE_URL = 'https://gefieowdfimehhnqdiwk.supabase.co';
+            const SUPABASE_ANON_KEY = 'sb_publishable_P6YBUwpPIYJBoUHkDz2s9A_03CZzq9S';
+
+            const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+            const form = document.getElementById('authForm');
+            const tabs = document.querySelectorAll('.auth-tab');
+            const emailInput = document.getElementById('authEmailField');
+            const passwordInput = document.getElementById('authPasswordField');
+            const primaryBtn = document.getElementById('authPrimary');
+            const forgotBtn = document.getElementById('forgotPasswordBtn');
+            const recoverEmailInput = document.getElementById('recoverEmail');
+            const recoverSend = document.getElementById('recoverSend');
+
+            function getMode() {
+              const active = document.querySelector('.auth-tab.auth-tab-active');
+              return active ? active.dataset.mode : 'login';
+            }
+
+            function showInlineMessage(text, type = 'info') {
+              let node = document.getElementById('authMessage');
+              if (!node) {
+                node = document.createElement('p');
+                node.id = 'authMessage';
+                node.className = 'auth-note';
+                const formEl = document.getElementById('authForm');
+                if (formEl) {
+                  formEl.insertBefore(node, formEl.firstChild);
+                } else {
+                  document.body.appendChild(node);
+                }
+              }
+              node.textContent = text;
+              node.style.color = type === 'error' ? '#d9534f' : (type === 'success' ? '#28a745' : '');
+            }
+
+            async function handleRegister(email, password) {
+              const { data, error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                  emailRedirectTo: window.location.origin + '/landing/index.html#form'
+                }
+              });
+              if (error) throw error;
+
+              return data;
+            }
+
+            async function handleLogin(email, password) {
+              const { data, error } = await supabase.auth.signInWithPassword({
+                email,
+                password
+              });
+              if (error) throw error;
+              return data;
+            }
+
+            async function handleResetPassword(email) {
+              const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin + '/landing/index.html#form'
+              });
+              if (error) throw error;
+              return data;
+            }
+
+            function setLoading(isLoading) {
+              if (!primaryBtn) return;
+              primaryBtn.disabled = isLoading;
+              primaryBtn.dataset.originalText = primaryBtn.dataset.originalText || primaryBtn.textContent;
+              primaryBtn.textContent = isLoading ? 'Подождите…' : primaryBtn.dataset.originalText;
+            }
+
+            if (form && emailInput && passwordInput && primaryBtn) {
+              form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const mode = getMode();
+                const email = emailInput.value.trim();
+                const password = passwordInput.value;
+
+                if (!email || !password) {
+                  showInlineMessage('Введите email и пароль.', 'error');
+                  return;
+                }
+
+                setLoading(true);
+                try {
+                  if (mode === 'register') {
+                    await handleRegister(email, password);
+                    showInlineMessage('Проверьте почту для подтверждения регистрации.', 'success');
+                  } else {
+                    await handleLogin(email, password);
+                    showInlineMessage('Успешный вход. Сейчас перенаправим…', 'success');
+                    setTimeout(() => {
+                      window.location.href = 'app.html';
+                    }, 800);
+                  }
+                } catch (err) {
+                  console.error(err);
+                  showInlineMessage(err.message || 'Не удалось выполнить операцию.', 'error');
+                } finally {
+                  setLoading(false);
+                }
+              });
+            }
+
+            if (forgotBtn && recoverEmailInput && recoverSend) {
+              recoverSend.addEventListener('click', async () => {
+                const email = recoverEmailInput.value.trim();
+                if (!email) {
+                  showInlineMessage('Введите email для восстановления пароля.', 'error');
+                  return;
+                }
+                recoverSend.disabled = true;
+                recoverSend.textContent = 'Отправляем…';
+                try {
+                  await handleResetPassword(email);
+                  showInlineMessage('Если этот email зарегистрирован, мы отправили письмо для сброса пароля.', 'success');
+                } catch (err) {
+                  console.error(err);
+                  showInlineMessage(err.message || 'Не удалось отправить письмо для восстановления.', 'error');
+                } finally {
+                  recoverSend.disabled = false;
+                  recoverSend.textContent = 'Отправить';
+                }
+              });
+            }
+
+            tabs.forEach((tab) => {
+              tab.addEventListener('click', () => {
+                const mode = getMode();
+                if (primaryBtn) {
+                  primaryBtn.dataset.originalText = mode === 'register' ? 'Создать аккаунт' : 'Войти';
+                  primaryBtn.textContent = primaryBtn.dataset.originalText;
+                }
+              });
+            });
+          </script>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="faq graph-node-section landing-slide" id="faq" data-slide="8">
+    <div class="slide-card">
+      <!-- Header placed where image was -->
+      <div class="slide-card-header" style="width:100%;text-align:center;padding:1rem 0;">
+        <h2 class="font-display">Частые вопросы</h2>
+      </div>
+      <div class="slide-card-body">
+        <p>Нажмите на карточку — ответ внутри.</p>
+        <div class="flip-cards col-3">
+          <div class="flip-card" tabindex="0">
+            <div class="flip-card-inner">
+              <div class="flip-card-front">
+                <span class="flip-card-emoji">❓</span>
+                <h4>Что такое интерактивный сценарий?</h4>
+              </div>
+              <div class="flip-card-back">
+                <p>Это формат обучения, где ученик видит ситуацию, делает выбор (ответ или действие) и в зависимости от выбора переходит к разным сценам. Так моделируют диалоги, кейсы и тренажёры.</p>
+              </div>
+            </div>
+          </div>
+          <div class="flip-card" tabindex="0">
+            <div class="flip-card-inner">
+              <div class="flip-card-front">
+                <span class="flip-card-emoji">💻</span>
+                <h4>Нужно ли программирование?</h4>
+              </div>
+              <div class="flip-card-back">
+                <p>Нет. Конструктор позволяет собирать сцены, варианты ответов и переходы визуально, без кода.</p>
+              </div>
+            </div>
+          </div>
+          <div class="flip-card" tabindex="0">
+            <div class="flip-card-inner">
+              <div class="flip-card-front">
+                <span class="flip-card-emoji">📤</span>
+                <h4>Загрузка курсов в нашу СДО?</h4>
+              </div>
+              <div class="flip-card-back">
+                <p>Да. Курсы можно экспортировать в формате SCORM и загружать в любую СДО. В Интерактивити есть и встроенная учебная платформа.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <footer style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); font-size: 0.85rem;">
+          <p>Интерактивити — конструктор интерактивных сценариев</p>
+          <p style="margin-top: 0.25rem;"><a href="#documents" style="color: inherit;">Документы</a> · <a href="#contacts" style="color: inherit;">Контакты</a></p>
+        </footer>
+      </div>
+    </div>
+  </section>
+
+  <section class="graph-node-section landing-slide" id="contacts" data-slide="9">
+    <div class="slide-card">
+      <!-- Header placed where image was -->
+      <div class="slide-card-header" style="width:100%;text-align:center;padding:1.25rem 0 0.5rem;">
+        <h2 class="font-display" style="margin:0;">Контакты</h2>
+      </div>
+      <div class="slide-card-body" style="padding-top:0.5rem;">
+        
+
+        <style>
+          .contacts-card {
+            width: 100%;
+            max-width: 760px;
+            margin: 0 auto;
+            box-sizing: border-box;
+            background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 0.5rem;
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+            box-shadow: 0 12px 30px rgba(10, 12, 20, 0.06);
+            overflow: hidden;
+            animation: fadeUp 420ms cubic-bezier(.2,.9,.3,1) both;
+            min-height: 120px;
+          }
+          .contacts-card .contacts-icon {
+            flex: 0 0 72px;
+            height: 72px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(129,140,248,0.06));
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:28px;
+            color:var(--accent);
+          }
+          .contacts-card .contacts-body {
+            flex: 1;
+            display: grid;
+            gap: .5rem;
+            align-items: start;
+            min-width: 0;
+          }
+          .card-title {
+            margin: 0 0 .25rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+          }
+          .contacts-row {
+            display:flex;
+            gap: .75rem;
+            align-items: center;
+          }
+          .contacts-row strong {
+            width: 120px;
+            flex: 0 0 120px;
+            color: var(--text-muted);
+            font-weight:600;
+          }
+          .contacts-row a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            overflow-wrap: anywhere;
+          }
+          .contacts-card .cta-row {
+            display:flex;
+            gap:.6rem;
+            margin-top:.25rem;
+          }
+          .contacts-card .contact-cta {
+            padding:.5rem .8rem;
+            border-radius:10px;
+            background:var(--accent);
+            color:#fff;
+            text-decoration:none;
+            font-weight:600;
+            box-shadow: 0 8px 20px rgba(99,102,241,0.12);
+          }
+          @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          @media (max-width: 720px) {
+            .contacts-card { flex-direction: column; align-items: stretch; padding: .75rem; }
+            .contacts-card .contacts-icon { align-self: center; }
+            .contacts-row strong { width: 90px; flex: 0 0 90px; }
+          }
+          /* Реквизиты — оформить как карточку той же ширины и высоты */
+          .requisites-card {
+            width: 100%;
+            max-width: 760px;
+            margin: 0 auto;
+            box-sizing: border-box;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0.9rem;
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+            min-height: 120px;
+          }
+          .requisites-card .requisites-icon {
+            flex: 0 0 56px;
+            height: 56px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(129,140,248,0.03));
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:26px;
+            color:var(--accent);
+          }
+          .requisites-card .requisites-body { flex:1; display:block; }
+          .requisites-card h4 { margin:0 0 .5rem; font-size:1rem; }
+          @media (max-width: 720px) {
+            .requisites-card { flex-direction: column; align-items: stretch; }
+            .requisites-card .requisites-icon { align-self: center; }
+          }
+        </style>
+
+        <!-- Контактная карточка (первая) -->
+        <div class="card-wrap" style="max-width:760px;margin:0 auto;width:100%;">
+          <!-- Заголовок блока контактов вне карточки, как у реквизитов -->
+          <h4 class="card-title" style="margin:0 0 0.35rem;text-align:left;">Свяжитесь с нами любым удобным способом</h4>
+
+          <div class="contacts-card" role="group" aria-label="Контактная информация">
+            <style>
+              .contacts-table { width:100%; border-collapse: collapse; }
+              .contacts-table td { vertical-align: middle; padding: 0.5rem 0.75rem; }
+              .contacts-table .avatar-cell { width:72px; padding:0; }
+              .contacts-table img { width:72px;height:72px;object-fit:cover;border-radius:8px;display:block; }
+              .contacts-table .label { width:120px; color:var(--text-muted); font-weight:600; white-space:nowrap; }
+              .contacts-table .value { font-weight:600; }
+            </style>
+            <table class="contacts-table" role="table" aria-label="Контакты">
+              <tr>
+                <td class="avatar-cell" rowspan="4" style="padding-right:.75rem;">
+                  <div class="contacts-icon" aria-hidden="true" style="width:72px;height:72px;display:flex;align-items:center;justify-content:center;font-size:28px;background:linear-gradient(135deg, rgba(99,102,241,0.12), rgba(129,140,248,0.06));border-radius:8px;color:var(--accent);">📬</div>
+                </td>
+                <td class="label">Email</td>
+                <td class="value"><a href="mailto:bormotovilya@gmail.com" style="color:var(--accent);text-decoration:none;">bormotovilya@gmail.com</a></td>
+              </tr>
+              <tr>
+                <td class="label">Телефон</td>
+                <td class="value"><a href="tel:+79991237788" style="color:var(--accent);text-decoration:none;">+7 (999) 123-77-88</a></td>
+              </tr>
+              <tr>
+                <td class="label">Telegram</td>
+                <td class="value"><a href="https://t.me/ilyaborm" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;">@ilyaborm</a></td>
+              </tr>
+              <tr>
+                <td class="label">Max</td>
+                <td class="value"><a href="https://max.ru/u/f9LHodD0cOLaB2dAh1kVRRBoN8OZRxjXvaFbvKEeNqpTldYb0XJdrwT35GI" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;">Профиль на Max</a></td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- Заголовок реквизитов вынесен наружу -->
+          <h4 class="card-title" style="margin-top:0.75rem;text-align:left;">Реквизиты организации</h4>
+          <div class="requisites-card" role="group" aria-label="Реквизиты организации" style="padding:0.5rem;">
+            <style>
+              .requisites-table { width:100%; border-collapse: collapse; }
+              .requisites-table td { vertical-align: middle; padding: 0.5rem 0.75rem; border-bottom: 1px solid transparent; }
+              .requisites-table .label { color: var(--text-muted); font-weight: 600; width: 1px; white-space: nowrap; }
+              .requisites-table .value { font-weight: 600; }
+              .requisites-table .avatar-cell { width: 72px; padding: 0; }
+              .requisites-table .label { width: 120px; }
+              .requisites-table img { width: 72px; height: 72px; object-fit: cover; border-radius: 8px; display: block; }
+              @media (max-width:720px) {
+                .requisites-table td { padding: .45rem .5rem; }
+                .requisites-table img { width:56px;height:56px; }
+              }
+            </style>
+            <table class="requisites-table" role="table" aria-label="Реквизиты">
+              <tr>
+                <td class="avatar-cell" rowspan="3">
+                  <img src="img/Ava.png" alt="Аватар" />
+                </td>
+                <td class="label">ИП</td>
+                <td class="value">Бормотов Илья Михайлович</td>
+              </tr>
+              <tr>
+                <td class="label">ИНН</td>
+                <td class="value">590313353407</td>
+              </tr>
+              <tr>
+                <td class="label">ОГРНИП</td>
+                <td class="value">318595800124661</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="graph-node-section landing-slide" id="documents" data-slide="10">
+    <div class="slide-card">
+      <!-- Header placed where image was -->
+      <div class="slide-card-header" style="width:100%;text-align:center;padding:1.25rem 0 0.5rem;">
+        <h2 class="font-display" style="margin:0;">Документы</h2>
+      </div>
+      <div class="slide-card-body" style="padding-top:0.5rem;">
+        <p style="text-align:center;margin:0 0 1rem;color:var(--text-muted);">Правовая информация и условия использования.</p>
+
+        <style>
+          .docs-card {
+            max-width: 760px;
+            margin: 0 auto;
+            background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            box-shadow: 0 12px 30px rgba(10, 12, 20, 0.06);
+            overflow: hidden;
+            animation: fadeUp 420ms cubic-bezier(.2,.9,.3,1) both;
+          }
+          .docs-card .docs-icon {
+            flex: 0 0 82px;
+            height: 82px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(80, 200, 180, 0.08), rgba(80,200,180,0.03));
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:32px;
+            color:var(--accent);
+          }
+          .docs-card .docs-body {
+            flex: 1;
+            display: grid;
+            gap: .4rem;
+          }
+          .docs-row {
+            display:flex;
+            gap: .75rem;
+            align-items: flex-start;
+          }
+          .docs-row strong {
+            width: 140px;
+            flex: 0 0 140px;
+            color: var(--text-muted);
+            font-weight:600;
+            text-align: right;
+            padding-top: 0.1rem;
+          }
+          .docs-row a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            line-height: 1.3;
+          }
+          @media (max-width: 720px) {
+            .docs-card { flex-direction: column; align-items: stretch; padding: .75rem; }
+            .docs-card .docs-icon { align-self: center; }
+            .docs-row strong { width: 90px; flex: 0 0 90px; }
+          }
+        </style>
+
+        <div class="docs-card" role="group" aria-label="Документы и политика">
+          <div class="docs-icon" aria-hidden="true">📄</div>
+            <div class="docs-body">
+              <div class="docs-row"><a href="docs/policy.html" class="doc-link">Политика конфиденциальности и обработки персональных данных</a></div>
+              <div class="docs-row"><a href="docs/demo-agreement.html" class="doc-link">Сервисное соглашение (демо‑доступ)</a></div>
+              <div class="docs-row"><a href="docs/service-contract.html" class="doc-link">Типовой договор оказания услуг (для компаний)</a></div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  </div>
+
+  <nav class="slide-nav" aria-label="Навигация по слайдам">
+    <button type="button" class="slide-nav-prev" id="btnPrev" aria-label="Назад" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+    </button>
+    <button type="button" class="slide-nav-next" id="btnNext" aria-label="Вперёд">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+    </button>
+  </nav>
+
+  <div class="landing-progress" id="landingProgress" aria-label="Прогресс">
+    <div class="landing-progress-dots" id="landingProgressDots"></div>
+    <span class="landing-progress-counter" id="landingProgressCounter">1 / 12</span>
+  </div>
+
+  <div class="cookie-consent hidden" id="cookieConsent" role="dialog" aria-label="Согласие на использование cookie" aria-hidden="true">
+    <p class="cookie-consent-text">Мы используем cookies.</p>
+    <button type="button" class="cookie-consent-accept" id="cookieAccept">Принять</button>
+  </div>
+
+  <script>
+    (function() {
+      var TOTAL_SLIDES = 11;
+      var currentSlide = 0;
+      var slidesContainer = document.getElementById('landingSlides');
+      var slides = document.querySelectorAll('.landing-slide');
+      var progressDots = document.getElementById('landingProgressDots');
+      var progressCounter = document.getElementById('landingProgressCounter');
+      var btnPrev = document.getElementById('btnPrev');
+      // Индекс слайда авторизации (Попробовать Интерактивити), чтобы блокировать перелистывание именно на нём
+      var authSlideEl = document.getElementById('form');
+      var authSlideIndex = authSlideEl ? Array.prototype.indexOf.call(slides, authSlideEl) : -1;
+
+      var ROLE_ICONS = {
+        teacher: 'img/Roles/Role1.png',
+        methodist: 'img/Roles/Role2.png',
+        producer: 'img/Roles/Role3.png',
+        marketer: 'img/Roles/Role4.png',
+        manager: 'img/Roles/Role5.png',
+        other: 'img/Roles/Role6.png'
+      };
+      var ROLE_BENEFITS = {
+        teacher: {
+          title: 'Для преподавателя',
+          items: ['Вовлечение учеников через выбор и последствия', 'Свои решения и сценарии без программиста', 'Ученики видят последствия выбора и могут переиграть', 'Узнают себя в ситуациях и отрабатывают навыки'],
+          emojis: ['🎯', '✏️', '🔄', '🪞']
+        },
+        methodist: {
+          title: 'Для методиста',
+          items: ['Вовлечение и доходимость до конца сценария', 'Безопасная среда для отработки навыков', 'Теория через практику в ветвящихся кейсах', 'Единый конструктор и платформа без разрывов'],
+          emojis: ['📈', '🛡️', '📚', '🧩']
+        },
+        producer: {
+          title: 'Для продюсера',
+          items: ['Масштаб: много курсов и сценариев в одной платформе', 'Аналитика и отчёты по прохождению', 'Быстрый запуск без разработки', 'Встраивание и дифференциация продукта', 'Вирусность через вовлекающие сценарии'],
+          emojis: ['📐', '📊', '🚀', '🔌', '🔥']
+        },
+        marketer: {
+          title: 'Для маркетолога',
+          items: ['Сегментация и персонализация по выбору пользователя', 'Дифференциация продукта интерактивом', 'Масштаб и вирусность сценариев', 'Данные о выборах для доработки офферов'],
+          emojis: ['🎯', '✨', '📈', '📋']
+        },
+        manager: {
+          title: 'Для руководителя',
+          items: ['Обучение без программистов и сложных инструментов', 'Отчёты и прогресс по сотрудникам в одной платформе', 'Масштаб: назначение и контроль многих курсов', 'Безопасная среда для отработки решений', 'Быстрое внедрение без интеграций'],
+          emojis: ['👥', '📊', '📐', '🛡️', '⚡']
+        },
+        other: {
+          title: 'Для вас',
+          items: ['Вовлечение через интерактив и последствия выбора', 'Аналитика и отчёты по прохождению', 'Масштаб: конструктор и учебная платформа в одном месте', 'Без кода: визуальный редактор сценариев', 'Экспорт в СДО и встроенная платформа'],
+          emojis: ['🎯', '📊', '📐', '🖱️', '📤']
+        }
+      };
+
+      var howStepsAnimated = false;
+      var howChoicesInitialized = false;
+      var howChoicesIntervalId = null;
+
+      function goToSlide(i) {
+        i = Math.max(0, Math.min(TOTAL_SLIDES - 1, i));
+        currentSlide = i;
+        slides.forEach(function(slide, idx) {
+          slide.classList.toggle('active', idx === i);
+        });
+        if (progressDots) {
+          var dots = progressDots.querySelectorAll('.landing-progress-dot');
+          dots.forEach(function(dot, idx) { dot.classList.toggle('active', idx === i); });
+        }
+        if (progressCounter) progressCounter.textContent = (i + 1) + ' / ' + TOTAL_SLIDES;
+        // Сохраняем последний просмотренный слайд
+        try { localStorage.setItem('interactivity_last_slide', String(i)); } catch (e) {}
+        // Обновляем hash в адресной строке под текущий слайд
+        var activeSlide = slides[i];
+        if (activeSlide && activeSlide.id) {
+          var newHash = '#' + activeSlide.id;
+          if (window.location.hash !== newHash) {
+            history.replaceState(null, '', newHash);
+          }
+        }
+        if (btnPrev) btnPrev.disabled = (i === 0);
+
+        // Пошаговая анимация карточек на слайде «Как это работает»
+        if (i === 4 && typeof gsap !== 'undefined' && !howStepsAnimated) {
+          var howCards = document.querySelectorAll('#how .flip-cards.col-4 .flip-card');
+          if (howCards.length) {
+            gsap.set(howCards, { opacity: 0, y: 32 });
+            var tl = gsap.timeline({ defaults: { duration: 1, ease: 'power2.out' } });
+            howCards.forEach(function(card) {
+              tl.to(card, { opacity: 1, y: 0 });
+            });
+            howStepsAnimated = true;
+          }
+        }
+
+        // Полёт ракеты на третьей карточке каждый раз при заходе на слайд «Как это работает»
+        if (i === 4 && typeof gsap !== 'undefined') {
+          var rocket = document.querySelector('#how .flip-cards.col-4 .flip-card:nth-child(3) .how-launch-rocket');
+          if (rocket) {
+            gsap.fromTo(rocket,
+              {
+                opacity: 0,
+                x: -80,
+                y: 40,
+                rotate: -25
+              },
+              {
+                opacity: 1,
+                x: 0,
+                y: 0,
+                rotate: 0,
+                duration: 0.5,
+                ease: 'power2.inOut',
+                delay: 2.3 // чуть позже, чем завершится анимация появления третьей карточки
+              }
+            );
+          }
+        }
+
+        // Хаотичный разлёт и сборка букв на второй карточке «Как это работает»
+        if (i === 4 && !howChoicesInitialized) {
+          initHowChoicesChaos();
+        }
+      }
+
+      function initHowChoicesChaos() {
+        var slide = document.getElementById('how');
+        if (!slide) return;
+        var title = slide.querySelector('.how-choices-title');
+        if (!title) return;
+        var spans = Array.prototype.slice.call(title.querySelectorAll('span'));
+        if (!spans.length) return;
+
+        // Шаг 1: создаём скрытый измерительный клон для вычисления идеальных позиций букв
+        var measure = title.cloneNode(true);
+        measure.style.position = 'absolute';
+        measure.style.visibility = 'hidden';
+        measure.style.pointerEvents = 'none';
+        measure.style.whiteSpace = 'normal';
+        measure.style.left = '0';
+        measure.style.top = '0';
+        title.parentNode.insertBefore(measure, title.nextSibling);
+
+        var measureRect = measure.getBoundingClientRect();
+        var measureSpans = Array.prototype.slice.call(measure.querySelectorAll('span'));
+        if (measureSpans.length !== spans.length) {
+          // На всякий случай, если что-то пошло не так, просто убираем измеритель и выходим
+          measure.parentNode.removeChild(measure);
+          return;
+        }
+
+        var letters = [];
+        for (var idx = 0; idx < spans.length; idx++) {
+          var mSpan = measureSpans[idx];
+          var r = mSpan.getBoundingClientRect();
+          var left = r.left - measureRect.left;
+          var top = r.top - measureRect.top;
+          letters.push({ el: spans[idx], left: left, top: top });
+        }
+
+        // Измеритель больше не нужен
+        measure.parentNode.removeChild(measure);
+
+        // Шаг 2: фиксируем высоту и переводим реальные спаны в абсолютные координаты
+        title.style.position = 'relative';
+        title.style.display = 'inline-block';
+        var baseHeight = title.offsetHeight || 0;
+        if (baseHeight) {
+          title.style.minHeight = baseHeight + 'px';
+        }
+
+        letters.forEach(function(item) {
+          item.el.classList.add('how-choices-letter');
+          item.el.style.position = 'absolute';
+          item.el.style.left = item.left + 'px';
+          item.el.style.top = item.top + 'px';
+        });
+
+        function scatter() {
+          var slideNow = document.getElementById('how');
+          if (!slideNow || !slideNow.classList.contains('active')) return;
+          var w = title.offsetWidth || 160;
+          var h = baseHeight || title.offsetHeight || 32;
+          letters.forEach(function(item) {
+            item.el.classList.add('scattered');
+            // хаотичное положение по всей карточке: используем почти полный w/h
+            var dx = Math.random() * Math.max(w - 4, 4);
+            var dy = Math.random() * Math.max(h - 4, 4);
+            item.el.style.left = dx + 'px';
+            item.el.style.top = dy + 'px';
+            // индивидуальные параметры «хаоса» для каждой буквы
+            item.el.style.animationDuration = (0.6 + Math.random() * 0.9) + 's';
+            item.el.style.animationDelay = (Math.random() * 0.7) + 's';
+          });
+        }
+
+        function assemble() {
+          letters.forEach(function(item) {
+            item.el.classList.remove('scattered');
+            item.el.style.left = item.left + 'px';
+            item.el.style.top = item.top + 'px';
+          });
+        }
+
+        function runCycle() {
+          var slideNow = document.getElementById('how');
+          if (!slideNow || !slideNow.classList.contains('active')) return;
+          scatter();
+          setTimeout(function() {
+            var s2 = document.getElementById('how');
+            if (!s2 || !s2.classList.contains('active')) return;
+            assemble();
+          }, 3000); // 3 секунды хаоса, затем сборка
+        }
+
+        runCycle();
+        howChoicesIntervalId = setInterval(runCycle, 10000); // 3 сек хаоса + 7 сек покоя
+        howChoicesInitialized = true;
+      }
+
+      (function initProgressDots() {
+        if (!progressDots) return;
+        for (var i = 0; i < TOTAL_SLIDES; i++) {
+          var dot = document.createElement('button');
+          dot.type = 'button';
+          dot.className = 'landing-progress-dot' + (i === 0 ? ' active' : '');
+          dot.setAttribute('aria-label', 'Сцена ' + (i + 1));
+          dot.addEventListener('click', function() {
+            var idx = Array.prototype.indexOf.call(progressDots.children, this);
+            goToSlide(idx);
+          });
+          progressDots.appendChild(dot);
+        }
+      })();
+
+      if (slidesContainer) {
+        // Переходим к слайду из hash при загрузке страницы (если есть),
+        // иначе — к последнему сохранённому слайду
+        (function initFromHash() {
+          var hash = window.location.hash || '';
+          if (hash && hash !== '#hero' && hash !== '#intro') {
+            var target = document.querySelector(hash);
+            if (target) {
+              var idx = Array.prototype.indexOf.call(slides, target);
+              if (idx >= 0) {
+                goToSlide(idx);
+                return;
+              }
+            }
+          }
+          // fallback: последний сохранённый слайд
+          try {
+            var saved = localStorage.getItem('interactivity_last_slide');
+            var idxSaved = saved != null ? parseInt(saved, 10) : NaN;
+            if (!isNaN(idxSaved) && idxSaved >= 0 && idxSaved < TOTAL_SLIDES) {
+              goToSlide(idxSaved);
+            }
+          } catch (e) {}
+        })();
+
+        slidesContainer.addEventListener('click', function(e) {
+          if (e.target.closest('a, button, input, .role-choice, .demo-course-link, .slide-nav, .flip-card, .demo-course')) return;
+          // На слайде авторизации (Попробовать Интерактивити) не переходим дальше по клику в пустую область
+          if (currentSlide === authSlideIndex) return;
+          goToSlide(currentSlide + 1);
+        });
+      }
+      // На слайде «Возможности»:
+      // клики по карточке «Учебная платформа» или по её кнопке «Попробовать»
+      // ведут на слайд авторизации (Попробовать Интерактивити)
+        var featuresSection = document.getElementById('features');
+        if (featuresSection) {
+          var featuresCourses = featuresSection.querySelectorAll('.demo-course');
+          var featuresKey = document.getElementById('featuresCourseKey');
+          if (featuresKey) {
+            var keyBtn = featuresKey.querySelector('.features-course-btn[data-action="request-course"]');
+            var keyForm = featuresKey.querySelector('.features-request-form');
+            if (keyBtn && keyForm) {
+              // Переворот карточки по клику на «Оставить заявку»
+              keyBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                featuresKey.classList.toggle('is-flipped');
+              });
+
+              var sendBtn = keyForm.querySelector('.features-send-btn');
+              if (sendBtn) {
+                sendBtn.addEventListener('click', function(e) {
+                  e.preventDefault();
+                  var nameInput = keyForm.querySelector('#featuresName');
+                  var contactInput = keyForm.querySelector('#featuresContact');
+                  var messageInput = keyForm.querySelector('#featuresMessage');
+                  var hasError = false;
+
+                  function validateField(input) {
+                    if (!input) return;
+                    var value = (input.value || '').trim();
+                    input.classList.remove('shake');
+                    if (!value) {
+                      // триггерим только анимацию «shake»
+                      void input.offsetWidth;
+                      input.classList.add('shake');
+                      hasError = true;
+                    }
+                  }
+
+                  hasError = false;
+                  validateField(nameInput);
+                  validateField(contactInput);
+                  validateField(messageInput);
+
+                  if (!hasError) {
+                    // Очищаем содержимое и показываем благодарность
+                    var backBody = featuresKey.querySelector('.features-course-back .demo-course-body');
+                    if (backBody) {
+                      backBody.innerHTML =
+                        '<div class="features-thanks">' +
+                          '<h4 style="margin:0 0 0.4rem;font-size:1rem;color:var(--accent);">Спасибо за обращение!</h4>' +
+                          '<p style="margin:0 0 0.25rem;font-size:0.9rem;line-height:1.5;color:var(--text);">Ваша заявка отправлена в команду Интерактивити.</p>' +
+                          '<p style="margin:0;font-size:0.85rem;line-height:1.5;color:var(--text-muted);">Мы свяжемся с вами по указанному контакту, чтобы обсудить задачу и формат курса.</p>' +
+                        '</div>';
+                    }
+                  }
+                });
+              }
+            }
+          }
+        if (featuresCourses[1]) {
+          var lmsButton = featuresCourses[1].querySelector('.features-lms-btn');
+          if (lmsButton) {
+            lmsButton.addEventListener('click', function(e) {
+              e.preventDefault();
+              if (authSlideIndex >= 0) {
+                goToSlide(authSlideIndex);
+              }
+            });
+          }
+          featuresCourses[1].addEventListener('click', function(e) {
+            if (e.target.closest('a, button')) return;
+            if (authSlideIndex >= 0) {
+              goToSlide(authSlideIndex);
+            }
+          });
+        }
+      }
+      var btnNext = document.getElementById('btnNext');
+      if (btnPrev) btnPrev.addEventListener('click', function() { if (!this.disabled) goToSlide(currentSlide - 1); });
+      if (btnNext) btnNext.addEventListener('click', function() {
+        if (currentSlide === TOTAL_SLIDES - 1) goToSlide(0);
+        else goToSlide(currentSlide + 1);
+      });
+
+      document.querySelectorAll('.flip-card').forEach(function(card) {
+        card.addEventListener('click', function(e) {
+          if (e.target.closest('a')) return;
+          if (this.classList.contains('flip-card-demo')) return;
+          this.classList.toggle('flipped');
+        });
+        card.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            if (this.classList.contains('flip-card-demo')) return;
+            this.classList.toggle('flipped');
+          }
+        });
+      });
+      var demoCard = document.querySelector('.flip-card-demo');
+      if (demoCard) {
+        demoCard.addEventListener('click', function(e) {
+          if (e.target.closest('a')) return;
+          window.open('../PeopleGames/index.html', '_blank', 'noopener');
+        });
+      }
+
+      var forYouTitle = document.getElementById('forYouTitle');
+      var forYouList = document.getElementById('forYouList');
+      var forYouRoleIcon = document.getElementById('forYouRoleIcon');
+
+      function renderRoleBenefits(roleKey) {
+        var data = ROLE_BENEFITS[roleKey];
+        if (!data) return;
+        if (forYouTitle) forYouTitle.textContent = data.title;
+        if (forYouRoleIcon && ROLE_ICONS[roleKey]) {
+          forYouRoleIcon.src = ROLE_ICONS[roleKey];
+          forYouRoleIcon.alt = data.title;
+        }
+        if (forYouList) {
+          forYouList.innerHTML = '';
+          var emojis = data.emojis || [];
+          data.items.forEach(function(text, idx) {
+            var li = document.createElement('li');
+            var emojiSpan = document.createElement('span');
+            emojiSpan.className = 'benefit-emoji';
+            emojiSpan.textContent = emojis[idx] || '•';
+            emojiSpan.setAttribute('aria-hidden', 'true');
+            li.appendChild(emojiSpan);
+            li.appendChild(document.createTextNode(text));
+            forYouList.appendChild(li);
+          });
+          if (typeof gsap !== 'undefined') {
+            var items = forYouList.querySelectorAll('li');
+            gsap.fromTo(items, { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, stagger: 0.08, ease: 'power2.out', overwrite: true });
+          }
+        }
+      }
+
+      // Рендер по умолчанию — "Другая роль" или последняя выбранная, если сохранена
+      if (forYouTitle && forYouList && ROLE_BENEFITS.other) {
+        var savedRole = null;
+        try { savedRole = localStorage.getItem('interactivity_last_role'); } catch (e) {}
+        if (savedRole && ROLE_BENEFITS[savedRole]) {
+          renderRoleBenefits(savedRole);
+        } else {
+          renderRoleBenefits('other');
+        }
+      }
+
+      document.querySelectorAll('.role-choice').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var role = this.getAttribute('data-role') || 'other';
+          if (!ROLE_BENEFITS[role]) role = 'other';
+          renderRoleBenefits(role);
+          try { localStorage.setItem('interactivity_last_role', role); } catch (e) {}
+          goToSlide(3);
+        });
+      });
+
+      var wheelBlock = false;
+      slidesContainer.addEventListener('wheel', function(e) {
+        // allow wheel-based slide change even on auth slide; keep wheelBlock throttle
+        if (wheelBlock) { e.preventDefault(); return; }
+        var delta = e.deltaY;
+        if (delta > 30) {
+          e.preventDefault();
+          wheelBlock = true;
+          goToSlide(currentSlide + 1);
+          setTimeout(function() { wheelBlock = false; }, 400);
+        } else if (delta < -30) {
+          e.preventDefault();
+          wheelBlock = true;
+          goToSlide(currentSlide - 1);
+          setTimeout(function() { wheelBlock = false; }, 400);
+        }
+      }, { passive: false });
+
+      var navLinks = document.querySelectorAll('.site-nav a[href^="#"]');
+      navLinks.forEach(function(a) {
+        a.addEventListener('click', function(e) {
+          var href = this.getAttribute('href');
+          if (href === '#hero' || href === '#intro') { e.preventDefault(); goToSlide(0); return; }
+          if (href === '#problem') { e.preventDefault(); goToSlide(1); return; }
+          // Демо — 7‑й слайд (index 5)
+          if (href === '#demo') { e.preventDefault(); goToSlide(5); return; }
+          // «Тарифы» в шапке ведёт на «Возможности» — 8‑й слайд (index 6)
+          if (href === '#pricing') { e.preventDefault(); goToSlide(6); return; }
+          if (href === '#form') { e.preventDefault(); goToSlide(authSlideIndex >= 0 ? authSlideIndex : 7); return; }
+          if (href === '#contacts') { e.preventDefault(); goToSlide(9); return; }
+          if (href === '#documents') { e.preventDefault(); goToSlide(10); return; }
+        });
+      });
+      document.addEventListener('click', function(e) {
+        var a = e.target.closest('a[href="#documents"], a[href="#contacts"]');
+        if (!a) return;
+        e.preventDefault();
+        if (a.getAttribute('href') === '#documents') goToSlide(10);
+        else if (a.getAttribute('href') === '#contacts') goToSlide(9);
+      });
+      var siteLogo = document.querySelector('.site-logo');
+      if (siteLogo && (siteLogo.getAttribute('href') === '#hero' || siteLogo.getAttribute('href') === '#intro')) {
+        siteLogo.addEventListener('click', function(e) { e.preventDefault(); goToSlide(0); });
+      }
+
+      var siteBurger = document.getElementById('siteBurger');
+      var siteNav = document.getElementById('siteNav');
+      if (siteBurger && siteNav) {
+        siteBurger.addEventListener('click', function() {
+          var open = siteNav.classList.toggle('open');
+          siteBurger.setAttribute('aria-expanded', open);
+        });
+        siteNav.querySelectorAll('a').forEach(function(a) {
+          a.addEventListener('click', function() {
+            siteNav.classList.remove('open');
+            siteBurger.setAttribute('aria-expanded', 'false');
+          });
+        });
+      }
+
+      document.getElementById('demoForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var msg = document.createElement('p');
+        msg.style.cssText = 'margin-top:1rem;color:var(--accent);font-weight:600;';
+        msg.textContent = 'Спасибо! Мы свяжемся с вами в ближайшее время.';
+        this.appendChild(msg);
+        this.querySelector('button[type="submit"]').disabled = true;
+      });
+
+      (function initCookieConsent() {
+        var COOKIE_KEY = 'cookie_consent_v3';
+        var banner = document.getElementById('cookieConsent');
+        var btnAccept = document.getElementById('cookieAccept');
+        if (!banner) return;
+        function hideBanner() {
+          banner.classList.add('hidden');
+          banner.setAttribute('aria-hidden', 'true');
+        }
+        if (localStorage.getItem(COOKIE_KEY)) {
+          hideBanner();
+          return;
+        }
+        setTimeout(function() {
+          banner.classList.remove('hidden');
+          banner.setAttribute('aria-hidden', 'false');
+        }, 5000);
+        if (btnAccept) btnAccept.addEventListener('click', function() {
+          localStorage.setItem(COOKIE_KEY, 'accepted');
+          hideBanner();
+        });
+      })();
+
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Интерактивити — Кабинет</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    :root {
+      --bg: #050816;
+      --bg-elevated: #0f172a;
+      --accent: #38bdf8;
+      --accent-2: #a855f7;
+      --text: #e5e7eb;
+      --text-muted: #9ca3af;
+      --border: rgba(148, 163, 184, 0.25);
+      --danger: #f97373;
+      --success: #22c55e;
+      --warning: #fbbf24;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      background: radial-gradient(circle at top left, #1e293b 0, #020617 40%, #000 100%);
+      color: var(--text);
+    }
+
+    .app-shell {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1.1rem 1.25rem 1.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      min-height: 100vh;
+    }
+
+    header.app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+    .brand-logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 0.95rem;
+      background: conic-gradient(from 210deg, var(--accent), var(--accent-2), #ec4899, var(--accent));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.92rem;
+      color: #0b1120;
+      box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.35);
+    }
+    .brand-title { font-weight: 650; letter-spacing: .03em; }
+    .brand-sub { font-size: 0.82rem; color: var(--text-muted); }
+
+    .user-mini {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .4rem .7rem;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+      font-size: 0.85rem;
+    }
+    .user-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent), #6366f1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #0b1120;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: 0.42rem 0.95rem;
+      background: rgba(15, 23, 42, 0.8);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+    }
+    .btn:hover {
+      background: rgba(30, 64, 175, 0.9);
+      border-color: rgba(129, 140, 248, 0.9);
+      transform: translateY(-1px);
+    }
+    .btn-ghost { background: transparent; }
+    .btn-danger {
+      border-color: rgba(248, 113, 113, 0.8);
+      color: #fecaca;
+    }
+    .btn-danger:hover { background: rgba(248, 113, 113, 0.15); }
+
+    .app-layout {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 1rem;
+      align-items: start;
+    }
+
+    aside.sidebar {
+      position: sticky;
+      top: 1rem;
+      border-radius: 1rem;
+      background: rgba(15, 23, 42, 0.92);
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      box-shadow: 0 14px 32px rgba(15, 23, 42, 0.7);
+      padding: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .sidebar-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+    .sidebar-title h2 {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 650;
+    }
+    .chip {
+      border-radius: 999px;
+      padding: 0.12rem 0.55rem;
+      background: rgba(2, 6, 23, 0.55);
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      white-space: nowrap;
+    }
+
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+    .nav-btn {
+      width: 100%;
+      text-align: left;
+      padding: 0.6rem 0.7rem;
+      border-radius: 0.85rem;
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      background: rgba(2, 6, 23, 0.25);
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+      transition: transform 0.1s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+    .nav-btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(56, 189, 248, 0.65);
+      background: rgba(56, 189, 248, 0.10);
+    }
+    .nav-btn[aria-selected="true"] {
+      border-color: rgba(56, 189, 248, 0.9);
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), rgba(2, 6, 23, 0.25) 55%);
+    }
+    .nav-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      min-width: 0;
+    }
+    .nav-ico {
+      width: 28px;
+      height: 28px;
+      border-radius: 0.75rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.82rem;
+      font-weight: 750;
+      color: #0b1120;
+      background: linear-gradient(135deg, var(--accent), #6366f1);
+      box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.25);
+      flex: 0 0 auto;
+    }
+    .nav-text {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+      min-width: 0;
+    }
+    .nav-text strong {
+      font-weight: 650;
+      font-size: 0.88rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .nav-text span {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .nav-right {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      flex: 0 0 auto;
+    }
+
+    .sidebar-foot {
+      margin-top: 0.2rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid rgba(148, 163, 184, 0.18);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+    }
+
+    .card {
+      border-radius: 1rem;
+      background: radial-gradient(circle at top left, rgba(56,189,248,0.18), transparent 55%),
+                  linear-gradient(145deg, rgba(15,23,42,0.98), rgba(15,23,42,0.92));
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.75);
+      padding: 1.05rem 1.05rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      min-height: 420px;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .card-title { font-size: 1rem; font-weight: 650; }
+    .muted { color: var(--text-muted); font-size: 0.86rem; }
+    .divider {
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(148, 163, 184, 0.45), transparent);
+      margin: 0.25rem 0;
+    }
+
+    .tab-panel[hidden] { display: none !important; }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1.4fr;
+      gap: 0.8rem;
+      font-size: 0.9rem;
+    }
+    .profile-label {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.15rem;
+    }
+    .badge-role {
+      display: inline-flex;
+      align-items: center;
+      gap: .25rem;
+      border-radius: 999px;
+      padding: 0.15rem 0.55rem;
+      font-size: 0.75rem;
+      background: rgba(34, 197, 94, 0.12);
+      border: 1px solid rgba(52, 211, 153, 0.6);
+      color: #bbf7d0;
+    }
+    .profile-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .avatar-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.45rem;
+      flex: 0 0 auto;
+    }
+    .avatar-lg {
+      width: 92px;
+      height: 92px;
+      border-radius: 28px;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--accent), #6366f1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0b1120;
+      font-weight: 800;
+      letter-spacing: .02em;
+      box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.35), 0 20px 50px rgba(2,6,23,0.55);
+      user-select: none;
+    }
+    .avatar-lg img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .avatar-actions {
+      display: flex;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .btn-sm {
+      padding: 0.35rem 0.7rem;
+      font-size: 0.8rem;
+    }
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .input {
+      border-radius: 0.8rem;
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      background: rgba(2, 6, 23, 0.25);
+      color: var(--text);
+      padding: 0.55rem 0.65rem;
+      font-size: 0.9rem;
+      outline: none;
+    }
+    .input:focus {
+      border-color: rgba(56, 189, 248, 0.75);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+    }
+    .notice {
+      padding: 0.5rem 0.65rem;
+      border-radius: 0.8rem;
+      background: rgba(2, 6, 23, 0.35);
+      border: 1px dashed rgba(148, 163, 184, 0.55);
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .message-banner {
+      margin-top: 0.35rem;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .message-banner.error { color: #fecaca; }
+
+    .courses-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+    .course-card {
+      border-radius: 0.95rem;
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      background: linear-gradient(135deg, rgba(2,6,23,0.25), rgba(15,23,42,0.85));
+      padding: 0.75rem 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      min-height: 130px;
+    }
+    .course-title { font-weight: 600; font-size: 0.92rem; }
+    .course-desc { color: var(--text-muted); font-size: 0.82rem; }
+    .progress-line {
+      position: relative;
+      width: 100%;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(30, 64, 175, 0.45);
+      overflow: hidden;
+      margin-top: 0.15rem;
+    }
+    .progress-line-inner {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--success), #a3e635);
+      transition: width 0.4s ease-out;
+    }
+    .course-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+    .pill {
+      border-radius: 999px;
+      padding: 0.1rem 0.45rem;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      font-size: 0.72rem;
+      white-space: nowrap;
+    }
+    .status-active {
+      border-color: rgba(52, 211, 153, 0.8);
+      color: #bbf7d0;
+      background: rgba(16, 185, 129, 0.12);
+    }
+    .status-completed {
+      border-color: rgba(56, 189, 248, 0.9);
+      color: #e0f2fe;
+      background: rgba(56, 189, 248, 0.12);
+    }
+
+    .locked {
+      display: grid;
+      gap: 0.6rem;
+      padding: 1rem;
+      border-radius: 1rem;
+      border: 1px solid rgba(251, 191, 36, 0.35);
+      background: rgba(251, 191, 36, 0.08);
+    }
+    .locked strong { font-size: 1rem; }
+    .locked .muted { color: rgba(253, 230, 138, 0.85); }
+
+    footer.app-footer {
+      margin-top: auto;
+      padding-top: 0.8rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    @media (max-width: 980px) {
+      .app-layout { grid-template-columns: 1fr; }
+      aside.sidebar { position: relative; top: 0; }
+      .courses-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-logo">In</div>
+        <div>
+          <div class="brand-title">Интерактивити</div>
+          <div class="brand-sub">LMS · личный кабинет</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.65rem;">
+        <div class="user-mini" id="userMini" hidden>
+          <div class="user-avatar" id="userAvatar">U</div>
+          <div id="userMiniText">Загрузка…</div>
+        </div>
+        <button class="btn btn-ghost btn-danger" id="logoutBtn"><span>Выйти</span></button>
+      </div>
+    </header>
+
+    <div class="app-layout">
+      <aside class="sidebar" role="navigation" aria-label="Навигация кабинета">
+        <div class="sidebar-title">
+          <h2>Разделы</h2>
+          <span class="chip" id="sidebarChip">—</span>
+        </div>
+
+        <div class="nav" role="tablist" aria-label="Вкладки">
+          <button class="nav-btn" type="button" data-tab="profile" role="tab" aria-selected="true">
+            <span class="nav-left">
+              <span class="nav-ico">👤</span>
+              <span class="nav-text">
+                <strong>Профиль</strong>
+                <span>Данные и доступ</span>
+              </span>
+            </span>
+            <span class="nav-right">↵</span>
+          </button>
+
+          <button class="nav-btn" type="button" data-tab="lms" role="tab" aria-selected="false">
+            <span class="nav-left">
+              <span class="nav-ico">🎓</span>
+              <span class="nav-text">
+                <strong>Учебная платформа</strong>
+                <span>Мои курсы</span>
+              </span>
+            </span>
+            <span class="nav-right" id="coursesCountPill">…</span>
+          </button>
+
+          <button class="nav-btn" type="button" data-tab="builder" role="tab" aria-selected="false" aria-disabled="true">
+            <span class="nav-left">
+              <span class="nav-ico" style="background:linear-gradient(135deg,#fbbf24,#fb7185)">🧩</span>
+              <span class="nav-text">
+                <strong>Конструктор</strong>
+                <span>Скоро</span>
+              </span>
+            </span>
+            <span class="nav-right">🔒</span>
+          </button>
+        </div>
+
+        <div class="sidebar-foot">
+          <div>Версия: <strong style="color:var(--text);font-weight:600;">0.2</strong></div>
+          <div>Подсказка: после входа вы попадаете сюда автоматически.</div>
+        </div>
+      </aside>
+
+      <main>
+        <section class="card tab-panel" id="tab-profile" role="tabpanel">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Профиль</div>
+              <div class="muted">Информация о вашей учётной записи</div>
+            </div>
+            <span class="chip">
+              <span style="width:6px;height:6px;border-radius:999px;background:var(--success);box-shadow:0 0 8px rgba(34,197,94,.9);"></span>
+              В сети
+            </span>
+          </div>
+          <div class="divider"></div>
+          <div class="profile-top">
+            <div class="avatar-block">
+              <div class="avatar-lg" id="profileAvatar">
+                <span id="profileAvatarFallback">U</span>
+              </div>
+              <input type="file" id="avatarInput" accept="image/*" hidden />
+              <div class="avatar-actions">
+                <button type="button" class="btn btn-sm" id="changeAvatarBtn">Сменить фото</button>
+                <button type="button" class="btn btn-ghost btn-sm btn-danger" id="removeAvatarBtn" hidden>Удалить</button>
+              </div>
+              <div class="muted" style="text-align:center;max-width:220px;">
+                JPG/PNG, до 3 МБ.
+              </div>
+            </div>
+
+            <div style="flex:1;min-width:0;">
+              <div class="profile-grid">
+                <div class="form-row">
+                  <div class="profile-label">Имя</div>
+                  <input class="input" id="fullNameInput" placeholder="Ваше имя" />
+                  <div class="muted">Это имя будет видно в кабинете и в списках группы.</div>
+                </div>
+                <div>
+                  <div class="profile-label">Роль</div>
+                  <div><span class="badge-role" id="profileRole">Слушатель</span></div>
+                </div>
+                <div>
+                  <div class="profile-label">Email</div>
+                  <div id="profileEmail">—</div>
+                </div>
+                <div>
+                  <div class="profile-label">Дата регистрации</div>
+                  <div id="profileCreated">—</div>
+                </div>
+              </div>
+
+              <div style="display:flex;gap:.55rem;flex-wrap:wrap;margin-top:.85rem;">
+                <button type="button" class="btn" id="saveProfileBtn">Сохранить профиль</button>
+                <button type="button" class="btn btn-ghost" id="resetProfileBtn">Сбросить</button>
+              </div>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="notice">
+            Для смены роли (куратор/методист) и управления доступом обратитесь к администратору.
+          </div>
+          <div id="profileMessage" class="message-banner"></div>
+        </section>
+
+        <section class="card tab-panel" id="tab-lms" role="tabpanel" hidden>
+          <div class="card-header">
+            <div>
+              <div class="card-title">Учебная платформа</div>
+              <div class="muted">Ваши курсы и прогресс</div>
+            </div>
+            <span class="chip" id="coursesSummary">Загрузка…</span>
+          </div>
+          <div class="divider"></div>
+          <div id="coursesContainer">
+            <p class="muted">Загружаем ваши курсы…</p>
+          </div>
+          <div id="coursesMessage" class="message-banner"></div>
+        </section>
+
+        <section class="card tab-panel" id="tab-builder" role="tabpanel" hidden>
+          <div class="card-header">
+            <div>
+              <div class="card-title">Конструктор</div>
+              <div class="muted">Раздел скоро будет доступен</div>
+            </div>
+            <span class="chip" style="border-color:rgba(251,191,36,.55);color:rgba(253,230,138,.95);">Недоступно</span>
+          </div>
+          <div class="divider"></div>
+          <div class="locked">
+            <strong>Конструктор интерактивных сценариев</strong>
+            <div class="muted">Мы подключим этот раздел позже. Сейчас доступен профиль и учебная платформа.</div>
+            <div class="muted">Статус: разработка · доступ закрыт</div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <footer class="app-footer">
+      <div>Интерактивити · платформа интерактивного обучения</div>
+      <div>Кабинет пользователя</div>
+    </footer>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.48.0';
+
+    const SUPABASE_URL = 'https://gefieowdfimehhnqdiwk.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_P6YBUwpPIYJBoUHkDz2s9A_03CZzq9S';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const userMini = document.getElementById('userMini');
+    const userAvatar = document.getElementById('userAvatar');
+    const userMiniText = document.getElementById('userMiniText');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    const profileName = document.getElementById('profileName');
+    const profileEmail = document.getElementById('profileEmail');
+    const profileCreated = document.getElementById('profileCreated');
+    const profileRole = document.getElementById('profileRole');
+    const profileAvatar = document.getElementById('profileAvatar');
+    const profileAvatarFallback = document.getElementById('profileAvatarFallback');
+    const avatarInput = document.getElementById('avatarInput');
+    const changeAvatarBtn = document.getElementById('changeAvatarBtn');
+    const removeAvatarBtn = document.getElementById('removeAvatarBtn');
+    const fullNameInput = document.getElementById('fullNameInput');
+    const saveProfileBtn = document.getElementById('saveProfileBtn');
+    const resetProfileBtn = document.getElementById('resetProfileBtn');
+    const profileMessage = document.getElementById('profileMessage');
+
+    const coursesContainer = document.getElementById('coursesContainer');
+    const coursesSummary = document.getElementById('coursesSummary');
+    const coursesMessage = document.getElementById('coursesMessage');
+    const coursesCountPill = document.getElementById('coursesCountPill');
+    const sidebarChip = document.getElementById('sidebarChip');
+
+    const navButtons = Array.from(document.querySelectorAll('.nav-btn[data-tab]'));
+    const panels = {
+      profile: document.getElementById('tab-profile'),
+      lms: document.getElementById('tab-lms'),
+      builder: document.getElementById('tab-builder'),
+    };
+
+    function formatDate(iso) {
+      if (!iso) return '—';
+      try {
+        const d = new Date(iso);
+        return d.toLocaleDateString('ru-RU', { year: 'numeric', month: 'short', day: 'numeric' });
+      } catch {
+        return iso;
+      }
+    }
+
+    function setProfileMessage(text, type = 'info') {
+      if (!profileMessage) return;
+      profileMessage.textContent = text || '';
+      profileMessage.className = 'message-banner' + (type === 'error' ? ' error' : '');
+    }
+
+    function setCoursesMessage(text, type = 'info') {
+      if (!coursesMessage) return;
+      coursesMessage.textContent = text || '';
+      coursesMessage.className = 'message-banner' + (type === 'error' ? ' error' : '');
+    }
+
+    function setActiveTab(tabId) {
+      navButtons.forEach((b) => {
+        const isActive = b.dataset.tab === tabId;
+        b.setAttribute('aria-selected', String(isActive));
+      });
+      Object.entries(panels).forEach(([key, panel]) => {
+        if (!panel) return;
+        panel.hidden = key !== tabId;
+      });
+      try { history.replaceState(null, '', '#'+tabId); } catch {}
+    }
+
+    function resolveInitialTab() {
+      const hash = (window.location.hash || '').replace('#', '').trim();
+      if (hash === 'lms' || hash === 'profile' || hash === 'builder') return hash;
+      return 'profile';
+    }
+
+    async function requireAuthOrRedirect() {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error || !user) {
+        window.location.href = 'index.html#form';
+        return null;
+      }
+      return user;
+    }
+
+    async function loadProfile(user) {
+      const email = user.email || 'Без email';
+      const initials = (email[0] || 'U').toUpperCase();
+      userMini.hidden = false;
+      userAvatar.textContent = initials;
+      userMiniText.textContent = email;
+      profileEmail.textContent = email;
+      sidebarChip.textContent = email;
+      if (profileAvatarFallback) profileAvatarFallback.textContent = initials;
+
+      try {
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('full_name, created_at, role, avatar_url')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        if (profileError) {
+          console.warn('Ошибка загрузки профиля', profileError);
+          setProfileMessage('Не удалось загрузить расширенный профиль (таблица profiles/политики).', 'error');
+        }
+
+        const fullName = (profile && profile.full_name) || '';
+        if (fullNameInput) fullNameInput.value = fullName;
+        if (profileName) profileName.textContent = fullName || 'Безымянный пользователь';
+        profileCreated.textContent = formatDate((profile && profile.created_at) || user.created_at);
+        if (profileRole) {
+          const role = (profile && profile.role) || 'listener';
+          const map = {
+            admin: 'Администратор',
+            curator: 'Куратор',
+            listener: 'Слушатель'
+          };
+          profileRole.textContent = map[role] || 'Слушатель';
+        }
+
+        const avatarUrl = profile && profile.avatar_url;
+        renderAvatar(avatarUrl);
+        syncRemoveAvatarVisibility(!!avatarUrl);
+
+        // cache for reset button
+        window.__profileSnapshot = {
+          full_name: fullName,
+          avatar_url: avatarUrl || null
+        };
+      } catch (e) {
+        console.warn('Ошибка профиля', e);
+        setProfileMessage('Не удалось загрузить расширенный профиль.', 'error');
+      }
+    }
+
+    function syncRemoveAvatarVisibility(hasAvatar) {
+      if (!removeAvatarBtn) return;
+      removeAvatarBtn.hidden = !hasAvatar;
+    }
+
+    function withCacheBuster(url) {
+      if (!url) return url;
+      const sep = url.includes('?') ? '&' : '?';
+      return url + sep + 't=' + Date.now();
+    }
+
+    function renderAvatar(avatarUrl) {
+      if (!profileAvatar) return;
+      // clear current
+      const existingImg = profileAvatar.querySelector('img');
+      if (existingImg) existingImg.remove();
+
+      if (avatarUrl) {
+        const src = withCacheBuster(avatarUrl);
+        const img = document.createElement('img');
+        img.alt = 'Аватар';
+        img.src = src;
+        profileAvatar.appendChild(img);
+        if (profileAvatarFallback) profileAvatarFallback.style.display = '';
+        // also update header mini avatar (if image)
+        if (userAvatar) {
+          // keep initials visible until image loads
+          const initials = (profileAvatarFallback && profileAvatarFallback.textContent) ? profileAvatarFallback.textContent : (userAvatar.textContent || 'U');
+          userAvatar.textContent = initials;
+          if (userAvatar.querySelector('img')) userAvatar.querySelector('img').remove();
+          const miniImg = document.createElement('img');
+          miniImg.alt = '';
+          miniImg.src = src;
+          miniImg.style.width = '100%';
+          miniImg.style.height = '100%';
+          miniImg.style.objectFit = 'cover';
+          miniImg.style.borderRadius = '999px';
+          miniImg.style.display = 'none';
+          userAvatar.appendChild(miniImg);
+
+          miniImg.onload = () => {
+            userAvatar.textContent = '';
+            userAvatar.style.background = 'transparent';
+            userAvatar.style.padding = '0';
+            userAvatar.style.overflow = 'hidden';
+            miniImg.style.display = 'block';
+          };
+          miniImg.onerror = () => {
+            // leave initials as-is
+            try { miniImg.remove(); } catch {}
+            userAvatar.style.background = '';
+            userAvatar.style.overflow = '';
+          };
+        }
+
+        img.onload = () => {
+          if (profileAvatarFallback) profileAvatarFallback.style.display = 'none';
+        };
+        img.onerror = () => {
+          try { img.remove(); } catch {}
+          if (profileAvatarFallback) profileAvatarFallback.style.display = '';
+          syncRemoveAvatarVisibility(false);
+          setProfileMessage('Не удалось загрузить аватар. Проверьте bucket `avatars` и политики доступа.', 'error');
+        };
+      } else {
+        if (profileAvatarFallback) profileAvatarFallback.style.display = '';
+        // header mini avatar back to initials look
+        if (userAvatar && userAvatar.querySelector('img')) {
+          userAvatar.innerHTML = '';
+          userAvatar.style.background = '';
+          userAvatar.style.overflow = '';
+        }
+      }
+    }
+
+    function setLoadingBtn(btn, isLoading, loadingText = 'Сохраняем…') {
+      if (!btn) return;
+      btn.disabled = isLoading;
+      btn.dataset.originalText = btn.dataset.originalText || btn.textContent;
+      btn.textContent = isLoading ? loadingText : btn.dataset.originalText;
+    }
+
+    async function uploadAvatar(userId, file) {
+      // bucket: avatars (public)
+      const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+      const safeExt = ['png','jpg','jpeg','webp','gif'].includes(ext) ? ext : 'png';
+      const filePath = `${userId}/avatar.${safeExt}`;
+
+      const { error: uploadError } = await supabase
+        .storage
+        .from('avatars')
+        .upload(filePath, file, { upsert: true, contentType: file.type });
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
+      return data && data.publicUrl ? data.publicUrl : null;
+    }
+
+    async function updateProfile(user, payload) {
+      const { error } = await supabase
+        .from('profiles')
+        .update(payload)
+        .eq('id', user.id);
+      if (error) throw error;
+    }
+
+    function renderCourses(items) {
+      if (!items.length) {
+        coursesContainer.innerHTML = '<p class="muted">Пока что вам не назначено ни одного курса.</p>';
+        coursesSummary.textContent = '0 курсов';
+        coursesCountPill.textContent = '0';
+        return;
+      }
+
+      coursesSummary.textContent = `${items.length} курс(ов)`;
+      coursesCountPill.textContent = String(items.length);
+
+      const grid = document.createElement('div');
+      grid.className = 'courses-grid';
+
+      items.forEach((row) => {
+        const course = row.courses;
+        const progress = typeof row.progress === 'number' ? Math.min(Math.max(row.progress, 0), 100) : 0;
+        const status = row.status || (progress >= 100 ? 'completed' : 'active');
+
+        const card = document.createElement('article');
+        card.className = 'course-card';
+
+        const title = document.createElement('div');
+        title.className = 'course-title';
+        title.textContent = (course && course.title) || 'Без названия';
+
+        const desc = document.createElement('div');
+        desc.className = 'course-desc';
+        desc.textContent = (course && course.description) || 'Описание курса пока не заполнено.';
+
+        const line = document.createElement('div');
+        line.className = 'progress-line';
+        const inner = document.createElement('div');
+        inner.className = 'progress-line-inner';
+        line.appendChild(inner);
+        setTimeout(() => { inner.style.width = progress + '%'; }, 50);
+
+        const meta = document.createElement('div');
+        meta.className = 'course-meta';
+        const progressText = document.createElement('span');
+        progressText.textContent = `Прогресс: ${progress}%`;
+        const pill = document.createElement('span');
+        pill.className = 'pill ' + (status === 'completed' ? 'status-completed' : 'status-active');
+        pill.textContent = status === 'completed' ? 'Завершён' : 'В процессе';
+        meta.appendChild(progressText);
+        meta.appendChild(pill);
+
+        card.appendChild(title);
+        card.appendChild(desc);
+        card.appendChild(line);
+        card.appendChild(meta);
+        grid.appendChild(card);
+      });
+
+      coursesContainer.innerHTML = '';
+      coursesContainer.appendChild(grid);
+    }
+
+    async function loadCourses(user) {
+      try {
+        const { data, error } = await supabase
+          .from('enrollments')
+          .select(`
+            progress,
+            status,
+            last_access_at,
+            courses (
+              id,
+              title,
+              description
+            )
+          `)
+          .eq('user_id', user.id)
+          .order('last_access_at', { ascending: false });
+
+        if (error) {
+          console.error('Ошибка загрузки курсов', error);
+          coursesContainer.innerHTML = '<p class="muted">Не удалось загрузить список курсов.</p>';
+          setCoursesMessage('Проверьте таблицы courses/enrollments и политики RLS в Supabase.', 'error');
+          coursesSummary.textContent = 'Ошибка';
+          coursesCountPill.textContent = '!';
+          return;
+        }
+
+        const items = data || [];
+        renderCourses(items);
+      } catch (e) {
+        console.error(e);
+        coursesContainer.innerHTML = '<p class="muted">Не удалось загрузить курсы.</p>';
+        coursesSummary.textContent = 'Ошибка';
+        coursesCountPill.textContent = '!';
+      }
+    }
+
+    navButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if (btn.getAttribute('aria-disabled') === 'true') {
+          setActiveTab('builder');
+          return;
+        }
+        setActiveTab(btn.dataset.tab);
+      });
+    });
+
+    logoutBtn.addEventListener('click', async () => {
+      try { await supabase.auth.signOut(); }
+      finally { window.location.href = 'index.html#form'; }
+    });
+
+    function isValidAvatarFile(file) {
+      if (!file) return { ok: false, error: 'Файл не выбран.' };
+      if (!file.type || !file.type.startsWith('image/')) return { ok: false, error: 'Нужен файл изображения.' };
+      const maxBytes = 3 * 1024 * 1024;
+      if (file.size > maxBytes) return { ok: false, error: 'Файл слишком большой (макс. 3 МБ).' };
+      return { ok: true };
+    }
+
+    changeAvatarBtn && changeAvatarBtn.addEventListener('click', () => {
+      avatarInput && avatarInput.click();
+    });
+
+    avatarInput && avatarInput.addEventListener('change', async () => {
+      const file = avatarInput.files && avatarInput.files[0];
+      const v = isValidAvatarFile(file);
+      if (!v.ok) {
+        setProfileMessage(v.error, 'error');
+        return;
+      }
+      const user = await requireAuthOrRedirect();
+      if (!user) return;
+
+      setProfileMessage('');
+      setLoadingBtn(changeAvatarBtn, true, 'Загрузка…');
+      try {
+        // local preview
+        try {
+          const url = URL.createObjectURL(file);
+          renderAvatar(url);
+        } catch {}
+
+        const publicUrl = await uploadAvatar(user.id, file);
+        if (!publicUrl) throw new Error('Не удалось получить ссылку на аватар.');
+
+        await updateProfile(user, { avatar_url: publicUrl });
+        renderAvatar(publicUrl);
+        syncRemoveAvatarVisibility(true);
+
+        // update reset snapshot
+        if (window.__profileSnapshot) window.__profileSnapshot.avatar_url = publicUrl;
+        setProfileMessage('Аватар обновлён.', 'info');
+      } catch (e) {
+        console.error(e);
+        setProfileMessage(e.message || 'Не удалось загрузить аватар.', 'error');
+        // rollback to saved avatar if exists
+        if (window.__profileSnapshot) renderAvatar(window.__profileSnapshot.avatar_url);
+      } finally {
+        setLoadingBtn(changeAvatarBtn, false);
+        if (avatarInput) avatarInput.value = '';
+      }
+    });
+
+    removeAvatarBtn && removeAvatarBtn.addEventListener('click', async () => {
+      const user = await requireAuthOrRedirect();
+      if (!user) return;
+      setLoadingBtn(removeAvatarBtn, true, 'Удаляем…');
+      try {
+        await updateProfile(user, { avatar_url: null });
+        renderAvatar(null);
+        syncRemoveAvatarVisibility(false);
+        if (window.__profileSnapshot) window.__profileSnapshot.avatar_url = null;
+        setProfileMessage('Аватар удалён.', 'info');
+      } catch (e) {
+        console.error(e);
+        setProfileMessage(e.message || 'Не удалось удалить аватар.', 'error');
+      } finally {
+        setLoadingBtn(removeAvatarBtn, false, 'Удалить');
+      }
+    });
+
+    saveProfileBtn && saveProfileBtn.addEventListener('click', async () => {
+      const user = await requireAuthOrRedirect();
+      if (!user) return;
+
+      const name = (fullNameInput && fullNameInput.value ? fullNameInput.value.trim() : '').slice(0, 80);
+      setLoadingBtn(saveProfileBtn, true);
+      setProfileMessage('');
+      try {
+        await updateProfile(user, { full_name: name || null });
+        if (profileName) profileName.textContent = name || 'Безымянный пользователь';
+        if (window.__profileSnapshot) window.__profileSnapshot.full_name = name || '';
+        setProfileMessage('Профиль сохранён.', 'info');
+      } catch (e) {
+        console.error(e);
+        setProfileMessage(e.message || 'Не удалось сохранить профиль.', 'error');
+      } finally {
+        setLoadingBtn(saveProfileBtn, false);
+      }
+    });
+
+    resetProfileBtn && resetProfileBtn.addEventListener('click', () => {
+      const snap = window.__profileSnapshot || { full_name: '', avatar_url: null };
+      if (fullNameInput) fullNameInput.value = snap.full_name || '';
+      if (profileName) profileName.textContent = (snap.full_name && snap.full_name.trim()) ? snap.full_name : 'Безымянный пользователь';
+      renderAvatar(snap.avatar_url);
+      syncRemoveAvatarVisibility(!!snap.avatar_url);
+      setProfileMessage('Изменения сброшены.', 'info');
+    });
+
+    (async function init() {
+      setActiveTab(resolveInitialTab());
+      const user = await requireAuthOrRedirect();
+      if (!user) return;
+      await loadProfile(user);
+      await loadCourses(user);
+    })();
+  </script>
+</body>
+</html>
+
