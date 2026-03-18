@@ -844,6 +844,20 @@
       coursesMessage.className = 'message-banner' + (type === 'error' ? ' error' : '');
     }
 
+    function formatErr(err) {
+      if (!err) return '';
+      if (typeof err === 'string') return err;
+      const parts = [];
+      if (err.code) parts.push(`code=${err.code}`);
+      if (err.message) parts.push(err.message);
+      if (err.details) parts.push(err.details);
+      if (err.hint) parts.push(err.hint);
+      try {
+        if (!parts.length) return JSON.stringify(err);
+      } catch {}
+      return parts.join(' · ');
+    }
+
     function setProjectsMessage(text, type = 'info') {
       const el = document.getElementById('projectsMessage');
       if (!el) return;
@@ -1172,7 +1186,11 @@
             opt.textContent = '— не удалось загрузить —';
             projectSelect.appendChild(opt);
           }
-          setProjectsMessage('Не удалось загрузить проекты. Проверьте таблицы `projects`, `project_members` и политики RLS в Supabase.', 'error');
+          setProjectsMessage(
+            'Не удалось загрузить проекты. Проверьте таблицы `projects`, `project_members` и политики RLS в Supabase.'
+              + (e2 ? ` Ошибка: ${formatErr(e2)}` : ''),
+            'error'
+          );
           window.__myProjects = [];
           return [];
         }
