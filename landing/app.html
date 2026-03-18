@@ -446,6 +446,58 @@
     .locked strong { font-size: 1rem; }
     .locked .muted { color: rgba(253, 230, 138, 0.85); }
 
+    .split {
+      display: grid;
+      grid-template-columns: 1.05fr 1.35fr;
+      gap: 0.8rem;
+      align-items: start;
+    }
+    .stack { display: flex; flex-direction: column; gap: 0.7rem; }
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      flex-wrap: wrap;
+    }
+    .table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      overflow: hidden;
+      border-radius: 0.95rem;
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      background: rgba(2, 6, 23, 0.18);
+    }
+    .table th, .table td {
+      padding: 0.55rem 0.65rem;
+      font-size: 0.86rem;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+      vertical-align: middle;
+    }
+    .table th {
+      text-align: left;
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      background: rgba(15, 23, 42, 0.55);
+    }
+    .table tr:last-child td { border-bottom: none; }
+    .table td.muted-cell { color: var(--text-muted); }
+    .select {
+      border-radius: 0.8rem;
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      background: rgba(2, 6, 23, 0.25);
+      color: var(--text);
+      padding: 0.5rem 0.6rem;
+      font-size: 0.9rem;
+      outline: none;
+    }
+    .select:focus {
+      border-color: rgba(56, 189, 248, 0.75);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+    }
+
     footer.app-footer {
       margin-top: auto;
       padding-top: 0.8rem;
@@ -460,6 +512,7 @@
       .app-layout { grid-template-columns: 1fr; }
       aside.sidebar { position: relative; top: 0; }
       .courses-grid { grid-template-columns: 1fr; }
+      .split { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -510,6 +563,17 @@
               </span>
             </span>
             <span class="nav-right" id="coursesCountPill">…</span>
+          </button>
+
+          <button class="nav-btn" type="button" data-tab="projects" role="tab" aria-selected="false">
+            <span class="nav-left">
+              <span class="nav-ico" style="background:linear-gradient(135deg,#34d399,#38bdf8)">🗂</span>
+              <span class="nav-text">
+                <strong>Проекты</strong>
+                <span>Курсы по проектам</span>
+              </span>
+            </span>
+            <span class="nav-right" id="projectsCountPill">…</span>
           </button>
 
           <button class="nav-btn" type="button" data-tab="builder" role="tab" aria-selected="false" aria-disabled="true">
@@ -607,6 +671,92 @@
           <div id="coursesMessage" class="message-banner"></div>
         </section>
 
+        <section class="card tab-panel" id="tab-projects" role="tabpanel" hidden>
+          <div class="card-header">
+            <div>
+              <div class="card-title">Проекты</div>
+              <div class="muted">Создавайте проекты, приглашайте участников и назначайте роли</div>
+            </div>
+            <span class="chip" id="projectsSummary">Загрузка…</span>
+          </div>
+          <div class="divider"></div>
+
+          <div class="split">
+            <div class="stack">
+              <div>
+                <div class="profile-label">Мои проекты</div>
+                <select class="select" id="projectSelect" style="width:100%;" aria-label="Выбор проекта"></select>
+                <div class="muted" style="margin-top:0.35rem;">Роль и доступ зависят от выбранного проекта.</div>
+              </div>
+
+              <div class="divider"></div>
+
+              <div>
+                <div class="profile-label">Создать новый проект</div>
+                <div class="row">
+                  <input class="input" id="projectTitleInput" placeholder="Название проекта" style="flex:1;min-width:220px;" />
+                  <button type="button" class="btn" id="createProjectBtn">Создать</button>
+                </div>
+                <div class="muted">Проекты, созданные вами, автоматически дают роль администратора.</div>
+              </div>
+
+              <div class="divider"></div>
+
+              <div id="inviteBlock" hidden>
+                <div class="profile-label">Пригласить участника</div>
+                <div class="row">
+                  <input class="input" id="inviteEmailInput" placeholder="email@example.com" style="flex:1;min-width:220px;" />
+                  <select class="select" id="inviteRoleSelect" aria-label="Роль приглашения">
+                    <option value="listener">Слушатель</option>
+                    <option value="methodologist">Методолог</option>
+                  </select>
+                  <button type="button" class="btn" id="inviteBtn">Пригласить</button>
+                </div>
+                <div class="muted">Приглашение создаётся по email. После принятия у пользователя появится доступ к проекту.</div>
+              </div>
+            </div>
+
+            <div class="stack">
+              <div class="notice" id="projectAccessNotice">Выберите проект, чтобы увидеть доступные действия.</div>
+
+              <div id="membersBlock" hidden>
+                <div class="profile-label">Участники проекта</div>
+                <table class="table" aria-label="Список участников проекта">
+                  <thead>
+                    <tr>
+                      <th>Пользователь</th>
+                      <th>Роль</th>
+                      <th style="width:160px;">Действия</th>
+                    </tr>
+                  </thead>
+                  <tbody id="membersTbody">
+                    <tr><td class="muted-cell" colspan="3">Загрузка…</td></tr>
+                  </tbody>
+                </table>
+                <div class="muted" style="margin-top:0.4rem;">Администратор может менять роли. Методолог видит список без редактирования. Слушатель не видит участников.</div>
+              </div>
+
+              <div id="invitesBlock" hidden>
+                <div class="profile-label">Приглашённые (ожидают)</div>
+                <table class="table" aria-label="Список приглашений проекта">
+                  <thead>
+                    <tr>
+                      <th>Email</th>
+                      <th>Роль</th>
+                      <th style="width:160px;">Действия</th>
+                    </tr>
+                  </thead>
+                  <tbody id="invitesTbody">
+                    <tr><td class="muted-cell" colspan="3">Загрузка…</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div id="projectsMessage" class="message-banner"></div>
+        </section>
+
         <section class="card tab-panel" id="tab-builder" role="tabpanel" hidden>
           <div class="card-header">
             <div>
@@ -661,12 +811,14 @@
     const coursesSummary = document.getElementById('coursesSummary');
     const coursesMessage = document.getElementById('coursesMessage');
     const coursesCountPill = document.getElementById('coursesCountPill');
+    const projectsCountPill = document.getElementById('projectsCountPill');
     const sidebarChip = document.getElementById('sidebarChip');
 
     const navButtons = Array.from(document.querySelectorAll('.nav-btn[data-tab]'));
     const panels = {
       profile: document.getElementById('tab-profile'),
       lms: document.getElementById('tab-lms'),
+      projects: document.getElementById('tab-projects'),
       builder: document.getElementById('tab-builder'),
     };
 
@@ -692,6 +844,13 @@
       coursesMessage.className = 'message-banner' + (type === 'error' ? ' error' : '');
     }
 
+    function setProjectsMessage(text, type = 'info') {
+      const el = document.getElementById('projectsMessage');
+      if (!el) return;
+      el.textContent = text || '';
+      el.className = 'message-banner' + (type === 'error' ? ' error' : '');
+    }
+
     function setActiveTab(tabId) {
       navButtons.forEach((b) => {
         const isActive = b.dataset.tab === tabId;
@@ -706,7 +865,7 @@
 
     function resolveInitialTab() {
       const hash = (window.location.hash || '').replace('#', '').trim();
-      if (hash === 'lms' || hash === 'profile' || hash === 'builder') return hash;
+      if (hash === 'lms' || hash === 'profile' || hash === 'projects' || hash === 'builder') return hash;
       return 'profile';
     }
 
@@ -850,6 +1009,398 @@
       btn.disabled = isLoading;
       btn.dataset.originalText = btn.dataset.originalText || btn.textContent;
       btn.textContent = isLoading ? loadingText : btn.dataset.originalText;
+    }
+
+    // ===== Projects =====
+    const projectsSummary = document.getElementById('projectsSummary');
+    const projectSelect = document.getElementById('projectSelect');
+    const projectTitleInput = document.getElementById('projectTitleInput');
+    const createProjectBtn = document.getElementById('createProjectBtn');
+    const inviteBlock = document.getElementById('inviteBlock');
+    const inviteEmailInput = document.getElementById('inviteEmailInput');
+    const inviteRoleSelect = document.getElementById('inviteRoleSelect');
+    const inviteBtn = document.getElementById('inviteBtn');
+    const projectAccessNotice = document.getElementById('projectAccessNotice');
+    const membersBlock = document.getElementById('membersBlock');
+    const membersTbody = document.getElementById('membersTbody');
+    const invitesBlock = document.getElementById('invitesBlock');
+    const invitesTbody = document.getElementById('invitesTbody');
+
+    const PROJECT_ROLE_LABELS = {
+      admin: 'Администратор',
+      methodologist: 'Методолог',
+      listener: 'Слушатель',
+    };
+
+    function normalizeEmail(email) {
+      return (email || '').trim().toLowerCase();
+    }
+
+    function isValidEmail(email) {
+      const e = normalizeEmail(email);
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+    }
+
+    function setProjectsLoading(isLoading) {
+      if (projectsSummary) projectsSummary.textContent = isLoading ? 'Загрузка…' : (projectsSummary.textContent || '—');
+      if (projectSelect) projectSelect.disabled = isLoading;
+    }
+
+    function clearTbody(tbody, text) {
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = 3;
+      td.className = 'muted-cell';
+      td.textContent = text;
+      tr.appendChild(td);
+      tbody.appendChild(tr);
+    }
+
+    function updateProjectAccessUI({ project, myRole }) {
+      const hasProject = !!project;
+      const isAdmin = myRole === 'admin';
+      const isMethodologist = myRole === 'methodologist';
+      const canSeeMembers = isAdmin || isMethodologist;
+
+      if (projectAccessNotice) {
+        if (!hasProject) {
+          projectAccessNotice.textContent = 'Выберите проект, чтобы увидеть доступные действия.';
+        } else {
+          projectAccessNotice.textContent = `Текущий проект: ${project.title || 'Без названия'} · Ваша роль: ${PROJECT_ROLE_LABELS[myRole] || 'Слушатель'}`;
+        }
+      }
+
+      if (inviteBlock) inviteBlock.hidden = !(hasProject && isAdmin);
+      if (membersBlock) membersBlock.hidden = !(hasProject && canSeeMembers);
+      if (invitesBlock) invitesBlock.hidden = !(hasProject && canSeeMembers);
+    }
+
+    async function loadMyProjects(user) {
+      setProjectsMessage('');
+      setProjectsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('project_members')
+          .select(`
+            role,
+            projects (
+              id,
+              title,
+              created_by,
+              created_at
+            )
+          `)
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false, foreignTable: 'projects' });
+
+        if (error) throw error;
+
+        const rows = (data || []).filter((r) => r.projects && r.projects.id);
+        const projects = rows.map((r) => ({
+          ...r.projects,
+          my_role: r.role || 'listener',
+        }));
+
+        const count = projects.length;
+        if (projectsSummary) projectsSummary.textContent = `${count} проект(ов)`;
+        if (projectsCountPill) projectsCountPill.textContent = String(count);
+
+        if (projectSelect) {
+          projectSelect.innerHTML = '';
+          const opt0 = document.createElement('option');
+          opt0.value = '';
+          opt0.textContent = count ? '— выберите проект —' : '— проектов нет —';
+          projectSelect.appendChild(opt0);
+
+          projects.forEach((p) => {
+            const opt = document.createElement('option');
+            opt.value = p.id;
+            opt.textContent = `${p.title || 'Без названия'} · ${PROJECT_ROLE_LABELS[p.my_role] || 'Слушатель'}`;
+            projectSelect.appendChild(opt);
+          });
+        }
+
+        window.__myProjects = projects;
+        return projects;
+      } catch (e) {
+        console.error(e);
+        if (projectsSummary) projectsSummary.textContent = 'Ошибка';
+        if (projectsCountPill) projectsCountPill.textContent = '!';
+        if (projectSelect) {
+          projectSelect.innerHTML = '';
+          const opt = document.createElement('option');
+          opt.value = '';
+          opt.textContent = '— не удалось загрузить —';
+          projectSelect.appendChild(opt);
+        }
+        setProjectsMessage('Не удалось загрузить проекты. Проверьте таблицы `projects`, `project_members` и политики RLS в Supabase.', 'error');
+        window.__myProjects = [];
+        return [];
+      } finally {
+        setProjectsLoading(false);
+      }
+    }
+
+    async function createProject(user, title) {
+      const cleanTitle = (title || '').trim().slice(0, 120);
+      if (!cleanTitle) throw new Error('Введите название проекта.');
+
+      const { data: proj, error: projErr } = await supabase
+        .from('projects')
+        .insert({ title: cleanTitle, created_by: user.id })
+        .select('id, title, created_by, created_at')
+        .single();
+      if (projErr) throw projErr;
+
+      const { error: memErr } = await supabase
+        .from('project_members')
+        .insert({ project_id: proj.id, user_id: user.id, role: 'admin' });
+      if (memErr) throw memErr;
+
+      return proj;
+    }
+
+    async function fetchProjectMembers(projectId) {
+      const selectWithEmail = `
+        user_id,
+        role,
+        created_at,
+        profiles (
+          id,
+          full_name,
+          email
+        )
+      `;
+      const selectMinimal = `
+        user_id,
+        role,
+        created_at,
+        profiles (
+          id,
+          full_name
+        )
+      `;
+
+      const run = async (select) => {
+        const { data, error } = await supabase
+          .from('project_members')
+          .select(select)
+          .eq('project_id', projectId)
+          .order('created_at', { ascending: true });
+        if (error) throw error;
+        return data || [];
+      };
+
+      try {
+        return await run(selectWithEmail);
+      } catch (e) {
+        // if profiles.email column doesn't exist, retry without it
+        const msg = (e && (e.message || e.error_description)) ? String(e.message || e.error_description) : '';
+        if (msg.toLowerCase().includes('email')) {
+          return await run(selectMinimal);
+        }
+        throw e;
+      }
+    }
+
+    async function fetchProjectInvites(projectId) {
+      const { data, error } = await supabase
+        .from('project_invites')
+        .select('id, email, role, status, created_at')
+        .eq('project_id', projectId)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data || []).filter((r) => (r.status || 'pending') === 'pending');
+    }
+
+    async function inviteToProject(user, projectId, email, role) {
+      const e = normalizeEmail(email);
+      if (!isValidEmail(e)) throw new Error('Введите корректный email.');
+      const r = (role || 'listener').trim();
+      if (!['listener', 'methodologist'].includes(r)) throw new Error('Недопустимая роль для приглашения.');
+
+      const { error } = await supabase
+        .from('project_invites')
+        .insert({
+          project_id: projectId,
+          email: e,
+          role: r,
+          status: 'pending',
+          invited_by: user.id
+        });
+      if (error) throw error;
+    }
+
+    async function updateMemberRole(projectId, userId, newRole) {
+      const r = (newRole || '').trim();
+      if (!['admin', 'methodologist', 'listener'].includes(r)) throw new Error('Недопустимая роль.');
+      const { error } = await supabase
+        .from('project_members')
+        .update({ role: r })
+        .eq('project_id', projectId)
+        .eq('user_id', userId);
+      if (error) throw error;
+    }
+
+    async function cancelInvite(projectId, inviteId) {
+      const { error } = await supabase
+        .from('project_invites')
+        .update({ status: 'cancelled' })
+        .eq('project_id', projectId)
+        .eq('id', inviteId);
+      if (error) throw error;
+    }
+
+    function renderMembers({ members, myRole, currentUserId, projectId }) {
+      if (!membersTbody) return;
+      membersTbody.innerHTML = '';
+      if (!members.length) {
+        clearTbody(membersTbody, 'Участников пока нет.');
+        return;
+      }
+
+      const isAdmin = myRole === 'admin';
+      members.forEach((m) => {
+        const tr = document.createElement('tr');
+
+        const tdUser = document.createElement('td');
+        const name = m.profiles && m.profiles.full_name ? String(m.profiles.full_name).trim() : '';
+        const email = m.profiles && m.profiles.email ? String(m.profiles.email).trim() : '';
+        if (email && name) tdUser.textContent = `${name} · ${email}`;
+        else if (email) tdUser.textContent = email;
+        else if (name) tdUser.textContent = `${name} (${m.user_id})`;
+        else tdUser.textContent = m.user_id;
+
+        const tdRole = document.createElement('td');
+        if (isAdmin && m.user_id !== currentUserId) {
+          const sel = document.createElement('select');
+          sel.className = 'select';
+          ['admin', 'methodologist', 'listener'].forEach((r) => {
+            const opt = document.createElement('option');
+            opt.value = r;
+            opt.textContent = PROJECT_ROLE_LABELS[r];
+            sel.appendChild(opt);
+          });
+          sel.value = (m.role || 'listener');
+          tdRole.appendChild(sel);
+
+          sel.addEventListener('change', async () => {
+            setProjectsMessage('');
+            const nextRole = sel.value;
+            sel.disabled = true;
+            try {
+              await updateMemberRole(projectId, m.user_id, nextRole);
+              setProjectsMessage('Роль участника обновлена.', 'info');
+            } catch (e) {
+              console.error(e);
+              setProjectsMessage(e.message || 'Не удалось обновить роль.', 'error');
+              sel.value = (m.role || 'listener');
+            } finally {
+              sel.disabled = false;
+            }
+          });
+        } else {
+          tdRole.textContent = PROJECT_ROLE_LABELS[m.role] || 'Слушатель';
+        }
+
+        const tdActions = document.createElement('td');
+        tdActions.className = 'muted-cell';
+        tdActions.textContent = m.user_id === currentUserId ? 'Это вы' : '—';
+
+        tr.appendChild(tdUser);
+        tr.appendChild(tdRole);
+        tr.appendChild(tdActions);
+        membersTbody.appendChild(tr);
+      });
+    }
+
+    function renderInvites({ invites, myRole, projectId }) {
+      if (!invitesTbody) return;
+      invitesTbody.innerHTML = '';
+      if (!invites.length) {
+        clearTbody(invitesTbody, 'Нет ожидающих приглашений.');
+        return;
+      }
+
+      const isAdmin = myRole === 'admin';
+      invites.forEach((inv) => {
+        const tr = document.createElement('tr');
+
+        const tdEmail = document.createElement('td');
+        tdEmail.textContent = inv.email || '—';
+
+        const tdRole = document.createElement('td');
+        tdRole.textContent = PROJECT_ROLE_LABELS[inv.role] || 'Слушатель';
+
+        const tdActions = document.createElement('td');
+        if (isAdmin) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'btn btn-ghost btn-sm btn-danger';
+          btn.textContent = 'Отменить';
+          btn.addEventListener('click', async () => {
+            setProjectsMessage('');
+            setLoadingBtn(btn, true, 'Отмена…');
+            try {
+              await cancelInvite(projectId, inv.id);
+              setProjectsMessage('Приглашение отменено.', 'info');
+              tr.remove();
+            } catch (e) {
+              console.error(e);
+              setProjectsMessage(e.message || 'Не удалось отменить приглашение.', 'error');
+            } finally {
+              setLoadingBtn(btn, false, 'Отменить');
+            }
+          });
+          tdActions.appendChild(btn);
+        } else {
+          tdActions.className = 'muted-cell';
+          tdActions.textContent = '—';
+        }
+
+        tr.appendChild(tdEmail);
+        tr.appendChild(tdRole);
+        tr.appendChild(tdActions);
+        invitesTbody.appendChild(tr);
+      });
+    }
+
+    async function selectProjectById(user, projectId) {
+      const projects = window.__myProjects || [];
+      const project = projects.find((p) => p.id === projectId) || null;
+      const myRole = project ? (project.my_role || 'listener') : null;
+      window.__activeProject = project ? { ...project } : null;
+      window.__activeProjectRole = myRole;
+
+      updateProjectAccessUI({ project, myRole });
+      setProjectsMessage('');
+
+      if (!project) {
+        if (membersTbody) clearTbody(membersTbody, 'Выберите проект.');
+        if (invitesTbody) clearTbody(invitesTbody, 'Выберите проект.');
+        return;
+      }
+
+      const canSeeMembers = myRole === 'admin' || myRole === 'methodologist';
+      if (!canSeeMembers) return;
+
+      clearTbody(membersTbody, 'Загрузка…');
+      clearTbody(invitesTbody, 'Загрузка…');
+      try {
+        const [members, invites] = await Promise.all([
+          fetchProjectMembers(project.id),
+          fetchProjectInvites(project.id),
+        ]);
+        renderMembers({ members, myRole, currentUserId: user.id, projectId: project.id });
+        renderInvites({ invites, myRole, projectId: project.id });
+      } catch (e) {
+        console.error(e);
+        setProjectsMessage('Не удалось загрузить участников/приглашения. Проверьте `project_members`, `project_invites` и политики RLS.', 'error');
+        clearTbody(membersTbody, 'Ошибка загрузки.');
+        clearTbody(invitesTbody, 'Ошибка загрузки.');
+      }
     }
 
     async function uploadAvatar(userId, file) {
@@ -1090,6 +1641,61 @@
       if (!user) return;
       await loadProfile(user);
       await loadCourses(user);
+
+      if (projectsSummary) projectsSummary.textContent = 'Загрузка…';
+      if (projectsCountPill) projectsCountPill.textContent = '…';
+      await loadMyProjects(user);
+
+      updateProjectAccessUI({ project: null, myRole: null });
+      if (membersTbody) clearTbody(membersTbody, 'Выберите проект.');
+      if (invitesTbody) clearTbody(invitesTbody, 'Выберите проект.');
+
+      projectSelect && projectSelect.addEventListener('change', async () => {
+        const pid = projectSelect.value || '';
+        await selectProjectById(user, pid);
+      });
+
+      createProjectBtn && createProjectBtn.addEventListener('click', async () => {
+        setProjectsMessage('');
+        const title = projectTitleInput ? projectTitleInput.value : '';
+        setLoadingBtn(createProjectBtn, true, 'Создаём…');
+        try {
+          const proj = await createProject(user, title);
+          if (projectTitleInput) projectTitleInput.value = '';
+          await loadMyProjects(user);
+          if (projectSelect) projectSelect.value = proj.id;
+          await selectProjectById(user, proj.id);
+          setProjectsMessage('Проект создан.', 'info');
+        } catch (e) {
+          console.error(e);
+          setProjectsMessage(e.message || 'Не удалось создать проект.', 'error');
+        } finally {
+          setLoadingBtn(createProjectBtn, false, 'Создать');
+        }
+      });
+
+      inviteBtn && inviteBtn.addEventListener('click', async () => {
+        const active = window.__activeProject;
+        const myRole = window.__activeProjectRole;
+        if (!active || !active.id) return;
+        if (myRole !== 'admin') return;
+
+        const email = inviteEmailInput ? inviteEmailInput.value : '';
+        const role = inviteRoleSelect ? inviteRoleSelect.value : 'listener';
+        setProjectsMessage('');
+        setLoadingBtn(inviteBtn, true, 'Приглашаем…');
+        try {
+          await inviteToProject(user, active.id, email, role);
+          if (inviteEmailInput) inviteEmailInput.value = '';
+          setProjectsMessage('Приглашение создано.', 'info');
+          await selectProjectById(user, active.id);
+        } catch (e) {
+          console.error(e);
+          setProjectsMessage(e.message || 'Не удалось пригласить.', 'error');
+        } finally {
+          setLoadingBtn(inviteBtn, false, 'Пригласить');
+        }
+      });
     })();
   </script>
 </body>
