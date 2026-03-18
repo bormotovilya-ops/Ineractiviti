@@ -1088,12 +1088,12 @@
             projects (
               id,
               title,
-              created_by,
+              owner_id,
               created_at
             )
           `)
           .eq('user_id', user.id)
-          .order('created_at', { ascending: false, foreignTable: 'projects' });
+          .order('created_at', { ascending: false });
 
         if (error) throw error;
 
@@ -1149,15 +1149,19 @@
 
       const { data: proj, error: projErr } = await supabase
         .from('projects')
-        .insert({ title: cleanTitle, created_by: user.id })
-        .select('id, title, created_by, created_at')
+        // owner_id is filled by DB default auth.uid()
+        .insert({ title: cleanTitle })
+        .select('id, title, owner_id, created_at')
         .single();
       if (projErr) throw projErr;
 
       const { error: memErr } = await supabase
         .from('project_members')
         .insert({ project_id: proj.id, user_id: user.id, role: 'admin' });
-      if (memErr) throw memErr;
+      if (memErr) {
+        // Project could be created but not visible in UI until membership exists.
+        throw memErr;
+      }
 
       return proj;
     }
