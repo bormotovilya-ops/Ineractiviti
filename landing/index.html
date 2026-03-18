@@ -2812,12 +2812,13 @@
       var authSlideIndex = authSlideEl ? Array.prototype.indexOf.call(slides, authSlideEl) : -1;
 
       var ROLE_ICONS = {
-        teacher: 'img/Roles/Role1.png',
-        methodist: 'img/Roles/Role2.png',
-        producer: 'img/Roles/Role3.png',
-        marketer: 'img/Roles/Role4.png',
-        manager: 'img/Roles/Role5.png',
-        other: 'img/Roles/Role6.png'
+        // Use absolute URLs to avoid intermittent connection resets on custom domain
+        teacher: 'https://ineractiviti.vercel.app/img/Roles/Role1.png',
+        methodist: 'https://ineractiviti.vercel.app/img/Roles/Role2.png',
+        producer: 'https://ineractiviti.vercel.app/img/Roles/Role3.png',
+        marketer: 'https://ineractiviti.vercel.app/img/Roles/Role4.png',
+        manager: 'https://ineractiviti.vercel.app/img/Roles/Role5.png',
+        other: 'https://ineractiviti.vercel.app/img/Roles/Role6.png'
       };
       var ROLE_BENEFITS = {
         teacher: {
