@@ -3254,21 +3254,15 @@
       navLinks.forEach(function(a) {
         a.addEventListener('click', function(e) {
           var href = this.getAttribute('href');
-          if (!href) return;
           if (href === '#hero' || href === '#intro') { e.preventDefault(); goToSlide(0); return; }
+          if (href === '#problem') { e.preventDefault(); goToSlide(1); return; }
+          // Демо — 7‑й слайд (index 5)
+          if (href === '#demo') { e.preventDefault(); goToSlide(5); return; }
+          // «Тарифы» в шапке ведёт на «Возможности» — 8‑й слайд (index 6)
+          if (href === '#pricing') { e.preventDefault(); goToSlide(6); return; }
           if (href === '#form') { e.preventDefault(); goToSlide(authSlideIndex >= 0 ? authSlideIndex : 7); return; }
-
-          // Resolve target slide dynamically (prevents wrong indices when sections move)
-          var target = document.querySelector(href);
-          if (!target && href === '#pricing') target = document.getElementById('features');
-          if (target) {
-            var idx = Array.prototype.indexOf.call(slides, target);
-            if (idx >= 0) {
-              e.preventDefault();
-              goToSlide(idx);
-              return;
-            }
-          }
+          if (href === '#contacts') { e.preventDefault(); goToSlide(9); return; }
+          if (href === '#documents') { e.preventDefault(); goToSlide(10); return; }
         });
       });
       document.addEventListener('click', function(e) {
