@@ -1253,13 +1253,49 @@
         return data || [];
       };
 
+      const runWithoutRelationship = async () => {
+        // If there's no FK relationship in PostgREST schema cache, load members + profiles separately
+        const { data: members, error: memErr } = await supabase
+          .from('project_members')
+          .select('user_id, role, created_at')
+          .eq('project_id', projectId)
+          .order('created_at', { ascending: true });
+        if (memErr) throw memErr;
+        const ids = Array.from(new Set((members || []).map((m) => m.user_id).filter(Boolean)));
+        if (!ids.length) return members || [];
+
+        const { data: profiles, error: profErr } = await supabase
+          .from('profiles')
+          .select('id, full_name, email')
+          .in('id', ids);
+        if (profErr) throw profErr;
+        const byId = new Map((profiles || []).map((p) => [p.id, p]));
+        return (members || []).map((m) => ({ ...m, profiles: byId.get(m.user_id) || null }));
+      };
+
       try {
         return await run(selectWithEmail);
       } catch (e) {
-        // if profiles.email column doesn't exist, retry without it
+        const code = e && (e.code || e.error_code) ? String(e.code || e.error_code) : '';
         const msg = (e && (e.message || e.error_description)) ? String(e.message || e.error_description) : '';
+
+        // PGRST200: no relationship in schema cache
+        if (code === 'PGRST200' || msg.toLowerCase().includes('could not find a relationship')) {
+          return await runWithoutRelationship();
+        }
+
+        // if profiles.email column doesn't exist, retry without it
         if (msg.toLowerCase().includes('email')) {
-          return await run(selectMinimal);
+          try {
+            return await run(selectMinimal);
+          } catch (e2) {
+            const code2 = e2 && (e2.code || e2.error_code) ? String(e2.code || e2.error_code) : '';
+            const msg2 = (e2 && (e2.message || e2.error_description)) ? String(e2.message || e2.error_description) : '';
+            if (code2 === 'PGRST200' || msg2.toLowerCase().includes('could not find a relationship')) {
+              return await runWithoutRelationship();
+            }
+            throw e2;
+          }
         }
         throw e;
       }
