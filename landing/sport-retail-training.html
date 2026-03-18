@@ -224,7 +224,9 @@
       border: 1px solid rgba(255,255,255,0.12);
       background: rgba(10,10,15,0.35);
     }
-    .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 35%; display: block; }
+    /* Oksana portrait: keep face in frame */
+    .avatar img.avatar-focus-top { object-position: 50% 18%; }
     .person h3 { margin: 0; font-size: 15px; }
     .person .role { color: var(--text-muted); font-size: 13px; margin-top: 2px; }
     .person .meta { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px; }
@@ -342,7 +344,7 @@
       <div class="team">
         <div class="card">
           <div class="person">
-            <div class="avatar"><img src="img/met_lend/OksanaP.png" alt="Оксана Погодская" /></div>
+            <div class="avatar"><img class="avatar-focus-top" src="img/met_lend/OksanaP.png" alt="Оксана Погодская" /></div>
             <div>
               <h3 class="font-display">Оксана Погодская</h3>
               <div class="role">Методолог, продакт‑менеджер, руководитель отдела продукта и сервиса</div>
