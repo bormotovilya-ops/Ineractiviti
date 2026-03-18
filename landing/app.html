@@ -681,6 +681,25 @@
           </div>
           <div class="divider"></div>
 
+          <div id="myInvitesBlock">
+            <div class="profile-label">Мои приглашения</div>
+            <table class="table" aria-label="Мои приглашения в проекты">
+              <thead>
+                <tr>
+                  <th>Проект</th>
+                  <th>Роль</th>
+                  <th style="width:160px;">Действия</th>
+                </tr>
+              </thead>
+              <tbody id="myInvitesTbody">
+                <tr><td class="muted-cell" colspan="3">Загрузка…</td></tr>
+              </tbody>
+            </table>
+            <div class="muted" style="margin-top:0.4rem;">Приглашения приходят на ваш email. Нажмите «Принять», чтобы проект появился в списке.</div>
+          </div>
+
+          <div class="divider"></div>
+
           <div class="split">
             <div class="stack">
               <div>
@@ -1039,6 +1058,8 @@
     const membersTbody = document.getElementById('membersTbody');
     const invitesBlock = document.getElementById('invitesBlock');
     const invitesTbody = document.getElementById('invitesTbody');
+    const myInvitesBlock = document.getElementById('myInvitesBlock');
+    const myInvitesTbody = document.getElementById('myInvitesTbody');
 
     const PROJECT_ROLE_LABELS = {
       admin: 'Администратор',
@@ -1311,6 +1332,38 @@
       return (data || []).filter((r) => (r.status || 'pending') === 'pending');
     }
 
+    async function fetchMyInvites(userEmail) {
+      const email = normalizeEmail(userEmail || '');
+      if (!email) return [];
+      const { data, error } = await supabase
+        .from('project_invites')
+        .select(`
+          id,
+          project_id,
+          email,
+          role,
+          status,
+          created_at,
+          projects (
+            id,
+            title,
+            created_at
+          )
+        `)
+        .eq('status', 'pending')
+        .ilike('email', email)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data || []).filter((r) => r.status === 'pending');
+    }
+
+    async function acceptInvite(inviteId) {
+      const { data, error } = await supabase
+        .rpc('accept_project_invite', { invite_id: inviteId });
+      if (error) throw error;
+      return data;
+    }
+
     async function inviteToProject(user, projectId, email, role) {
       const e = normalizeEmail(email);
       if (!isValidEmail(e)) throw new Error('Введите корректный email.');
@@ -1465,6 +1518,54 @@
         tr.appendChild(tdRole);
         tr.appendChild(tdActions);
         invitesTbody.appendChild(tr);
+      });
+    }
+
+    function renderMyInvites(invites) {
+      if (!myInvitesTbody) return;
+      myInvitesTbody.innerHTML = '';
+      const list = invites || [];
+      if (!list.length) {
+        clearTbody(myInvitesTbody, 'Приглашений нет.');
+        return;
+      }
+      list.forEach((inv) => {
+        const tr = document.createElement('tr');
+        const tdProj = document.createElement('td');
+        const title = inv.projects && inv.projects.title ? String(inv.projects.title) : inv.project_id;
+        tdProj.textContent = title;
+
+        const tdRole = document.createElement('td');
+        tdRole.textContent = PROJECT_ROLE_LABELS[inv.role] || 'Слушатель';
+
+        const tdActions = document.createElement('td');
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn btn-sm';
+        btn.textContent = 'Принять';
+        btn.addEventListener('click', async () => {
+          setProjectsMessage('');
+          setLoadingBtn(btn, true, 'Принимаем…');
+          try {
+            await acceptInvite(inv.id);
+            setProjectsMessage('Приглашение принято. Проект добавлен.', 'info');
+            tr.remove();
+            const user = await requireAuthOrRedirect();
+            if (!user) return;
+            await loadMyProjects(user);
+          } catch (e) {
+            console.error(e);
+            setProjectsMessage((e && e.message) ? e.message : 'Не удалось принять приглашение.', 'error');
+          } finally {
+            setLoadingBtn(btn, false, 'Принять');
+          }
+        });
+        tdActions.appendChild(btn);
+
+        tr.appendChild(tdProj);
+        tr.appendChild(tdRole);
+        tr.appendChild(tdActions);
+        myInvitesTbody.appendChild(tr);
       });
     }
 
@@ -1750,6 +1851,15 @@
       if (projectsSummary) projectsSummary.textContent = 'Загрузка…';
       if (projectsCountPill) projectsCountPill.textContent = '…';
       await loadMyProjects(user);
+
+      // Load my pending invites (for any role)
+      try {
+        const myInv = await fetchMyInvites(user.email || '');
+        renderMyInvites(myInv);
+      } catch (e) {
+        console.error(e);
+        if (myInvitesTbody) clearTbody(myInvitesTbody, 'Не удалось загрузить приглашения.');
+      }
 
       updateProjectAccessUI({ project: null, myRole: null });
       if (membersTbody) clearTbody(membersTbody, 'Выберите проект.');
