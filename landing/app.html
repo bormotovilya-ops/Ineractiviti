@@ -1290,7 +1290,12 @@
           status: 'pending',
           invited_by: user.id
         });
-      if (error) throw error;
+      if (error) {
+        if (error.code === '23505') {
+          throw new Error('Для этого email уже есть активное приглашение (pending). Отмени его или дождись принятия.');
+        }
+        throw error;
+      }
     }
 
     async function updateMemberRole(projectId, userId, newRole) {
@@ -1457,7 +1462,11 @@
         renderInvites({ invites, myRole, projectId: project.id });
       } catch (e) {
         console.error(e);
-        setProjectsMessage('Не удалось загрузить участников/приглашения. Проверьте `project_members`, `project_invites` и политики RLS.', 'error');
+        setProjectsMessage(
+          'Не удалось загрузить участников/приглашения. Проверьте `project_members`, `project_invites` и политики RLS.'
+            + (e ? ` Ошибка: ${formatErr(e)}` : ''),
+          'error'
+        );
         clearTbody(membersTbody, 'Ошибка загрузки.');
         clearTbody(invitesTbody, 'Ошибка загрузки.');
       }
