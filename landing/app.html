@@ -717,6 +717,13 @@
 
                 <div>
                   <div class="profile-label">Мои курсы (в проектах)</div>
+                  <div id="courseCreateBlock" hidden style="margin-bottom:.6rem;">
+                    <div class="row" style="align-items:flex-start;">
+                      <input class="input" id="courseTitleInput" placeholder="Название курса" style="flex:1;min-width:220px;" />
+                      <button type="button" class="btn" id="createCourseBtn">Создать курс</button>
+                    </div>
+                    <div class="muted" style="margin-top:.35rem;">Курс можно сохранить как черновик или опубликовать в карточке курса.</div>
+                  </div>
                   <div id="coursesContainer">
                     <p class="muted">Выберите проект, чтобы увидеть курсы.</p>
                   </div>
@@ -1062,6 +1069,9 @@
     const invitesTbody = document.getElementById('invitesTbody');
     const myInvitesBlock = document.getElementById('myInvitesBlock');
     const myInvitesTbody = document.getElementById('myInvitesTbody');
+    const courseCreateBlock = document.getElementById('courseCreateBlock');
+    const courseTitleInput = document.getElementById('courseTitleInput');
+    const createCourseBtn = document.getElementById('createCourseBtn');
 
     const PROJECT_ROLE_LABELS = {
       admin: 'Администратор',
@@ -1584,17 +1594,30 @@
       }
 
       const canSeeMembers = myRole === 'admin' || myRole === 'methodologist';
-      if (!canSeeMembers) return;
+      // Courses can be visible for any member (listener sees only published via RLS)
+      const canManage = myRole === 'admin' || myRole === 'methodologist';
+      if (courseCreateBlock) courseCreateBlock.hidden = !canManage;
 
       clearTbody(membersTbody, 'Загрузка…');
       clearTbody(invitesTbody, 'Загрузка…');
+      if (coursesContainer) coursesContainer.innerHTML = '<p class="muted">Загрузка курсов…</p>';
       try {
-        const [members, invites] = await Promise.all([
-          fetchProjectMembers(project.id),
-          fetchProjectInvites(project.id),
-        ]);
-        renderMembers({ members, myRole, currentUserId: user.id, projectId: project.id });
-        renderInvites({ invites, myRole, projectId: project.id });
+        const tasks = [
+          fetchProjectCourses(project.id)
+        ];
+        if (canSeeMembers) tasks.push(fetchProjectMembers(project.id), fetchProjectInvites(project.id));
+        const res = await Promise.all(tasks);
+        const courses = res[0] || [];
+        renderProjectCourses(courses, { canManage });
+        if (canSeeMembers) {
+          const members = res[1] || [];
+          const invites = res[2] || [];
+          renderMembers({ members, myRole, currentUserId: user.id, projectId: project.id });
+          renderInvites({ invites, myRole, projectId: project.id });
+        } else {
+          if (membersTbody) clearTbody(membersTbody, 'Недоступно для вашей роли.');
+          if (invitesTbody) clearTbody(invitesTbody, 'Недоступно для вашей роли.');
+        }
       } catch (e) {
         console.error(e);
         setProjectsMessage(
@@ -1604,6 +1627,7 @@
         );
         clearTbody(membersTbody, 'Ошибка загрузки.');
         clearTbody(invitesTbody, 'Ошибка загрузки.');
+        if (coursesContainer) coursesContainer.innerHTML = '<p class="muted">Не удалось загрузить курсы.</p>';
       }
     }
 
@@ -1631,57 +1655,56 @@
       if (error) throw error;
     }
 
-    function renderCourses(items) {
-      if (!items.length) {
-        coursesContainer.innerHTML = '<p class="muted">Пока что вам не назначено ни одного курса.</p>';
-        coursesSummary.textContent = '0 курсов';
-        coursesCountPill.textContent = '0';
+    // ===== Project courses (drafts for admins/curators only; listeners see only published via RLS) =====
+    async function fetchProjectCourses(projectId) {
+      const { data, error } = await supabase
+        .from('project_courses')
+        .select('id, project_id, title, description, image_url, is_published, created_at, created_by')
+        .eq('project_id', projectId)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    }
+
+    function renderProjectCourses(courses, { canManage }) {
+      if (!coursesContainer) return;
+      const list = courses || [];
+      if (!list.length) {
+        coursesContainer.innerHTML = '<p class="muted">Курсов пока нет.</p>';
         return;
       }
-
-      coursesSummary.textContent = `${items.length} курс(ов)`;
-      coursesCountPill.textContent = String(items.length);
 
       const grid = document.createElement('div');
       grid.className = 'courses-grid';
 
-      items.forEach((row) => {
-        const course = row.courses;
-        const progress = typeof row.progress === 'number' ? Math.min(Math.max(row.progress, 0), 100) : 0;
-        const status = row.status || (progress >= 100 ? 'completed' : 'active');
-
+      list.forEach((c) => {
         const card = document.createElement('article');
         card.className = 'course-card';
+        card.style.cursor = 'pointer';
 
         const title = document.createElement('div');
         title.className = 'course-title';
-        title.textContent = (course && course.title) || 'Без названия';
+        title.textContent = c.title || 'Без названия';
 
         const desc = document.createElement('div');
         desc.className = 'course-desc';
-        desc.textContent = (course && course.description) || 'Описание курса пока не заполнено.';
-
-        const line = document.createElement('div');
-        line.className = 'progress-line';
-        const inner = document.createElement('div');
-        inner.className = 'progress-line-inner';
-        line.appendChild(inner);
-        setTimeout(() => { inner.style.width = progress + '%'; }, 50);
+        desc.textContent = c.description || 'Описание курса пока не заполнено.';
 
         const meta = document.createElement('div');
         meta.className = 'course-meta';
-        const progressText = document.createElement('span');
-        progressText.textContent = `Прогресс: ${progress}%`;
-        const pill = document.createElement('span');
-        pill.className = 'pill ' + (status === 'completed' ? 'status-completed' : 'status-active');
-        pill.textContent = status === 'completed' ? 'Завершён' : 'В процессе';
-        meta.appendChild(progressText);
-        meta.appendChild(pill);
+        const status = document.createElement('span');
+        status.className = 'pill ' + (c.is_published ? 'status-completed' : 'status-active');
+        status.textContent = c.is_published ? 'Опубликован' : 'Черновик';
+        const hint = document.createElement('span');
+        hint.textContent = canManage ? 'Открыть' : 'Просмотр';
+        meta.appendChild(status);
+        meta.appendChild(hint);
 
         card.appendChild(title);
         card.appendChild(desc);
-        card.appendChild(line);
         card.appendChild(meta);
+
+        card.addEventListener('click', () => openCourseCard(c, { canManage }));
         grid.appendChild(card);
       });
 
@@ -1689,39 +1712,118 @@
       coursesContainer.appendChild(grid);
     }
 
-    async function loadCourses(user) {
-      try {
-        const { data, error } = await supabase
-          .from('enrollments')
-          .select(`
-            progress,
-            status,
-            last_access_at,
-            courses (
-              id,
-              title,
-              description
-            )
-          `)
-          .eq('user_id', user.id)
-          .order('last_access_at', { ascending: false });
+    function openCourseCard(course, { canManage }) {
+      // lightweight modal
+      let modal = document.getElementById('courseModal');
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'courseModal';
+        modal.className = 'modal';
+        modal.style.width = '520px';
+        modal.style.maxWidth = '94%';
+        modal.innerHTML = `
+          <div class="modal-body">
+            <h3 style="margin:0 0 .35rem;">Курс</h3>
+            <div class="form-row">
+              <div class="profile-label">Название</div>
+              <input class="input" id="courseEditTitle" />
+            </div>
+            <div class="form-row">
+              <div class="profile-label">Описание</div>
+              <textarea class="input" id="courseEditDesc" rows="4" style="resize:vertical;"></textarea>
+            </div>
+            <div class="form-row">
+              <div class="profile-label">Картинка (URL)</div>
+              <input class="input" id="courseEditImage" placeholder="https://..." />
+            </div>
+            <div class="row" style="align-items:center;justify-content:space-between;margin-top:.5rem;">
+              <label class="muted" style="display:flex;align-items:center;gap:.5rem;">
+                <input type="checkbox" id="courseEditPublished" />
+                Опубликован
+              </label>
+              <div style="display:flex;gap:.5rem;">
+                <button type="button" class="btn" id="courseSaveBtn">Сохранить</button>
+                <button type="button" class="btn btn-ghost" id="courseCloseBtn">Закрыть</button>
+              </div>
+            </div>
+            <div class="message-banner" id="courseEditMsg" style="margin-top:.5rem;"></div>
+          </div>
+        `;
+        document.body.appendChild(modal);
+      }
 
-        if (error) {
-          console.error('Ошибка загрузки курсов', error);
-          coursesContainer.innerHTML = '<p class="muted">Не удалось загрузить список курсов.</p>';
-          setCoursesMessage('Проверьте таблицы courses/enrollments и политики RLS в Supabase.', 'error');
-          coursesSummary.textContent = 'Ошибка';
-          coursesCountPill.textContent = '!';
-          return;
-        }
+      const titleEl = document.getElementById('courseEditTitle');
+      const descEl = document.getElementById('courseEditDesc');
+      const imgEl = document.getElementById('courseEditImage');
+      const pubEl = document.getElementById('courseEditPublished');
+      const saveBtn = document.getElementById('courseSaveBtn');
+      const closeBtn = document.getElementById('courseCloseBtn');
+      const msgEl = document.getElementById('courseEditMsg');
 
-        const items = data || [];
-        renderCourses(items);
-      } catch (e) {
-        console.error(e);
-        coursesContainer.innerHTML = '<p class="muted">Не удалось загрузить курсы.</p>';
-        coursesSummary.textContent = 'Ошибка';
-        coursesCountPill.textContent = '!';
+      const setMsg = (t, isErr=false) => {
+        if (!msgEl) return;
+        msgEl.textContent = t || '';
+        msgEl.className = 'message-banner' + (isErr ? ' error' : '');
+      };
+
+      if (titleEl) titleEl.value = course.title || '';
+      if (descEl) descEl.value = course.description || '';
+      if (imgEl) imgEl.value = course.image_url || '';
+      if (pubEl) pubEl.checked = !!course.is_published;
+
+      const setDisabled = (disabled) => {
+        [titleEl, descEl, imgEl, pubEl, saveBtn].forEach((x) => { if (x) x.disabled = disabled; });
+      };
+
+      setDisabled(!canManage);
+      if (saveBtn) saveBtn.hidden = !canManage;
+      if (pubEl) pubEl.disabled = !canManage;
+      if (!canManage) setMsg('Только администратор/куратор проекта может редактировать курс.');
+      else setMsg('');
+
+      const close = () => {
+        modal.hidden = true;
+        modal.setAttribute('aria-hidden', 'true');
+      };
+      closeBtn && (closeBtn.onclick = close);
+
+      modal.hidden = false;
+      modal.setAttribute('aria-hidden', 'false');
+
+      if (saveBtn) {
+        saveBtn.onclick = async () => {
+          setMsg('');
+          setLoadingBtn(saveBtn, true, 'Сохраняем…');
+          try {
+            const payload = {
+              title: (titleEl && titleEl.value ? titleEl.value.trim() : '').slice(0, 200),
+              description: descEl ? descEl.value.trim() : null,
+              image_url: imgEl ? imgEl.value.trim() : null,
+              is_published: pubEl ? !!pubEl.checked : false
+            };
+            const { error } = await supabase
+              .from('project_courses')
+              .update(payload)
+              .eq('id', course.id);
+            if (error) throw error;
+            setMsg('Сохранено.');
+
+            // refresh list for active project
+            const user = await requireAuthOrRedirect();
+            const pid = window.__activeProject ? window.__activeProject.id : null;
+            const myRole = window.__activeProjectRole || null;
+            if (user && pid) {
+              const canM = myRole === 'admin' || myRole === 'methodologist';
+              const fresh = await fetchProjectCourses(pid);
+              renderProjectCourses(fresh, { canManage: canM });
+            }
+          } catch (e) {
+            console.error(e);
+            setMsg(formatErr(e) || 'Не удалось сохранить.', true);
+          } finally {
+            setLoadingBtn(saveBtn, false, 'Сохранить');
+          }
+        };
       }
     }
 
@@ -1898,6 +2000,41 @@
           setLoadingBtn(createProjectBtn, false, 'Создать');
         }
       });
+
+    createCourseBtn && createCourseBtn.addEventListener('click', async () => {
+      setProjectsMessage('');
+      const user = await requireAuthOrRedirect();
+      if (!user) return;
+      const active = window.__activeProject;
+      const myRole = window.__activeProjectRole;
+      const canManage = myRole === 'admin' || myRole === 'methodologist';
+      if (!active) throw new Error('Сначала выберите проект.');
+      if (!canManage) throw new Error('Недостаточно прав для создания курса.');
+
+      const title = courseTitleInput ? courseTitleInput.value : '';
+      const cleanTitle = (title || '').trim().slice(0, 200);
+      if (!cleanTitle) {
+        setProjectsMessage('Введите название курса.', 'error');
+        return;
+      }
+
+      setLoadingBtn(createCourseBtn, true, 'Создаём…');
+      try {
+        const { error } = await supabase
+          .from('project_courses')
+          .insert({ project_id: active.id, title: cleanTitle, is_published: false });
+        if (error) throw error;
+        if (courseTitleInput) courseTitleInput.value = '';
+        setProjectsMessage('Курс создан (черновик). Откройте карточку и опубликуйте.', 'info');
+        const fresh = await fetchProjectCourses(active.id);
+        renderProjectCourses(fresh, { canManage: true });
+      } catch (e) {
+        console.error(e);
+        setProjectsMessage(formatErr(e) || 'Не удалось создать курс.', 'error');
+      } finally {
+        setLoadingBtn(createCourseBtn, false, 'Создать курс');
+      }
+    });
 
       inviteBtn && inviteBtn.addEventListener('click', async () => {
         const active = window.__activeProject;
