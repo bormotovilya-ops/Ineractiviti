@@ -1900,62 +1900,71 @@
         <h2 class="font-display">Конструктор интерактивных сценариев</h2>
         <p class="text-muted" style="margin-top: 0; margin-bottom: 0.75rem;">Что это и зачем?</p>
         <div class="product-title-spacer" aria-hidden="true"></div>
-        <div class="product-layout">
-          <div class="product-layout-cards">
-            <div class="flip-cards col-4">
-              <div class="flip-card" tabindex="0" title="Нажмите на карточку — подробности внутри">
-                <div class="flip-card-inner">
-                  <div class="flip-card-front">
-                    <span class="flip-card-emoji">🎓</span>
-                    <h4>Вы замечаете, что старые форматы онлайн‑обучения теряют эффективность для нового поколения?</h4>
-                  </div>
-                  <div class="flip-card-back">
-                    <p>Классический формат «лекция + тест» быстро утомляет — интерес к учёбе падает, особенно у нового поколения. В Интерактивити курс — это интерактивная история с выбором и последствиями, где хочется дойти до конца и попробовать себя в разных ролях.</p>
-                  </div>
-                </div>
-              </div>
-              <div class="flip-card" tabindex="0" title="Нажмите на карточку — подробности внутри">
-                <div class="flip-card-inner">
-                  <div class="flip-card-front">
-                    <span class="flip-card-emoji">📚</span>
-                    <h4>Хотите увеличить показатели вовлечения, доходиости и применения знаний на практике?</h4>
-                  </div>
-                  <div class="flip-card-back">
-                    <p>Со временем доходимость классических курсов падает, а связь между выученным и реальной работой слабая. В Интерактивити вы строите ветвящиеся кейсы‑тренажёры: знания тут же применяются в ситуациях «как в жизни», а навыки переносятся в реальные решения.</p>
-                  </div>
-                </div>
-              </div>
-              <div class="flip-card" tabindex="0" title="Нажмите на карточку — подробности внутри">
-                <div class="flip-card-inner">
-                  <div class="flip-card-front">
-                    <span class="flip-card-emoji">📊</span>
-                    <h4>Ищите новый формат для учебы или привлечения клиентов в бизнесе?</h4>
-                  </div>
-                  <div class="flip-card-back">
-                    <p>Обычно вы видите только факт прохождения курса или клика по квизу. В Интерактивити каждый выбор — это сегментация и данные: кто как действует, где отваливается, какие сценарии ведут к результату. Можно масштабировать курсы и продукт на основе аналитики.</p>
-                  </div>
-                </div>
-              </div>
-              <div class="flip-card flip-card-demo" tabindex="0" title="Посмотреть демо курс">
-                <div class="flip-card-inner">
-                  <div class="flip-card-front">
-                    <span class="flip-card-emoji">▶️</span>
-                    <h4>Есть решение! Запустите демо!</h4>
-                  </div>
-                  <div class="flip-card-back">
-                    <p>Откройте готовый интерактивный курс <strong>PeopleGames</strong> и пройдите сценарий как ваш ученик. Увидите, как работает конструктор на живом примере.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+
+        <!-- 1) Правая карточка: описание + схема -->
+        <div class="product-layout-text">
+          <div class="product-intro">
+            <p><strong>Интерактивный сценарий (ИС)</strong> — это история или кейс, в котором пользователь сам делает выбор: отвечает на вопросы, нажимает варианты, принимает решения. От каждого выбора зависит, что произойдёт дальше: сюжет ветвится, можно прийти к разным концовкам или переиграть и попробовать другой путь.</p>
+            <p><strong>Конструктор интерактивных сценариев (КИС)</strong> — инструмент для создания таких сценариев без программирования: визуальный редактор сцен, выборов и исходов и учебная платформа для назначения курсов и просмотра отчётов в одном месте.</p>
           </div>
-          <div class="product-layout-text">
-            <div class="product-intro">
-              <p><strong>Интерактивный сценарий (ИС)</strong> — это история или кейс, в котором пользователь сам делает выбор: отвечает на вопросы, нажимает варианты, принимает решения. От каждого выбора зависит, что произойдёт дальше: сюжет ветвится, можно прийти к разным концовкам или переиграть и попробовать другой путь.</p>
-              <p><strong>Конструктор интерактивных сценариев (КИС)</strong> — инструмент для создания таких сценариев без программирования: визуальный редактор сцен, выборов и исходов и учебная платформа для назначения курсов и просмотра отчётов в одном месте.</p>
+          <div class="product-diagram-wrap">
+            <img class="product-diagram" src="img/Product.png" alt="Схема: интерактивный сценарий — узлы и ветвления" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-problem product-slide graph-node-section landing-slide" id="problemCards" data-slide="2">
+      <div class="slide-card">
+      <div class="slide-card-body">
+
+        <!-- 2) 4 левые карточки -->
+        <div class="product-layout-cards">
+          <div class="flip-cards col-4">
+            <div class="flip-card" tabindex="0" title="Нажмите на карточку — подробности внутри">
+              <div class="flip-card-inner">
+                <div class="flip-card-front">
+                  <span class="flip-card-emoji">🎓</span>
+                  <h4>Вы замечаете, что старые форматы онлайн‑обучения теряют эффективность для нового поколения?</h4>
+                </div>
+                <div class="flip-card-back">
+                  <p>Классический формат «лекция + тест» быстро утомляет — интерес к учёбе падает, особенно у нового поколения. В Интерактивити курс — это интерактивная история с выбором и последствиями, где хочется дойти до конца и попробовать себя в разных ролях.</p>
+                </div>
+              </div>
             </div>
-            <div class="product-diagram-wrap">
-              <img class="product-diagram" src="img/Product.png" alt="Схема: интерактивный сценарий — узлы и ветвления" />
+            <div class="flip-card" tabindex="0" title="Нажмите на карточку — подробности внутри">
+              <div class="flip-card-inner">
+                <div class="flip-card-front">
+                  <span class="flip-card-emoji">📚</span>
+                  <h4>Хотите увеличить показатели вовлечения, доходиости и применения знаний на практике?</h4>
+                </div>
+                <div class="flip-card-back">
+                  <p>Со временем доходимость классических курсов падает, а связь между выученным и реальной работой слабая. В Интерактивити вы строите ветвящиеся кейсы‑тренажёры: знания тут же применяются в ситуациях «как в жизни», а навыки переносятся в реальные решения.</p>
+                </div>
+              </div>
+            </div>
+            <div class="flip-card" tabindex="0" title="Нажмите на карточку — подробности внутри">
+              <div class="flip-card-inner">
+                <div class="flip-card-front">
+                  <span class="flip-card-emoji">📊</span>
+                  <h4>Ищите новый формат для учебы или привлечения клиентов в бизнесе?</h4>
+                </div>
+                <div class="flip-card-back">
+                  <p>Обычно вы видите только факт прохождения курса или клика по квизу. В Интерактивити каждый выбор — это сегментация и данные: кто как действует, где отваливается, какие сценарии ведут к результату. Можно масштабировать курсы и продукт на основе аналитики.</p>
+                </div>
+              </div>
+            </div>
+            <div class="flip-card flip-card-demo" tabindex="0" title="Посмотреть демо курс">
+              <div class="flip-card-inner">
+                <div class="flip-card-front">
+                  <span class="flip-card-emoji">▶️</span>
+                  <h4>Есть решение! Запустите демо!</h4>
+                </div>
+                <div class="flip-card-back">
+                  <p>Откройте готовый интерактивный курс <strong>PeopleGames</strong> и пройдите сценарий как ваш ученик. Увидите, как работает конструктор на живом примере.</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1963,7 +1972,7 @@
     </div>
   </section>
 
-  <section class="role-slide graph-node-section landing-slide" id="role" data-slide="2">
+  <section class="role-slide graph-node-section landing-slide" id="role" data-slide="3">
     <div class="slide-card">
       <div class="slide-card-body">
         <div class="role-slide-inner">
@@ -2006,7 +2015,7 @@
     </div>
   </section>
 
-  <section class="for-you-slide graph-node-section landing-slide" id="forYou" data-slide="3">
+  <section class="for-you-slide graph-node-section landing-slide" id="forYou" data-slide="4">
     <div class="slide-card">
       <div class="slide-card-body">
         <div class="for-you-slide-inner">
@@ -2020,7 +2029,7 @@
     </div>
   </section>
 
-  <section class="graph-node-section landing-slide" id="how" data-slide="4">
+  <section class="graph-node-section landing-slide" id="how" data-slide="5">
     <div class="slide-card">
       <div class="slide-card-body">
         <h2 class="font-display">Как это работает</h2>
@@ -2123,7 +2132,7 @@
     </div>
   </section>
 
-  <section class="demo-section graph-node-section landing-slide" id="features" data-slide="6">
+  <section class="demo-section graph-node-section landing-slide" id="features" data-slide="7">
     <div class="slide-card">
       <div class="slide-card-body">
         <h2 class="font-display">Возможности</h2>
@@ -2184,7 +2193,7 @@
     </div>
   </section>
 
-  <section id="form" class="form-section graph-node-section landing-slide" data-slide="7" style="display:flex;align-items:center;justify-content:center;flex-direction:column;">
+  <section id="form" class="form-section graph-node-section landing-slide" data-slide="8" style="display:flex;align-items:center;justify-content:center;flex-direction:column;">
     <div class="slide-card">
       <!-- Top: header (full-width, independent) -->
       <div class="auth-top" style="width:100%;text-align:center;padding:1rem 0;">
@@ -2480,7 +2489,7 @@
     </div>
   </section>
 
-  <section class="faq graph-node-section landing-slide" id="faq" data-slide="8">
+  <section class="faq graph-node-section landing-slide" id="faq" data-slide="9">
     <div class="slide-card">
       <!-- Header placed where image was -->
       <div class="slide-card-header" style="width:100%;text-align:center;padding:1rem 0;">
@@ -2531,7 +2540,7 @@
     </div>
   </section>
 
-  <section class="graph-node-section landing-slide" id="contacts" data-slide="9">
+  <section class="graph-node-section landing-slide" id="contacts" data-slide="10">
     <div class="slide-card">
       <!-- Header placed where image was -->
       <div class="slide-card-header" style="width:100%;text-align:center;padding:1.25rem 0 0.5rem;">
@@ -2733,7 +2742,7 @@
     </div>
   </section>
 
-  <section class="graph-node-section landing-slide" id="documents" data-slide="10">
+  <section class="graph-node-section landing-slide" id="documents" data-slide="11">
     <div class="slide-card">
       <!-- Header placed where image was -->
       <div class="slide-card-header" style="width:100%;text-align:center;padding:1.25rem 0 0.5rem;">
@@ -2834,7 +2843,7 @@
 
   <script>
     (function() {
-      var TOTAL_SLIDES = 11;
+      var TOTAL_SLIDES = 12;
       var currentSlide = 0;
       var slidesContainer = document.getElementById('landingSlides');
       var slides = document.querySelectorAll('.landing-slide');
@@ -2915,7 +2924,7 @@
         if (btnPrev) btnPrev.disabled = (i === 0);
 
         // Пошаговая анимация карточек на слайде «Как это работает»
-        if (i === 4 && typeof gsap !== 'undefined' && !howStepsAnimated) {
+        if (i === 5 && typeof gsap !== 'undefined' && !howStepsAnimated) {
           var howCards = document.querySelectorAll('#how .flip-cards.col-4 .flip-card');
           if (howCards.length) {
             gsap.set(howCards, { opacity: 0, y: 32 });
@@ -2928,7 +2937,7 @@
         }
 
         // Полёт ракеты на третьей карточке каждый раз при заходе на слайд «Как это работает»
-        if (i === 4 && typeof gsap !== 'undefined') {
+        if (i === 5 && typeof gsap !== 'undefined') {
           var rocket = document.querySelector('#how .flip-cards.col-4 .flip-card:nth-child(3) .how-launch-rocket');
           if (rocket) {
             gsap.fromTo(rocket,
@@ -2952,7 +2961,7 @@
         }
 
         // Хаотичный разлёт и сборка букв на второй карточке «Как это работает»
-        if (i === 4 && !howChoicesInitialized) {
+        if (i === 5 && !howChoicesInitialized) {
           initHowChoicesChaos();
         }
       }
@@ -3261,7 +3270,7 @@
           if (!ROLE_BENEFITS[role]) role = 'other';
           renderRoleBenefits(role);
           try { localStorage.setItem('interactivity_last_role', role); } catch (e) {}
-          goToSlide(3);
+          goToSlide(4);
         });
       });
 
@@ -3290,20 +3299,20 @@
           if (href === '#hero' || href === '#intro') { e.preventDefault(); goToSlide(0); return; }
           if (href === '#problem') { e.preventDefault(); goToSlide(1); return; }
           // Демо — 7‑й слайд (index 5)
-          if (href === '#demo') { e.preventDefault(); goToSlide(5); return; }
+          if (href === '#demo') { e.preventDefault(); goToSlide(6); return; }
           // «Тарифы» в шапке ведёт на «Возможности» — 8‑й слайд (index 6)
-          if (href === '#pricing') { e.preventDefault(); goToSlide(6); return; }
-          if (href === '#form') { e.preventDefault(); goToSlide(authSlideIndex >= 0 ? authSlideIndex : 7); return; }
-          if (href === '#contacts') { e.preventDefault(); goToSlide(9); return; }
-          if (href === '#documents') { e.preventDefault(); goToSlide(10); return; }
+          if (href === '#pricing') { e.preventDefault(); goToSlide(7); return; }
+          if (href === '#form') { e.preventDefault(); goToSlide(authSlideIndex >= 0 ? authSlideIndex : 8); return; }
+          if (href === '#contacts') { e.preventDefault(); goToSlide(10); return; }
+          if (href === '#documents') { e.preventDefault(); goToSlide(11); return; }
         });
       });
       document.addEventListener('click', function(e) {
         var a = e.target.closest('a[href="#documents"], a[href="#contacts"]');
         if (!a) return;
         e.preventDefault();
-        if (a.getAttribute('href') === '#documents') goToSlide(10);
-        else if (a.getAttribute('href') === '#contacts') goToSlide(9);
+        if (a.getAttribute('href') === '#documents') goToSlide(11);
+        else if (a.getAttribute('href') === '#contacts') goToSlide(10);
       });
       var siteLogo = document.querySelector('.site-logo');
       if (siteLogo && (siteLogo.getAttribute('href') === '#hero' || siteLogo.getAttribute('href') === '#intro')) {
