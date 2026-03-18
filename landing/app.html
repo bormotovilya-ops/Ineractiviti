@@ -1335,15 +1335,23 @@
     async function fetchMyInvites(userEmail) {
       const email = normalizeEmail(userEmail || '');
       if (!email) return [];
-      const { data, error } = await supabase
-        .from('project_invites')
-        // Do not join `projects` here: invitee may not have SELECT rights on projects yet (RLS).
-        .select('id, project_id, email, role, status, created_at')
-        .eq('status', 'pending')
-        .ilike('email', email)
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      return (data || []).filter((r) => r.status === 'pending');
+
+      // Preferred: RPC returns invites + project_title without granting projects SELECT.
+      try {
+        const { data, error } = await supabase.rpc('get_my_project_invites');
+        if (error) throw error;
+        return (data || []).filter((r) => (r.status || 'pending') === 'pending');
+      } catch (e) {
+        // Fallback: direct table read (requires RLS policy for invitee)
+        const { data, error } = await supabase
+          .from('project_invites')
+          .select('id, project_id, email, role, status, created_at')
+          .eq('status', 'pending')
+          .ilike('email', email)
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        return (data || []).filter((r) => r.status === 'pending');
+      }
     }
 
     async function acceptInvite(inviteId) {
@@ -1521,7 +1529,7 @@
       list.forEach((inv) => {
         const tr = document.createElement('tr');
         const tdProj = document.createElement('td');
-        tdProj.textContent = inv.project_id;
+        tdProj.textContent = inv.project_title || inv.project_id;
 
         const tdRole = document.createElement('td');
         tdRole.textContent = PROJECT_ROLE_LABELS[inv.role] || 'Слушатель';
