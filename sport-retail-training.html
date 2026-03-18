@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Интерактивити — обучение для родителей спортсменов</title>
+  <link rel="icon" type="image/png" href="https://ineractiviti.vercel.app/img/logo_mini.png" />
+  <link rel="apple-touch-icon" href="https://ineractiviti.vercel.app/img/logo_mini.png" />
+  <!-- Avoid external font loading: some networks/proxies intermittently reset connections -->
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --bg-elevated: #12121a;
+      --text: #e4e4e7;
+      --text-muted: #a1a1aa;
+      --accent: #6366f1;
+      --accent-soft: rgba(99, 102, 241, 0.2);
+      --border: rgba(255,255,255,0.08);
+      --card: rgba(18,18,26,0.86);
+      --shadow: 0 18px 60px rgba(0,0,0,.5);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Manrope', system-ui, sans-serif;
+      background: radial-gradient(1200px 800px at 12% 18%, rgba(99,102,241,0.22), transparent 55%),
+                  radial-gradient(900px 700px at 90% 20%, rgba(34,197,94,0.10), transparent 60%),
+                  var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding-top: 48px;
+      min-height: 100vh;
+    }
+    /* Make anchor navigation land nicely under fixed header */
+    section[id] { scroll-margin-top: 70px; }
+    .font-display { font-family: 'Unbounded', system-ui, sans-serif; }
+
+    /* Header (adapted from index) */
+    .site-header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 48px;
+      background: rgba(10,10,15,0.72);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      z-index: 50;
+    }
+    .site-header-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      height: 48px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .site-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: inherit;
+      min-width: 0;
+    }
+    .site-logo img { height: 28px; width: auto; display: block; }
+    .site-logo span { font-family: 'Unbounded', sans-serif; font-weight: 600; font-size: 14px; letter-spacing: .06em; white-space: nowrap; }
+    .site-nav { display: flex; align-items: center; gap: 14px; }
+    .site-nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 13px;
+      transition: color .15s ease;
+    }
+    .site-nav a:hover { color: var(--text); }
+    .site-nav a.cta {
+      color: var(--text);
+      border: 1px solid var(--border);
+      background: rgba(18,18,26,0.6);
+      padding: 7px 12px;
+      border-radius: 999px;
+    }
+    .site-nav a.cta:hover { color: var(--accent); filter: brightness(1.15); }
+    @media (max-width: 640px) {
+      .site-nav { display: none; }
+    }
+
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 16px 56px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr);
+      gap: 22px;
+      align-items: start;
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background:
+        radial-gradient(900px 520px at 10% 10%, rgba(99,102,241,0.20), transparent 58%),
+        linear-gradient(180deg, rgba(18,18,26,0.88), rgba(18,18,26,0.62));
+      box-shadow: var(--shadow);
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(10,10,15,0.35);
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 12px;
+      margin-bottom: 12px;
+      width: fit-content;
+    }
+    .hero h1 {
+      font-size: clamp(1.6rem, 2.6vw, 2.3rem);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+    }
+    .hero p.lead {
+      margin-top: 10px;
+      color: var(--text-muted);
+      font-size: 1.02rem;
+      max-width: 62ch;
+    }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .btn {
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 10px 14px;
+      background: rgba(10,10,15,0.30);
+      color: var(--text);
+      font-weight: 700;
+      font-size: 14px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform .12s ease, border-color .15s ease, background .15s ease;
+    }
+    .btn:hover { transform: translateY(-1px); border-color: rgba(99,102,241,0.45); background: rgba(99,102,241,0.14); }
+    .btn.primary { background: rgba(99,102,241,0.18); border-color: rgba(99,102,241,0.40); }
+    .btn.primary:hover { background: rgba(99,102,241,0.26); }
+
+    .hero-card {
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(10,10,15,0.32);
+      padding: 14px;
+      box-shadow: 0 14px 40px rgba(0,0,0,.35);
+    }
+    .hero-card h3 { font-size: 14px; margin-bottom: 10px; color: var(--text); }
+    .kpi { display: grid; gap: 10px; }
+    .kpi-row {
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(18,18,26,0.55);
+    }
+    .kpi-ico {
+      width: 38px; height: 38px;
+      border-radius: 12px;
+      display: grid; place-items: center;
+      background: rgba(99,102,241,0.18);
+      border: 1px solid rgba(99,102,241,0.25);
+      font-weight: 900;
+    }
+    .kpi-row strong { display: block; font-size: 13px; margin-bottom: 2px; }
+    .kpi-row span { color: var(--text-muted); font-size: 13px; }
+
+    .section { margin-top: 28px; }
+    .section h2 { font-size: 1.2rem; margin-bottom: 10px; }
+    .grid3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .card {
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: var(--card);
+      padding: 14px;
+      box-shadow: 0 12px 36px rgba(0,0,0,.32);
+    }
+    .card h3 { font-size: 15px; margin-bottom: 6px; }
+    .card p { color: var(--text-muted); font-size: 14px; }
+    .list { margin-top: 10px; display: grid; gap: 8px; }
+    .li {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 10px;
+      color: var(--text-muted);
+      font-size: 14px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(10,10,15,0.26);
+    }
+    .li b { color: var(--text); font-weight: 700; }
+
+    .team {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .person {
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+    .avatar {
+      width: 96px; height: 96px;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(10,10,15,0.35);
+    }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 35%; display: block; }
+    /* Oksana portrait: keep face in frame */
+    .avatar img.avatar-focus-top { object-position: 50% 18%; }
+    .person h3 { margin: 0; font-size: 15px; }
+    .person .role { color: var(--text-muted); font-size: 13px; margin-top: 2px; }
+    .person .meta { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(10,10,15,0.28);
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 12px;
+    }
+    .pill:hover { color: var(--text); border-color: rgba(99,102,241,0.40); }
+
+    .footer {
+      margin-top: 34px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      text-align: center;
+      font-size: 13px;
+    }
+    .footer a { color: inherit; text-decoration: none; }
+    .footer a:hover { color: var(--text); }
+
+    @media (max-width: 940px) {
+      .hero { grid-template-columns: 1fr; }
+      .grid3 { grid-template-columns: 1fr; }
+      .team { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="#top" class="site-logo" aria-label="Наверх">
+        <img src="https://ineractiviti.vercel.app/img/logo_mini.png" alt="" width="28" height="28" decoding="async" />
+        <span>ИНТЕРАКТИВИТИ</span>
+      </a>
+      <nav class="site-nav" aria-label="Навигация страницы">
+        <a href="#solution">Решение</a>
+        <a href="#demo">Демо</a>
+        <a href="#team">Команда</a>
+        <a href="index.html#form" class="cta">Войти</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero" id="top">
+      <div>
+        <div class="badge">🧩 Обучение под ключ · интерактивные сценарии · для клиентов магазина</div>
+        <h1 class="font-display">Обучение для клиентов и сотрудников магазинов хоккейной экипировки в формате интерактивных сценариев</h1>
+        <p class="lead">
+          Магазин запускает закрытое обучение для своих клиентов: вы отвечаете на вопросы про спортсмена, уровень и задачи,
+          выбираете варианты — и получаете понятную рекомендацию (что взять сейчас, что докупить позже и на что не тратить деньги).
+          Всё — в формате интерактивного диалога, без “простыней” текста. И тот же формат можно сделать для сотрудников — чтобы продавцы одинаково уверенно консультировали и меньше ошибались в подборе.
+        </p>
+        <div class="cta-row">
+          <a class="btn primary" href="#demo">▶️ Демо‑пример</a>
+          <a class="btn" href="index.html#form">Получить доступ в LMS</a>
+          <a class="btn" href="#team">Кто делает</a>
+        </div>
+        <div class="list" style="margin-top:14px;">
+          <div class="li"><div>✓</div><div><b>Сценарии под хоккейную экипировку</b>: “клюшка: рост/хват/жёсткость”, “защита и шлем”, “коньки: размер/посадка”, “сумка/аксессуары”.</div></div>
+          <div class="li"><div>✓</div><div><b>Понятный результат</b>: в конце — список экипировки с пояснениями и частыми ошибками (что брать не стоит и почему).</div></div>
+          <div class="li"><div>✓</div><div><b>Командная разработка</b>: сценарии собираются в конструкторе “Интерактивити” — методолог + техническая команда.</div></div>
+        </div>
+      </div>
+
+      <aside class="hero-card" aria-label="Что получаете">
+        <h3 class="font-display">Что вы получите</h3>
+        <div class="kpi">
+          <div class="kpi-row">
+            <div class="kpi-ico">🧒</div>
+            <div><strong>Диалог‑помощник</strong><span>вопросы → выбор → рекомендация → объяснение “почему так”.</span></div>
+          </div>
+          <div class="kpi-row">
+            <div class="kpi-ico">🏒</div>
+            <div><strong>Подбор экипировки</strong><span>клюшка/защита/коньки: размер, жёсткость, уровень, безопасность.</span></div>
+          </div>
+          <div class="kpi-row">
+            <div class="kpi-ico">⭐</div>
+            <div><strong>Лояльность клиентов</strong><span>вы помогаете родителям уверенно выбрать, а не “просто продать”.</span></div>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="section" id="demo">
+      <h2 class="font-display">Демо</h2>
+      <div class="card">
+        <h3>Посмотрите формат “изнутри”</h3>
+        <p>Это пример интерактивного сценария: выбор → последствия → подсказки и теория. В вашем проекте будет сценарий под подбор хоккейной экипировки.</p>
+        <div class="cta-row" style="margin-top:12px;">
+          <a class="btn primary" href="/PeopleGames/index.html">▶️ Открыть демо</a>
+          <a class="btn" href="#solution">Как мы это сделаем</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="solution">
+      <h2 class="font-display">Как устроена разработка под ключ</h2>
+      <div class="grid3">
+        <div class="card">
+          <h3>1) Карта вопросов родителей</h3>
+          <p>Собираем типовые запросы: возраст/рост, уровень, частота тренировок, бюджет, безопасность, сезонность.</p>
+        </div>
+        <div class="card">
+          <h3>2) Сценарии в “Интерактивити”</h3>
+          <p>Развилки, логика, контент, медиа. В конце — рекомендация: что взять сейчас и что можно отложить.</p>
+        </div>
+        <div class="card">
+          <h3>3) Запуск и итерации</h3>
+          <p>Закрытый доступ для клиентов магазина, аналитика по вопросам и “узким местам”, улучшение сценариев по данным.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="team">
+      <h2 class="font-display">Команда</h2>
+      <div class="team">
+        <div class="card">
+          <div class="person">
+            <div class="avatar"><img class="avatar-focus-top" src="https://ineractiviti.vercel.app/img/met_lend/OksanaP.png" alt="Оксана Погодская" width="96" height="96" decoding="async" /></div>
+            <div>
+              <h3 class="font-display">Оксана Погодская</h3>
+              <div class="role">Методолог, продакт‑менеджер, руководитель отдела продукта и сервиса</div>
+              <div class="meta">
+                <a class="pill" href="https://t.me/pinavochka" target="_blank" rel="noopener">Telegram · @pinavochka</a>
+              </div>
+            </div>
+          </div>
+          <p style="margin-top:12px;color:var(--text-muted);font-size:14px;">
+            Проектирует сценарии так, чтобы родитель быстро понял, что именно нужно ребёнку: без лишних покупок и с акцентом на безопасность.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="person">
+            <div class="avatar"><img src="https://ineractiviti.vercel.app/img/Ava.png" alt="Бормотов Илья" width="96" height="96" decoding="async" /></div>
+            <div>
+              <h3 class="font-display">Бормотов Илья</h3>
+              <div class="role">Технический специалист, основатель “Интерактивити” — конструктора интерактивных сценариев для учёбы и бизнеса</div>
+              <div class="meta">
+                <a class="pill" href="https://t.me/IlyaBorm" target="_blank" rel="noopener">Telegram · @IlyaBorm</a>
+              </div>
+            </div>
+          </div>
+          <p style="margin-top:12px;color:var(--text-muted);font-size:14px;">
+            Настраивает платформу, логику ветвлений, отчёты и запуск. Помогает быстро довести кейс до работающего курса и масштабировать.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="footer">
+      <p>Интерактивити — конструктор интерактивных сценариев</p>
+      <p style="margin-top: 6px;"><a href="index.html#documents">Документы</a> · <a href="index.html#contacts">Контакты</a></p>
+    </section>
+  </main>
+</body>
+</html>
+
