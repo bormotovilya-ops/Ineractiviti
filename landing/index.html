@@ -2221,15 +2221,7 @@
 
               <button type="button" class="auth-link" id="forgotPasswordBtn">Забыли пароль?</button>
 
-              <div class="auth-divider" aria-hidden="true" style="margin-top:.5rem;"><span>или</span></div>
-
-              <div class="auth-social" aria-hidden="false">
-                <button type="button" class="btn auth-google" id="authGoogleBtn">
-                  <span class="auth-google-icon" aria-hidden="true">G</span>
-                  <span id="authGoogleLabel">Войти через Google</span>
-                </button>
-                <p class="auth-hint">Авторизация через Google будет подключена позже. Сейчас это только макет интерфейса.</p>
-              </div>
+              <!-- Google auth disabled for now -->
             </form>
           </div>
 
@@ -2256,8 +2248,7 @@
               const passwordField = document.getElementById('passwordField');
               const passwordInput = document.getElementById('authPasswordField');
               const primaryBtn = document.getElementById('authPrimary');
-              const googleLabel = document.getElementById('authGoogleLabel');
-              const authGoogleBtn = document.getElementById('authGoogleBtn');
+              // Google auth отключена пока
 
               function switchMode(mode){
                 tabs.forEach(t => {
@@ -2274,8 +2265,6 @@
                 if (forgotBtn) forgotBtn.hidden = isRegister;
                 // primary button label change
                 primaryBtn.textContent = isRegister ? 'Создать аккаунт' : 'Войти';
-                // google label
-                googleLabel.textContent = isRegister ? 'Зарегистрироваться через Google' : 'Войти через Google';
                 // save auth mode
                 try { localStorage.setItem('interactivity_auth_mode', mode); } catch (e) {}
               }
