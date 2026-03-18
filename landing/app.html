@@ -1126,18 +1126,56 @@
         return projects;
       } catch (e) {
         console.error(e);
-        if (projectsSummary) projectsSummary.textContent = 'Ошибка';
-        if (projectsCountPill) projectsCountPill.textContent = '!';
-        if (projectSelect) {
-          projectSelect.innerHTML = '';
-          const opt = document.createElement('option');
-          opt.value = '';
-          opt.textContent = '— не удалось загрузить —';
-          projectSelect.appendChild(opt);
+        // Fallback: load owned projects directly (works even if project_members relationship/policies are not ready)
+        try {
+          const { data: owned, error: ownedErr } = await supabase
+            .from('projects')
+            .select('id, title, owner_id, created_at')
+            .eq('owner_id', user.id)
+            .order('created_at', { ascending: false });
+          if (ownedErr) throw ownedErr;
+
+          const projects = (owned || []).map((p) => ({
+            ...p,
+            my_role: 'admin'
+          }));
+
+          const count = projects.length;
+          if (projectsSummary) projectsSummary.textContent = `${count} проект(ов)`;
+          if (projectsCountPill) projectsCountPill.textContent = String(count);
+
+          if (projectSelect) {
+            projectSelect.innerHTML = '';
+            const opt0 = document.createElement('option');
+            opt0.value = '';
+            opt0.textContent = count ? '— выберите проект —' : '— проектов нет —';
+            projectSelect.appendChild(opt0);
+            projects.forEach((p) => {
+              const opt = document.createElement('option');
+              opt.value = p.id;
+              opt.textContent = `${p.title || 'Без названия'} · ${PROJECT_ROLE_LABELS[p.my_role] || 'Администратор'}`;
+              projectSelect.appendChild(opt);
+            });
+          }
+
+          window.__myProjects = projects;
+          setProjectsMessage('Загрузка проектов через участников недоступна (RLS/связи). Показаны проекты, где вы владелец.', 'error');
+          return projects;
+        } catch (e2) {
+          console.error(e2);
+          if (projectsSummary) projectsSummary.textContent = 'Ошибка';
+          if (projectsCountPill) projectsCountPill.textContent = '!';
+          if (projectSelect) {
+            projectSelect.innerHTML = '';
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = '— не удалось загрузить —';
+            projectSelect.appendChild(opt);
+          }
+          setProjectsMessage('Не удалось загрузить проекты. Проверьте таблицы `projects`, `project_members` и политики RLS в Supabase.', 'error');
+          window.__myProjects = [];
+          return [];
         }
-        setProjectsMessage('Не удалось загрузить проекты. Проверьте таблицы `projects`, `project_members` и политики RLS в Supabase.', 'error');
-        window.__myProjects = [];
-        return [];
       } finally {
         setProjectsLoading(false);
       }
