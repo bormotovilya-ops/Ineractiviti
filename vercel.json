@@ -3,6 +3,8 @@
     { "source": "/", "destination": "/landing/index.html" },
     { "source": "/app", "destination": "/landing/app.html" },
     { "source": "/docs/(.*)", "destination": "/landing/docs/$1" },
+    { "source": "/PeopleGames/(.*)", "destination": "/PeopleGames/$1" },
+    { "source": "/sport-retail-training.html", "destination": "/landing/sport-retail-training.html" },
     { "source": "/(.*)", "destination": "/landing/$1" }
   ]
 }
