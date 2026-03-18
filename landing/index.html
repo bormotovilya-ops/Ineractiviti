@@ -3048,6 +3048,12 @@
         // иначе — к последнему сохранённому слайду
         (function initFromHash() {
           var hash = window.location.hash || '';
+          // Если открыли сайт без hash — считаем стартовой страницей #intro
+          if (!hash) {
+            try { history.replaceState(null, '', '#intro'); } catch (e) { window.location.hash = '#intro'; }
+            goToSlide(0);
+            return;
+          }
           if (hash && hash !== '#hero' && hash !== '#intro') {
             var target = document.querySelector(hash);
             if (target) {
@@ -3058,6 +3064,7 @@
               }
             }
           }
+          // При явном hash работаем как раньше (в т.ч. #intro/#hero)
           // fallback: последний сохранённый слайд
           try {
             var saved = localStorage.getItem('interactivity_last_slide');
