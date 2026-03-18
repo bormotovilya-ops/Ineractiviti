@@ -565,17 +565,6 @@
             <span class="nav-right" id="coursesCountPill">…</span>
           </button>
 
-          <button class="nav-btn" type="button" data-tab="projects" role="tab" aria-selected="false">
-            <span class="nav-left">
-              <span class="nav-ico" style="background:linear-gradient(135deg,#34d399,#38bdf8)">🗂</span>
-              <span class="nav-text">
-                <strong>Проекты</strong>
-                <span>Курсы по проектам</span>
-              </span>
-            </span>
-            <span class="nav-right" id="projectsCountPill">…</span>
-          </button>
-
           <button class="nav-btn" type="button" data-tab="builder" role="tab" aria-selected="false" aria-disabled="true">
             <span class="nav-left">
               <span class="nav-ico" style="background:linear-gradient(135deg,#fbbf24,#fb7185)">🧩</span>
@@ -660,120 +649,121 @@
           <div class="card-header">
             <div>
               <div class="card-title">Учебная платформа</div>
-              <div class="muted">Ваши курсы и прогресс</div>
+              <div class="muted">Проекты, курсы, приглашения и прогресс</div>
             </div>
             <span class="chip" id="coursesSummary">Загрузка…</span>
           </div>
           <div class="divider"></div>
-          <div id="coursesContainer">
-            <p class="muted">Загружаем ваши курсы…</p>
+          <div class="auth-tabs" role="tablist" aria-label="Разделы учебной платформы" style="justify-content:flex-start;">
+            <button type="button" class="auth-tab auth-tab-active" data-lms-tab="invites" aria-selected="true">Мои приглашения</button>
+            <button type="button" class="auth-tab" data-lms-tab="projects" aria-selected="false">Мои проекты</button>
           </div>
-          <div id="coursesMessage" class="message-banner"></div>
-        </section>
 
-        <section class="card tab-panel" id="tab-projects" role="tabpanel" hidden>
-          <div class="card-header">
-            <div>
-              <div class="card-title">Проекты</div>
-              <div class="muted">Создавайте проекты, приглашайте участников и назначайте роли</div>
+          <div id="lmsInvitesView" style="margin-top:.75rem;">
+            <div id="myInvitesBlock">
+              <div class="profile-label">Мои приглашения</div>
+              <table class="table" aria-label="Мои приглашения в проекты">
+                <thead>
+                  <tr>
+                    <th>Проект</th>
+                    <th>Роль</th>
+                    <th style="width:160px;">Действия</th>
+                  </tr>
+                </thead>
+                <tbody id="myInvitesTbody">
+                  <tr><td class="muted-cell" colspan="3">Загрузка…</td></tr>
+                </tbody>
+              </table>
+              <div class="muted" style="margin-top:0.4rem;">Приглашения приходят на ваш email. Нажмите «Принять», чтобы проект появился в списке.</div>
             </div>
-            <span class="chip" id="projectsSummary">Загрузка…</span>
-          </div>
-          <div class="divider"></div>
-
-          <div id="myInvitesBlock">
-            <div class="profile-label">Мои приглашения</div>
-            <table class="table" aria-label="Мои приглашения в проекты">
-              <thead>
-                <tr>
-                  <th>Проект</th>
-                  <th>Роль</th>
-                  <th style="width:160px;">Действия</th>
-                </tr>
-              </thead>
-              <tbody id="myInvitesTbody">
-                <tr><td class="muted-cell" colspan="3">Загрузка…</td></tr>
-              </tbody>
-            </table>
-            <div class="muted" style="margin-top:0.4rem;">Приглашения приходят на ваш email. Нажмите «Принять», чтобы проект появился в списке.</div>
           </div>
 
-          <div class="divider"></div>
-
-          <div class="split">
-            <div class="stack">
-              <div>
-                <div class="profile-label">Мои проекты</div>
-                <select class="select" id="projectSelect" style="width:100%;" aria-label="Выбор проекта"></select>
-                <div class="muted" style="margin-top:0.35rem;">Роль и доступ зависят от выбранного проекта.</div>
-              </div>
-
-              <div class="divider"></div>
-
-              <div>
-                <div class="profile-label">Создать новый проект</div>
-                <div class="row">
-                  <input class="input" id="projectTitleInput" placeholder="Название проекта" style="flex:1;min-width:220px;" />
-                  <button type="button" class="btn" id="createProjectBtn">Создать</button>
+          <div id="lmsProjectsView" hidden style="margin-top:.75rem;">
+            <div class="split">
+              <div class="stack">
+                <div>
+                  <div class="profile-label">Мои проекты</div>
+                  <select class="select" id="projectSelect" style="width:100%;" aria-label="Выбор проекта"></select>
+                  <div class="muted" style="margin-top:0.35rem;">Роль и доступ зависят от выбранного проекта.</div>
                 </div>
-                <div class="muted">Проекты, созданные вами, автоматически дают роль администратора.</div>
-              </div>
 
-              <div class="divider"></div>
+                <div class="divider"></div>
 
-              <div id="inviteBlock" hidden>
-                <div class="profile-label">Пригласить участника</div>
-                <div class="row">
-                  <input class="input" id="inviteEmailInput" placeholder="email@example.com" style="flex:1;min-width:220px;" />
-                  <select class="select" id="inviteRoleSelect" aria-label="Роль приглашения">
-                    <option value="listener">Слушатель</option>
-                    <option value="methodologist">Методолог</option>
-                  </select>
-                  <button type="button" class="btn" id="inviteBtn">Пригласить</button>
+                <div>
+                  <div class="profile-label">Создать новый проект</div>
+                  <div class="row">
+                    <input class="input" id="projectTitleInput" placeholder="Название проекта" style="flex:1;min-width:220px;" />
+                    <button type="button" class="btn" id="createProjectBtn">Создать</button>
+                  </div>
+                  <div class="muted">Проекты, созданные вами, автоматически дают роль администратора.</div>
                 </div>
-                <div class="muted">Приглашение создаётся по email. После принятия у пользователя появится доступ к проекту.</div>
+
+                <div class="divider"></div>
+
+                <div id="inviteBlock" hidden>
+                  <div class="profile-label">Пригласить участника</div>
+                  <div class="row">
+                    <input class="input" id="inviteEmailInput" placeholder="email@example.com" style="flex:1;min-width:220px;" />
+                    <select class="select" id="inviteRoleSelect" aria-label="Роль приглашения">
+                      <option value="listener">Слушатель</option>
+                      <option value="methodologist">Куратор</option>
+                    </select>
+                    <button type="button" class="btn" id="inviteBtn">Пригласить</button>
+                  </div>
+                  <div class="muted">Приглашение создаётся по email. После принятия у пользователя появится доступ к проекту.</div>
+                </div>
+
+                <div class="divider"></div>
+
+                <div>
+                  <div class="profile-label">Мои курсы (в проектах)</div>
+                  <div id="coursesContainer">
+                    <p class="muted">Выберите проект, чтобы увидеть курсы.</p>
+                  </div>
+                  <div id="coursesMessage" class="message-banner"></div>
+                </div>
+              </div>
+
+              <div class="stack">
+                <div class="notice" id="projectAccessNotice">Выберите проект, чтобы увидеть доступные действия.</div>
+
+                <div id="membersBlock" hidden>
+                  <div class="profile-label">Участники проекта</div>
+                  <table class="table" aria-label="Список участников проекта">
+                    <thead>
+                      <tr>
+                        <th>Пользователь</th>
+                        <th>Роль</th>
+                        <th style="width:160px;">Действия</th>
+                      </tr>
+                    </thead>
+                    <tbody id="membersTbody">
+                      <tr><td class="muted-cell" colspan="3">Загрузка…</td></tr>
+                    </tbody>
+                  </table>
+                  <div class="muted" style="margin-top:0.4rem;">Администратор может менять роли. Куратор видит список без редактирования. Слушатель не видит участников.</div>
+                </div>
+
+                <div id="invitesBlock" hidden>
+                  <div class="profile-label">Приглашённые (ожидают)</div>
+                  <table class="table" aria-label="Список приглашений проекта">
+                    <thead>
+                      <tr>
+                        <th>Email</th>
+                        <th>Роль</th>
+                        <th style="width:160px;">Действия</th>
+                      </tr>
+                    </thead>
+                    <tbody id="invitesTbody">
+                      <tr><td class="muted-cell" colspan="3">Загрузка…</td></tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
 
-            <div class="stack">
-              <div class="notice" id="projectAccessNotice">Выберите проект, чтобы увидеть доступные действия.</div>
-
-              <div id="membersBlock" hidden>
-                <div class="profile-label">Участники проекта</div>
-                <table class="table" aria-label="Список участников проекта">
-                  <thead>
-                    <tr>
-                      <th>Пользователь</th>
-                      <th>Роль</th>
-                      <th style="width:160px;">Действия</th>
-                    </tr>
-                  </thead>
-                  <tbody id="membersTbody">
-                    <tr><td class="muted-cell" colspan="3">Загрузка…</td></tr>
-                  </tbody>
-                </table>
-                <div class="muted" style="margin-top:0.4rem;">Администратор может менять роли. Методолог видит список без редактирования. Слушатель не видит участников.</div>
-              </div>
-
-              <div id="invitesBlock" hidden>
-                <div class="profile-label">Приглашённые (ожидают)</div>
-                <table class="table" aria-label="Список приглашений проекта">
-                  <thead>
-                    <tr>
-                      <th>Email</th>
-                      <th>Роль</th>
-                      <th style="width:160px;">Действия</th>
-                    </tr>
-                  </thead>
-                  <tbody id="invitesTbody">
-                    <tr><td class="muted-cell" colspan="3">Загрузка…</td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <div id="projectsMessage" class="message-banner"></div>
           </div>
-
-          <div id="projectsMessage" class="message-banner"></div>
         </section>
 
         <section class="card tab-panel" id="tab-builder" role="tabpanel" hidden>
@@ -830,14 +820,13 @@
     const coursesSummary = document.getElementById('coursesSummary');
     const coursesMessage = document.getElementById('coursesMessage');
     const coursesCountPill = document.getElementById('coursesCountPill');
-    const projectsCountPill = document.getElementById('projectsCountPill');
+    const projectsCountPill = null;
     const sidebarChip = document.getElementById('sidebarChip');
 
     const navButtons = Array.from(document.querySelectorAll('.nav-btn[data-tab]'));
     const panels = {
       profile: document.getElementById('tab-profile'),
       lms: document.getElementById('tab-lms'),
-      projects: document.getElementById('tab-projects'),
       builder: document.getElementById('tab-builder'),
     };
 
@@ -896,9 +885,22 @@
       try { history.replaceState(null, '', '#'+tabId); } catch {}
     }
 
+    function setLmsInnerTab(tabId) {
+      const tabs = Array.from(document.querySelectorAll('[data-lms-tab]'));
+      const invitesView = document.getElementById('lmsInvitesView');
+      const projectsView = document.getElementById('lmsProjectsView');
+      tabs.forEach((t) => {
+        const is = t.getAttribute('data-lms-tab') === tabId;
+        t.classList.toggle('auth-tab-active', is);
+        t.setAttribute('aria-selected', String(is));
+      });
+      if (invitesView) invitesView.hidden = tabId !== 'invites';
+      if (projectsView) projectsView.hidden = tabId !== 'projects';
+    }
+
     function resolveInitialTab() {
       const hash = (window.location.hash || '').replace('#', '').trim();
-      if (hash === 'lms' || hash === 'profile' || hash === 'projects' || hash === 'builder') return hash;
+      if (hash === 'lms' || hash === 'profile' || hash === 'builder') return hash;
       return 'profile';
     }
 
@@ -1730,6 +1732,17 @@
           return;
         }
         setActiveTab(btn.dataset.tab);
+        if (btn.dataset.tab === 'lms') {
+          // default inner tab
+          setLmsInnerTab('invites');
+        }
+      });
+    });
+
+    // LMS inner tabs
+    Array.from(document.querySelectorAll('[data-lms-tab]')).forEach((t) => {
+      t.addEventListener('click', () => {
+        setLmsInnerTab(t.getAttribute('data-lms-tab'));
       });
     });
 
