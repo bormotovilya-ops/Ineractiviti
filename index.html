@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Интерактивити</title>
+  <script>
+    (function () {
+      var target = '/landing/index.html';
+      var hash = window.location.hash || '';
+      if (!hash || hash === '#') hash = '#intro';
+      window.location.replace(target + hash);
+    })();
+  </script>
+  <noscript>
+    <meta http-equiv="refresh" content="0; url=/landing/index.html#intro" />
+  </noscript>
+</head>
+<body></body>
+</html>
+
