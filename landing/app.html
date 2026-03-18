@@ -1337,19 +1337,8 @@
       if (!email) return [];
       const { data, error } = await supabase
         .from('project_invites')
-        .select(`
-          id,
-          project_id,
-          email,
-          role,
-          status,
-          created_at,
-          projects (
-            id,
-            title,
-            created_at
-          )
-        `)
+        // Do not join `projects` here: invitee may not have SELECT rights on projects yet (RLS).
+        .select('id, project_id, email, role, status, created_at')
         .eq('status', 'pending')
         .ilike('email', email)
         .order('created_at', { ascending: false });
@@ -1532,8 +1521,7 @@
       list.forEach((inv) => {
         const tr = document.createElement('tr');
         const tdProj = document.createElement('td');
-        const title = inv.projects && inv.projects.title ? String(inv.projects.title) : inv.project_id;
-        tdProj.textContent = title;
+        tdProj.textContent = inv.project_id;
 
         const tdRole = document.createElement('td');
         tdRole.textContent = PROJECT_ROLE_LABELS[inv.role] || 'Слушатель';
@@ -1859,6 +1847,7 @@
       } catch (e) {
         console.error(e);
         if (myInvitesTbody) clearTbody(myInvitesTbody, 'Не удалось загрузить приглашения.');
+        setProjectsMessage('Не удалось загрузить приглашения. ' + (e ? `Ошибка: ${formatErr(e)}` : ''), 'error');
       }
 
       updateProjectAccessUI({ project: null, myRole: null });
