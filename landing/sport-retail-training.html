@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Интерактивити — обучение для родителей спортсменов</title>
+  <title>Интерактивити — интерактивное обучение для покупателей хоккейной экипировки</title>
   <link rel="icon" type="image/png" href="img/logo_mini.png" />
   <link rel="apple-touch-icon" href="img/logo_mini.png" />
   <script src="cookie-consent.js" defer></script>
@@ -48,6 +48,34 @@
       line-height: 1.6;
       padding-top: 48px;
       min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: auto;
+      pointer-events: none;
+      z-index: -1;
+      filter: blur(70px);
+      opacity: .45;
+      animation: ambientShift 16s ease-in-out infinite alternate;
+    }
+    body::before {
+      width: 340px;
+      height: 340px;
+      top: 90px;
+      left: -80px;
+      background: radial-gradient(circle, rgba(99,102,241,0.30), transparent 68%);
+    }
+    body::after {
+      width: 300px;
+      height: 300px;
+      right: -60px;
+      top: 320px;
+      background: radial-gradient(circle, rgba(34,197,94,0.18), transparent 68%);
+      animation-duration: 20s;
     }
     /* Make anchor navigation land nicely under fixed header */
     section[id] { scroll-margin-top: 70px; }
@@ -80,7 +108,9 @@
       text-decoration: none;
       color: inherit;
       min-width: 0;
+      transition: transform .25s ease, opacity .25s ease;
     }
+    .site-logo:hover { transform: translateY(-1px); opacity: .96; }
     .site-logo img { height: 28px; width: auto; display: block; }
     .site-logo span { font-family: 'Unbounded', sans-serif; font-weight: 600; font-size: 14px; letter-spacing: .06em; white-space: nowrap; }
     .site-nav { display: flex; align-items: center; gap: 14px; }
@@ -97,13 +127,28 @@
       cursor: pointer;
     }
     .site-nav a {
+      position: relative;
       color: var(--text-muted);
       text-decoration: none;
       font-weight: 600;
       font-size: 13px;
-      transition: color .15s ease;
+      transition: color .25s ease;
+    }
+    .site-nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -5px;
+      width: 100%;
+      height: 2px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, transparent, rgba(99,102,241,0.95), transparent);
+      transform: scaleX(0);
+      transform-origin: center;
+      transition: transform .25s ease;
     }
     .site-nav a:hover { color: var(--text); }
+    .site-nav a:hover::after { transform: scaleX(1); }
     .site-nav a.cta {
       color: var(--text);
       border: 1px solid var(--border);
@@ -111,6 +156,7 @@
       padding: 7px 12px;
       border-radius: 999px;
     }
+    .site-nav a.cta::after { display: none; }
     .site-nav a.cta:hover { color: var(--accent); filter: brightness(1.15); }
     @media (max-width: 640px) {
       .site-menu-toggle { display: inline-flex; align-items: center; justify-content: center; }
@@ -141,6 +187,7 @@
     }
 
     .hero {
+      position: relative;
       display: grid;
       grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr);
       gap: 22px;
@@ -152,8 +199,19 @@
         radial-gradient(900px 520px at 10% 10%, rgba(99,102,241,0.20), transparent 58%),
         linear-gradient(180deg, rgba(18,18,26,0.88), rgba(18,18,26,0.62));
       box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.045) 50%, transparent 80%);
+      transform: translateX(-120%);
+      animation: heroSweep 11s ease-in-out infinite;
+      pointer-events: none;
     }
     .badge {
+      position: relative;
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -166,6 +224,15 @@
       font-size: 12px;
       margin-bottom: 12px;
       width: fit-content;
+      overflow: hidden;
+    }
+    .badge::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(110deg, transparent 25%, rgba(255,255,255,0.16) 50%, transparent 75%);
+      transform: translateX(-130%);
+      animation: shineSweep 7s ease-in-out infinite;
     }
     .hero h1 {
       font-size: clamp(1.6rem, 2.6vw, 2.3rem);
@@ -180,6 +247,7 @@
     }
     .cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
     .btn {
+      position: relative;
       border-radius: 999px;
       border: 1px solid rgba(255,255,255,0.12);
       padding: 10px 14px;
@@ -191,19 +259,53 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      transition: transform .12s ease, border-color .15s ease, background .15s ease;
+      overflow: hidden;
+      transition: transform .25s ease, border-color .25s ease, background .25s ease, box-shadow .25s ease;
     }
-    .btn:hover { transform: translateY(-1px); border-color: rgba(99,102,241,0.45); background: rgba(99,102,241,0.14); }
+    .btn::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.16) 50%, transparent 80%);
+      transform: translateX(-140%);
+      transition: transform .55s ease;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      border-color: rgba(99,102,241,0.45);
+      background: rgba(99,102,241,0.14);
+      box-shadow: 0 12px 28px rgba(99,102,241,0.18);
+    }
+    .btn:hover::after { transform: translateX(140%); }
     .btn.primary { background: rgba(99,102,241,0.18); border-color: rgba(99,102,241,0.40); }
     .btn.primary:hover { background: rgba(99,102,241,0.26); }
 
     .hero-card {
+      position: relative;
       border-radius: 16px;
       border: 1px solid rgba(255,255,255,0.10);
       background: rgba(10,10,15,0.32);
       padding: 14px;
       box-shadow: 0 14px 40px rgba(0,0,0,.35);
+      overflow: hidden;
+      transition: transform .32s ease, border-color .32s ease, box-shadow .32s ease, background .32s ease;
     }
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(99,102,241,0.10), transparent 38%, transparent 62%, rgba(34,197,94,0.08));
+      opacity: 0;
+      transition: opacity .32s ease;
+      pointer-events: none;
+    }
+    .hero-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(99,102,241,0.24);
+      box-shadow: 0 18px 42px rgba(0,0,0,.38);
+      background: rgba(20,20,30,0.94);
+    }
+    .hero-card:hover::before { opacity: 1; }
     .hero-card h3 { font-size: 14px; margin-bottom: 10px; color: var(--text); }
     .kpi { display: grid; gap: 10px; }
     .kpi-row {
@@ -215,6 +317,12 @@
       border-radius: 14px;
       border: 1px solid rgba(255,255,255,0.08);
       background: rgba(18,18,26,0.55);
+      transition: transform .22s ease, border-color .22s ease, background .22s ease;
+    }
+    .kpi-row:hover {
+      transform: translateX(4px);
+      border-color: rgba(99,102,241,0.26);
+      background: rgba(99,102,241,0.08);
     }
     .kpi-ico {
       width: 38px; height: 38px;
@@ -228,19 +336,69 @@
     .kpi-row span { color: var(--text-muted); font-size: 13px; }
 
     .section { margin-top: 28px; }
-    .section h2 { font-size: 1.2rem; margin-bottom: 10px; }
+    .section h2 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      position: relative;
+      display: inline-block;
+      padding-right: 18px;
+    }
+    .section h2::after {
+      content: "";
+      position: absolute;
+      left: calc(100% + 4px);
+      top: 50%;
+      width: 54px;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(99,102,241,0.85), transparent);
+    }
+    body.js-ready .reveal-on-scroll {
+      opacity: 0;
+      transform: translateY(36px) scale(0.985);
+      filter: blur(10px);
+      transition:
+        opacity 0.7s ease,
+        transform 0.7s cubic-bezier(.22, 1, .36, 1),
+        filter 0.7s ease;
+      transition-delay: var(--reveal-delay, 0ms);
+      will-change: opacity, transform, filter;
+    }
+    body.js-ready .reveal-on-scroll.is-visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      filter: blur(0);
+    }
     .grid3 {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 12px;
     }
     .card {
+      position: relative;
       border-radius: 16px;
       border: 1px solid rgba(255,255,255,0.10);
       background: var(--card);
       padding: 14px;
       box-shadow: 0 12px 36px rgba(0,0,0,.32);
+      overflow: hidden;
+      transition: transform .32s ease, border-color .32s ease, box-shadow .32s ease, background .32s ease;
     }
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(99,102,241,0.10), transparent 38%, transparent 62%, rgba(34,197,94,0.08));
+      opacity: 0;
+      transition: opacity .32s ease;
+      pointer-events: none;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(99,102,241,0.24);
+      box-shadow: 0 18px 42px rgba(0,0,0,.38);
+      background: rgba(20,20,30,0.94);
+    }
+    .card:hover::before { opacity: 1; }
     .card h3 { font-size: 15px; margin-bottom: 6px; }
     .card p { color: var(--text-muted); font-size: 14px; }
     .list { margin-top: 10px; display: grid; gap: 8px; }
@@ -254,6 +412,12 @@
       border-radius: 12px;
       border: 1px solid rgba(255,255,255,0.08);
       background: rgba(10,10,15,0.26);
+      transition: transform .22s ease, border-color .22s ease, background .22s ease;
+    }
+    .li:hover {
+      transform: translateX(4px);
+      border-color: rgba(99,102,241,0.26);
+      background: rgba(99,102,241,0.08);
     }
     .li b { color: var(--text); font-weight: 700; }
 
@@ -293,8 +457,14 @@
       text-decoration: none;
       font-weight: 700;
       font-size: 12px;
+      transition: transform .25s ease, border-color .25s ease, color .25s ease, background .25s ease;
     }
-    .pill:hover { color: var(--text); border-color: rgba(99,102,241,0.40); }
+    .pill:hover {
+      transform: translateY(-1px);
+      color: var(--text);
+      border-color: rgba(99,102,241,0.40);
+      background: rgba(99,102,241,0.10);
+    }
 
     .footer {
       margin-top: 34px;
@@ -307,10 +477,50 @@
     .footer a { color: inherit; text-decoration: none; }
     .footer a:hover { color: var(--text); }
 
+    @keyframes ambientShift {
+      0% { transform: translate3d(0, 0, 0) scale(1); }
+      100% { transform: translate3d(30px, -24px, 0) scale(1.08); }
+    }
+    @keyframes shineSweep {
+      0%, 60%, 100% { transform: translateX(-130%); }
+      20% { transform: translateX(130%); }
+    }
+    @keyframes heroSweep {
+      0%, 100% { transform: translateX(-120%); opacity: 0; }
+      15% { opacity: 1; }
+      45% { transform: translateX(120%); opacity: .9; }
+      60% { opacity: 0; }
+    }
+
     @media (max-width: 940px) {
       .hero { grid-template-columns: 1fr; }
       .grid3 { grid-template-columns: 1fr; }
       .team { grid-template-columns: 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      body::before,
+      body::after,
+      .hero::after,
+      .badge::after {
+        animation: none;
+      }
+      body.js-ready .reveal-on-scroll,
+      body.js-ready .reveal-on-scroll.is-visible {
+        opacity: 1;
+        transform: none;
+        filter: none;
+        transition: none;
+      }
+      .btn,
+      .hero-card,
+      .card,
+      .li,
+      .kpi-row,
+      .pill,
+      .site-logo,
+      .site-nav a {
+        transition: none;
+      }
     }
   </style>
 </head>
@@ -326,6 +536,7 @@
         <a href="#solution">Решение</a>
         <a href="#demo">Демо</a>
         <a href="#team">Команда</a>
+        <a href="#interactive">Интерактивити</a>
         <a href="index.html#form" class="cta">Войти</a>
       </nav>
     </div>
@@ -337,14 +548,13 @@
         <div class="badge">🧩 Обучение под ключ · интерактивные сценарии · для клиентов магазина</div>
         <h1 class="font-display">Обучение для клиентов и сотрудников магазинов хоккейной экипировки в формате интерактивных сценариев</h1>
         <p class="lead">
-          Магазин запускает закрытое обучение для своих клиентов: вы отвечаете на вопросы про спортсмена, уровень и задачи,
+          Магазин запускает закрытое обучение для своих клиентов: покупатель отвечает на вопросы про спортсмена, уровень и задачи,
           выбираете варианты — и получаете понятную рекомендацию (что взять сейчас, что докупить позже и на что не тратить деньги).
           Всё — в формате интерактивного диалога, без “простыней” текста.
           <strong>И тот же формат можно сделать для сотрудников</strong> — чтобы продавцы одинаково уверенно консультировали и меньше ошибались в подборе.
         </p>
         <div class="cta-row">
           <a class="btn primary" href="#demo">▶️ Демо‑пример</a>
-          <a class="btn" href="index.html#form">Получить доступ в LMS</a>
           <a class="btn" href="#team">Кто делает</a>
         </div>
         <div class="list" style="margin-top:14px;">
@@ -367,7 +577,7 @@
           </div>
           <div class="kpi-row">
             <div class="kpi-ico">⭐</div>
-            <div><strong>Лояльность клиентов</strong><span>вы помогаете родителям уверенно выбрать, а не “просто продать”.</span></div>
+            <div><strong>Лояльность клиентов</strong><span>вы помогаете покупателю уверенно выбрать экипировку, а не “просто продаёте”.</span></div>
           </div>
         </div>
       </aside>
@@ -389,7 +599,7 @@
       <h2 class="font-display">Как устроена разработка под ключ</h2>
       <div class="grid3">
         <div class="card">
-          <h3>1) Карта вопросов родителей</h3>
+          <h3>1) Карта вопросов покупателей</h3>
           <p>Собираем типовые запросы: возраст/рост, уровень, частота тренировок, бюджет, безопасность, сезонность.</p>
         </div>
         <div class="card">
@@ -418,7 +628,7 @@
             </div>
           </div>
           <p style="margin-top:12px;color:var(--text-muted);font-size:14px;">
-            Проектирует сценарии так, чтобы родитель быстро понял, что именно нужно ребёнку: без лишних покупок и с акцентом на безопасность.
+            Проектирует сценарии так, чтобы покупатель быстро понял, что именно нужно спортсмену: без лишних покупок и с акцентом на безопасность.
           </p>
         </div>
 
@@ -440,6 +650,26 @@
       </div>
     </section>
 
+    <section class="section" id="interactive">
+      <h2 class="font-display">Что такое Интерактивити</h2>
+      <div class="card">
+        <p>
+          <b>Интерактивити</b> — это конструктор интерактивных сценариев со встроенной учебной платформой.
+          Вместо обычного текста или статичной памятки он позволяет собирать сценарии с вопросами, вариантами выбора,
+          развилками и понятным итогом для пользователя.
+        </p>
+        <div class="list">
+          <div class="li"><div>🎯</div><div><b>Для магазина это значит:</b> можно дать клиенту понятный цифровой инструмент, который помогает выбрать экипировку под задачу, уровень и бюджет.</div></div>
+          <div class="li"><div>⚙️</div><div><b>Основные функции:</b> визуальный редактор сцен, выборов и исходов, логика ветвлений, подсказки и пояснения, сценарии-тренажёры, экспорт в SCORM и запуск на платформе или в LMS.</div></div>
+          <div class="li"><div>📈</div><div><b>Почему это ценно:</b> интерактивный формат удерживает внимание лучше обычных инструкций, помогает быстрее дойти до результата и повышает доверие к рекомендациям магазина.</div></div>
+          <div class="li"><div>📊</div><div><b>Дополнительное преимущество:</b> можно видеть, какие вопросы задают клиенты, где они сомневаются и какие сценарии помогают лучше доводить до покупки.</div></div>
+        </div>
+        <div class="cta-row" style="margin-top:14px;">
+          <a class="btn primary" href="index.html#intro">▶️ Перейти на сайт платформы</a>
+        </div>
+      </div>
+    </section>
+
     <section class="footer">
       <p><a href="index.html#intro">Интерактивити — конструктор интерактивных сценариев</a></p>
       <p style="margin-top:6px;"><a href="index.html#documents">Документы</a> · <a href="index.html#contacts">Контакты</a></p>
@@ -449,31 +679,65 @@
     (function () {
       var toggle = document.getElementById('siteMenuToggle');
       var nav = document.getElementById('siteNav');
-      if (!toggle || !nav) return;
+      if (toggle && nav) {
+        function setOpen(isOpen) {
+          nav.classList.toggle('open', isOpen);
+          toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        }
 
-      function setOpen(isOpen) {
-        nav.classList.toggle('open', isOpen);
-        toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-      }
+        toggle.addEventListener('click', function () {
+          setOpen(!nav.classList.contains('open'));
+        });
 
-      toggle.addEventListener('click', function () {
-        setOpen(!nav.classList.contains('open'));
-      });
+        nav.querySelectorAll('a').forEach(function (link) {
+          link.addEventListener('click', function () {
+            setOpen(false);
+          });
+        });
 
-      nav.querySelectorAll('a').forEach(function (link) {
-        link.addEventListener('click', function () {
+        document.addEventListener('click', function (e) {
+          if (!nav.classList.contains('open')) return;
+          if (nav.contains(e.target) || toggle.contains(e.target)) return;
           setOpen(false);
         });
+
+        window.addEventListener('resize', function () {
+          if (window.innerWidth > 640) setOpen(false);
+        });
+      }
+
+      var revealItems = Array.from(document.querySelectorAll('main > .section, main > .footer'));
+      if (!revealItems.length) return;
+
+      var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      revealItems.forEach(function (item, index) {
+        item.classList.add('reveal-on-scroll');
+        item.style.setProperty('--reveal-delay', Math.min(index * 80, 240) + 'ms');
       });
 
-      document.addEventListener('click', function (e) {
-        if (!nav.classList.contains('open')) return;
-        if (nav.contains(e.target) || toggle.contains(e.target)) return;
-        setOpen(false);
+      document.body.classList.add('js-ready');
+
+      if (prefersReducedMotion || !('IntersectionObserver' in window)) {
+        revealItems.forEach(function (item) {
+          item.classList.add('is-visible');
+        });
+        return;
+      }
+
+      var observer = new IntersectionObserver(function (entries, obs) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-visible');
+          obs.unobserve(entry.target);
+        });
+      }, {
+        threshold: 0.18,
+        rootMargin: '0px 0px -8% 0px'
       });
 
-      window.addEventListener('resize', function () {
-        if (window.innerWidth > 640) setOpen(false);
+      revealItems.forEach(function (item) {
+        observer.observe(item);
       });
     })();
   </script>

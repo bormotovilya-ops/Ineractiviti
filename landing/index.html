@@ -941,7 +941,7 @@
 
     /* Анимация появления текста только на заголовке первой карточки «Как это работает».
        Буквы «проявляются» слева направо за 3 секунды, размер карточки не меняется. */
-    #how .flip-cards.col-4 .flip-card:nth-child(1) .how-scenes-title {
+    #how .how-step-scenes .how-scenes-title {
       display: inline-block;
       position: relative;
       /* цвет текста для currentColor */
@@ -959,7 +959,7 @@
       -webkit-background-clip: text;
       background-clip: text;
     }
-    #how.active .flip-cards.col-4 .flip-card:nth-child(1) .how-scenes-title {
+    #how.active .how-step-scenes .how-scenes-title {
       animation: how-scenes-title-reveal 3s ease-out forwards;
     }
     @keyframes how-scenes-title-reveal {
@@ -973,6 +973,87 @@
 
     /* Хаотичное движение букв на заголовке второй карточки «Как это работает».
        Алгоритм как в «Карьерный рывок»: буквы разлетаются и собираются в ровную строку. */
+    #how .how-step-choices .how-choices-title {
+      position: relative;
+      display: inline-block;
+    }
+    #how .how-step-choices .how-choices-letter {
+      position: absolute;
+      display: inline-block;
+      will-change: transform, left, top;
+      white-space: pre;
+    }
+    #how .how-step-choices .how-choices-letter.scattered {
+      animation: how-choices-float 0.8s ease-in-out infinite alternate;
+    }
+    @keyframes how-choices-float {
+      0%   { transform: translate(0, 0) rotate(-4deg); }
+      25%  { transform: translate(10px, -15px) rotate(6deg); }
+      50%  { transform: translate(-8px, 12px) rotate(10deg); }
+      75%  { transform: translate(14px, 8px) rotate(-7deg); }
+      100% { transform: translate(-6px, -10px) rotate(5deg); }
+    }
+
+    /* Ракета на третьей карточке «Как это работает»: прилёт без изменения размера карточки. */
+    #how .how-step-rocket .how-launch-rocket {
+      display: inline-block;
+      transform-origin: center center;
+      opacity: 0; /* по умолчанию ракета скрыта до старта анимации */
+    }
+
+    /* Анимация столбиков на карточке «4. Отчёты».
+       Заменяем эмодзи на мини-график, чтобы размер карточки оставался как у остальных. */
+    #how .how-step-report .how-report-bars {
+      display: inline-flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 1.2em;
+    }
+    #how .how-step-report .how-report-bar {
+      width: 0.18em;
+      height: 100%;
+      border-radius: 999px 999px 0 0;
+      background: #38bdf8;
+      animation: how-report-bars-pulse 3s ease-in-out infinite;
+      transform-origin: bottom center;
+    }
+    #how .how-step-report .how-report-bar.bar-1 {
+      background: #38bdf8;
+      animation-delay: 0s;
+    }
+    #how .how-step-report .how-report-bar.bar-2 {
+      background: #22c55e;
+      animation-delay: 0.2s;
+    }
+    #how .how-step-report .how-report-bar.bar-3 {
+      background: #f97316;
+      animation-delay: 0.4s;
+    }
+    @keyframes how-report-bars-pulse {
+      0%   { transform: scaleY(0.3); }
+      25%  { transform: scaleY(0.9); }
+      50%  { transform: scaleY(0.5); }
+      75%  { transform: scaleY(1); }
+      100% { transform: scaleY(0.3); }
+    }
+
+    /* Восстановление анимаций для исходной разметки «Как это работает» (4 карточки col-4) */
+    #how .flip-cards.col-4 .flip-card:nth-child(1) .how-scenes-title {
+      display: inline-block;
+      position: relative;
+      color: var(--text);
+      -webkit-text-fill-color: transparent;
+      background-image: linear-gradient(to right, currentColor 0, currentColor 100%);
+      background-repeat: no-repeat;
+      background-size: 0% 100%;
+      background-position: 0 0;
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+    #how.active .flip-cards.col-4 .flip-card:nth-child(1) .how-scenes-title {
+      animation: how-scenes-title-reveal 3s ease-out forwards;
+    }
+
     #how .flip-cards.col-4 .flip-card:nth-child(2) .how-choices-title {
       position: relative;
       display: inline-block;
@@ -986,23 +1067,13 @@
     #how .flip-cards.col-4 .flip-card:nth-child(2) .how-choices-letter.scattered {
       animation: how-choices-float 0.8s ease-in-out infinite alternate;
     }
-    @keyframes how-choices-float {
-      0%   { transform: translate(0, 0) rotate(-4deg); }
-      25%  { transform: translate(10px, -15px) rotate(6deg); }
-      50%  { transform: translate(-8px, 12px) rotate(10deg); }
-      75%  { transform: translate(14px, 8px) rotate(-7deg); }
-      100% { transform: translate(-6px, -10px) rotate(5deg); }
-    }
 
-    /* Ракета на третьей карточке «Как это работает»: прилёт без изменения размера карточки. */
     #how .flip-cards.col-4 .flip-card:nth-child(3) .how-launch-rocket {
       display: inline-block;
       transform-origin: center center;
-      opacity: 0; /* по умолчанию ракета скрыта до старта анимации */
+      opacity: 0;
     }
 
-    /* Анимация столбиков на карточке «4. Отчёты».
-       Заменяем эмодзи на мини-график, чтобы размер карточки оставался как у остальных. */
     #how .flip-cards.col-4 .flip-card:nth-child(4) .how-report-bars {
       display: inline-flex;
       align-items: flex-end;
@@ -1029,12 +1100,51 @@
       background: #f97316;
       animation-delay: 0.4s;
     }
-    @keyframes how-report-bars-pulse {
-      0%   { transform: scaleY(0.3); }
-      25%  { transform: scaleY(0.9); }
-      50%  { transform: scaleY(0.5); }
-      75%  { transform: scaleY(1); }
-      100% { transform: scaleY(0.3); }
+
+    /* Слайд «Как это работает»: 6 карточек в сетке 2x3 */
+    #how .flip-cards.how-grid-6 {
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      grid-template-rows: repeat(3, minmax(0, 1fr)) !important;
+      gap: 0.85rem;
+      max-width: 1000px;
+      margin-top: 1rem;
+    }
+    #how .flip-cards.how-grid-6 .flip-card,
+    #how .flip-cards.how-grid-6 .flip-card-inner {
+      min-height: 0 !important;
+      height: 100%;
+    }
+    #how .flip-cards.how-grid-6 .flip-card-front,
+    #how .flip-cards.how-grid-6 .flip-card-back {
+      padding: 0.95rem 0.85rem;
+    }
+    #how .flip-cards.how-grid-6 .flip-card-front h4 {
+      font-size: 0.92rem;
+      line-height: 1.2;
+      margin: 0;
+      text-align: center;
+    }
+    #how .flip-cards.how-grid-6 .flip-card-back p {
+      font-size: 0.78rem;
+      line-height: 1.35;
+    }
+    @media (max-width: 768px) {
+      #how .flip-cards.how-grid-6 {
+        gap: 0.6rem;
+        margin-top: 0.65rem;
+        max-width: none;
+      }
+      #how .flip-cards.how-grid-6 .flip-card-front,
+      #how .flip-cards.how-grid-6 .flip-card-back {
+        padding: 0.85rem 0.7rem;
+      }
+      #how .flip-cards.how-grid-6 .flip-card-front h4 {
+        font-size: 0.86rem;
+      }
+      #how .flip-cards.how-grid-6 .flip-card-back p {
+        font-size: 0.72rem;
+        line-height: 1.32;
+      }
     }
 
     /* ----- Sections: единый стиль карточки (как Демо) ----- */

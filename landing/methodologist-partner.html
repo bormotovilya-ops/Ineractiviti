@@ -45,6 +45,34 @@
       line-height: 1.6;
       padding-top: 48px;
       min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: auto;
+      pointer-events: none;
+      z-index: -1;
+      filter: blur(70px);
+      opacity: .45;
+      animation: ambientShift 16s ease-in-out infinite alternate;
+    }
+    body::before {
+      width: 340px;
+      height: 340px;
+      top: 90px;
+      left: -80px;
+      background: radial-gradient(circle, rgba(99,102,241,0.30), transparent 68%);
+    }
+    body::after {
+      width: 300px;
+      height: 300px;
+      right: -60px;
+      top: 320px;
+      background: radial-gradient(circle, rgba(34,197,94,0.18), transparent 68%);
+      animation-duration: 20s;
     }
     section[id] { scroll-margin-top: 70px; }
 
@@ -73,17 +101,35 @@
       gap: 10px;
       text-decoration: none;
       color: inherit;
+      transition: transform .25s ease, opacity .25s ease;
     }
+    .site-logo:hover { transform: translateY(-1px); opacity: .96; }
     .site-logo img { height: 28px; width: auto; display: block; }
     .site-logo span { font-weight: 700; font-size: 14px; letter-spacing: .06em; white-space: nowrap; }
     .site-nav { display: flex; align-items: center; gap: 14px; }
     .site-nav a {
+      position: relative;
       color: var(--text-muted);
       text-decoration: none;
       font-weight: 600;
       font-size: 13px;
+      transition: color .25s ease;
+    }
+    .site-nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -5px;
+      width: 100%;
+      height: 2px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, transparent, rgba(99,102,241,0.95), transparent);
+      transform: scaleX(0);
+      transform-origin: center;
+      transition: transform .25s ease;
     }
     .site-nav a:hover { color: var(--text); }
+    .site-nav a:hover::after { transform: scaleX(1); }
     .site-nav a.cta {
       color: var(--text);
       border: 1px solid var(--border);
@@ -91,6 +137,7 @@
       padding: 7px 12px;
       border-radius: 999px;
     }
+    .site-nav a.cta::after { display: none; }
     @media (max-width: 640px) {
       .site-nav { display: none; }
     }
@@ -101,6 +148,7 @@
       padding: 28px 16px 56px;
     }
     .hero {
+      position: relative;
       display: grid;
       grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr);
       gap: 22px;
@@ -112,8 +160,19 @@
         radial-gradient(900px 520px at 10% 10%, rgba(99,102,241,0.20), transparent 58%),
         linear-gradient(180deg, rgba(18,18,26,0.88), rgba(18,18,26,0.62));
       box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.045) 50%, transparent 80%);
+      transform: translateX(-120%);
+      animation: heroSweep 11s ease-in-out infinite;
+      pointer-events: none;
     }
     .badge {
+      position: relative;
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -125,11 +184,21 @@
       font-weight: 600;
       font-size: 12px;
       margin-bottom: 12px;
+      overflow: hidden;
+    }
+    .badge::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(110deg, transparent 25%, rgba(255,255,255,0.16) 50%, transparent 75%);
+      transform: translateX(-130%);
+      animation: shineSweep 7s ease-in-out infinite;
     }
     .hero h1 { font-size: clamp(1.6rem, 2.6vw, 2.3rem); line-height: 1.15; }
     .hero p.lead { margin-top: 10px; color: var(--text-muted); font-size: 1.02rem; max-width: 62ch; }
     .cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
     .btn {
+      position: relative;
       border-radius: 999px;
       border: 1px solid rgba(255,255,255,0.12);
       padding: 10px 14px;
@@ -141,22 +210,101 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
+      overflow: hidden;
+      transition: transform .25s ease, border-color .25s ease, background .25s ease, box-shadow .25s ease;
     }
     .btn.primary { background: rgba(99,102,241,0.18); border-color: rgba(99,102,241,0.40); }
-    .btn:hover { border-color: rgba(99,102,241,0.45); background: rgba(99,102,241,0.14); }
+    .btn::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.16) 50%, transparent 80%);
+      transform: translateX(-140%);
+      transition: transform .55s ease;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      border-color: rgba(99,102,241,0.45);
+      background: rgba(99,102,241,0.14);
+      box-shadow: 0 12px 28px rgba(99,102,241,0.18);
+    }
+    .btn:hover::after { transform: translateX(140%); }
 
     .hero-card, .card {
+      position: relative;
       border-radius: 16px;
       border: 1px solid rgba(255,255,255,0.10);
       background: var(--card);
       padding: 14px;
       box-shadow: 0 12px 36px rgba(0,0,0,.32);
+      transition: transform .32s ease, border-color .32s ease, box-shadow .32s ease, background .32s ease;
+      overflow: hidden;
+    }
+    .hero-card::before, .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(99,102,241,0.10), transparent 38%, transparent 62%, rgba(34,197,94,0.08));
+      opacity: 0;
+      transition: opacity .32s ease;
+      pointer-events: none;
+    }
+    .hero-card:hover, .card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(99,102,241,0.24);
+      box-shadow: 0 18px 42px rgba(0,0,0,.38);
+      background: rgba(20,20,30,0.94);
+    }
+    .hero-card:hover::before, .card:hover::before { opacity: 1; }
+    .hero-side {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-self: start;
+      min-width: 0;
+    }
+    .hero-side .hero-card:first-child {
+      animation: floatCard 6s ease-in-out infinite;
+    }
+    .hero-side .hero-card:last-child {
+      animation: floatCard 7.5s ease-in-out infinite 1s;
     }
     .hero-card h3, .card h3 { font-size: 15px; margin-bottom: 8px; }
     .hero-card p, .card p { color: var(--text-muted); font-size: 14px; }
 
     .section { margin-top: 28px; }
-    .section h2 { font-size: 1.2rem; margin-bottom: 10px; }
+    .section h2 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      position: relative;
+      display: inline-block;
+      padding-right: 18px;
+    }
+    .section h2::after {
+      content: "";
+      position: absolute;
+      left: calc(100% + 4px);
+      top: 50%;
+      width: 54px;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(99,102,241,0.85), transparent);
+    }
+    body.js-ready .reveal-on-scroll {
+      opacity: 0;
+      transform: translateY(36px) scale(0.985);
+      filter: blur(10px);
+      transition:
+        opacity 0.7s ease,
+        transform 0.7s cubic-bezier(.22, 1, .36, 1),
+        filter 0.7s ease;
+      transition-delay: var(--reveal-delay, 0ms);
+      will-change: opacity, transform, filter;
+    }
+    body.js-ready .reveal-on-scroll.is-visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      filter: blur(0);
+    }
     .grid3 {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -173,6 +321,12 @@
       border-radius: 12px;
       border: 1px solid rgba(255,255,255,0.08);
       background: rgba(10,10,15,0.26);
+      transition: transform .22s ease, border-color .22s ease, background .22s ease;
+    }
+    .li:hover {
+      transform: translateX(4px);
+      border-color: rgba(99,102,241,0.26);
+      background: rgba(99,102,241,0.08);
     }
     .li b { color: var(--text); }
 
@@ -218,11 +372,57 @@
     }
     .footer a { color: inherit; text-decoration: none; }
 
+    @keyframes ambientShift {
+      0% { transform: translate3d(0, 0, 0) scale(1); }
+      100% { transform: translate3d(30px, -24px, 0) scale(1.08); }
+    }
+    @keyframes floatCard {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-7px); }
+    }
+    @keyframes shineSweep {
+      0%, 60%, 100% { transform: translateX(-130%); }
+      20% { transform: translateX(130%); }
+    }
+    @keyframes heroSweep {
+      0%, 100% { transform: translateX(-120%); opacity: 0; }
+      15% { opacity: 1; }
+      45% { transform: translateX(120%); opacity: .9; }
+      60% { opacity: 0; }
+    }
+
     @media (max-width: 940px) {
       .hero { grid-template-columns: 1fr; }
       .grid3 { grid-template-columns: 1fr; }
       .person { grid-template-columns: 1fr; }
       .avatar { width: 88px; height: 88px; }
+      .hero-side .hero-card:first-child,
+      .hero-side .hero-card:last-child { animation: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      body::before,
+      body::after,
+      .hero::after,
+      .badge::after,
+      .hero-side .hero-card:first-child,
+      .hero-side .hero-card:last-child {
+        animation: none;
+      }
+      body.js-ready .reveal-on-scroll,
+      body.js-ready .reveal-on-scroll.is-visible {
+        opacity: 1;
+        transform: none;
+        filter: none;
+        transition: none;
+      }
+      .btn,
+      .hero-card,
+      .card,
+      .li,
+      .site-logo,
+      .site-nav a {
+        transition: none;
+      }
     }
   </style>
 </head>
@@ -234,11 +434,9 @@
         <span>ИНТЕРАКТИВИТИ</span>
       </a>
       <nav class="site-nav" aria-label="Навигация страницы">
-        <a href="#about">Обо мне</a>
         <a href="#offer">Для методолога</a>
         <a href="#model">Модель работы</a>
-        <a href="#lms">LMS</a>
-        <a href="#launch">Форматы запуска</a>
+        <a href="#launch">Интерактивити</a>
         <a href="index.html#contacts" class="cta">Связаться</a>
       </nav>
     </div>
@@ -247,26 +445,38 @@
   <main class="wrap">
     <section class="hero" id="top">
       <div>
-        <div class="badge">🧩 Тренинги в формате интерактивных сценариев (тренажеров)</div>
-        <h1>Партнёрская разработка тренингов для методологов: вы делаете методологию, я собираю продукт под ключ</h1>
-        <p class="lead">
-          Я технический специалист и работаю в инструменте <strong>Конструктор интерактивных сценариев «Интерактивити»</strong>.
-          Вместе с методологом мы быстро превращаем экспертный контент в современный востребованный тренинг:
-          логика сценария, ветвления, интерфейс, запуск и упаковка.
+        <div class="badge">🧩 Разработка онлайн курсов по вашей методологии</div>
+        <h1>Партнёрство для методологов: вы делаете методологию, я выполняю техническую часть </h1>
+        <p class="lead" style="margin-top:12px;">
+          Превращаю вашу методологию в тренинг под ключ:<br>
+          - загружаю материалы на любую LMS платформу,<br>
+          - внедряю логику сценариев и ветвлений,<br>
+          - собираю тренажер в формате SCORM на платфоре "Интерактивити",<br>
+          - выполняю настройку запуска и упаковку.<br>
+          На выходе — готовый курс для вашего клиента!
         </p>
         <div class="cta-row">
           <a class="btn primary" href="#offer">Кому это подходит</a>
-          <a class="btn" href="#launch">Где запускать тренинг</a>
-          <a class="btn" href="index.html#contacts">Обсудить сотрудничество</a>
+          <a class="btn" href="#launch">Что такое Интерактивити</a>
         </div>
       </div>
 
-      <aside class="hero-card">
-        <h3>Что получает методолог</h3>
-        <div class="list">
-          <div class="li"><div>🧠</div><div><b>Понятная роль:</b> вы фокусируетесь на методологии и клиентах.</div></div>
-          <div class="li"><div>⚙️</div><div><b>Техподдержка под ключ:</b> сборка логики, экранов, переходов и сценарных веток на мне.</div></div>
-          <div class="li"><div>🚀</div><div><b>Быстрый вывод в рынок:</b> на выходе готовый тренинг, который можно сразу запускать.</div></div>
+      <aside class="hero-side">
+        <div class="hero-card">
+          <h3>Что получает методолог</h3>
+          <div class="list">
+            <div class="li"><div>🧠</div><div><b>Фокус на методологии:</b> вам не нужно тратить время на изучение платформы</div></div>
+            <div class="li"><div>⚙️</div><div><b>Надежный партнер</b> все технические вопросы запуска на мне</div></div>            
+          </div>
+        </div>
+
+        <div class="hero-card">
+          <h3>Что получает клиент</h3>
+          <div class="list">
+            <div class="li"><div>🤝</div><div><b>Надежная команда:</b> методолог + техническая реализация под ключ — без «перетаскивания» ответственности.</div></div>
+            <div class="li"><div>🛠️</div><div><b>Курс любого формата и сложности:</b> тренажёры, сценарии, логика ветвлений и проверки — в нужном объёме.</div></div>
+            <div class="li"><div>⏱️</div><div><b>Оперативное решение задачи:</b> интерфейс, внедрение логики, настройка запуска и упаковка — в понятные сроки.</div></div>
+          </div>
         </div>
       </aside>
     </section>
@@ -285,9 +495,8 @@
           </div>
         </div>
         <p style="margin-top:12px;">
-          Закрываю техническую часть разработки тренингов под ключ: сборка сценариев, логика ветвлений, интерфейсы,
-          тестирование, подготовка к запуску и сопровождение. В партнёрстве с методологом это позволяет быстро выводить
-          на рынок качественные интерактивные продукты для корпоративного и коммерческого обучения.
+          Закрываю техническую часть под ключ: сборка сценариев, логика ветвлений, интерфейсы, загрузка на платформу, тестирование и подготовка к запуску.
+          Вместе с методологом делаем качественный тренинг в срок.
         </p>
       </div>
     </section>
@@ -296,54 +505,66 @@
       <h2>Кому подходит сотрудничество</h2>
       <div class="card">
         <p>
-          В первую очередь — для методологов, у которых есть клиенты или запросы на современные форматы обучения.
-          Если вы умеете проектировать методическую часть, я закрываю всю техническую реализацию,
-          чтобы вы могли предлагать клиенту готовый интерактивный продукт, а не только концепцию.
+          Для методологов, у которых есть клиенты или запросы на современные форматы обучения.
+          Вы проектируете методологию — я закрываю техническую реализацию, чтобы вы могли предлагать готовый интерактивный продукт.
         </p>
       </div>
     </section>
 
     <section class="section" id="model">
-      <h2>Как мы работаем в паре</h2>
-      <div class="grid3">
+      <h2>Как мы работаем в команде</h2>
+      <div class="card" style="margin-bottom:14px;">
+        <p>
+          Работаем как команда: вы отвечаете за методологию, а я закрываю техническую реализацию. Дальше — два основных варианта
+          сотрудничества:
+        </p>
+      </div>
+
+      <div class="grid3" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
         <div class="card">
-          <h3>1) Методологическая часть</h3>
-          <p>Вы отвечаете за структуру тренинга, учебные цели, логику решений и образовательный результат.</p>
+          <h3>1) На платформе «Интерактивити»</h3>
+          <p>
+            Вы презентуете клиенту формат интерактивных сценариев, продумываете структуру и сценарные ветки,
+            а я внедряю это на платформе «Интерактивити» и обеспечиваю запуск.
+            <br><br>
+            <a href="../PeopleGames/index.html" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;text-decoration:none;">Смотреть демо-формат →</a>
+          </p>
         </div>
+
         <div class="card">
-          <h3>2) Техническая сборка</h3>
-          <p>Я собираю тренинг в «Интерактивити»: интерфейс, ветвления, проверки, медиа, сценарные переходы.</p>
-        </div>
-        <div class="card">
-          <h3>3) Готовый продукт</h3>
-          <p>На выходе современный востребованный тренинг, который можно запускать в нужном клиенту формате.</p>
+          <h3>2) На любой платформе</h3>
+          <p>
+            Вы предоставляете материалы для курса и требуемый формат, а я загружаю и настраиваю курс так,
+            чтобы он запускался у клиента в нужной LMS.
+          </p>
         </div>
       </div>
-    </section>
 
-    <section class="section" id="lms">
-      <h2>Техническая реализация на любой LMS</h2>
-      <div class="card">
+      <div class="card" style="margin-top:14px;">
+        <h3>Рекомендации: 10%</h3>
         <p>
-          Готов подключаться к технической сборке тренинга практически под любую LMS-платформу:
-          GetCourse, CoreApp, iSpring Learn, SkillSpace, Prodamus.XL и другие решения.
-          <strong>Приоритетный формат — платформа «Интерактивити»</strong>, где быстрее запуск, гибче сценарии
-          и проще дальнейшее развитие продукта.
+          Если вы рекомендуете меня как технического специалиста, но сами не разрабатываете методологию —
+          я выплачиваю вам <b>10%</b> от стоимости контракта по этому заказу.
         </p>
       </div>
     </section>
 
     <section class="section" id="launch">
-      <h2>Где можно запускать тренинг</h2>
+      <h2>Что такое Интерактивити</h2>
       <div class="card">
+        <p>
+          <b>Интерактивити</b> — это конструктор интерактивных сценариев со встроенной учебной платформой.
+          Вместо обычного формата «лекция + тест» здесь можно собирать ветвящиеся кейсы-тренажёры, где участник
+          делает выбор, видит последствия своих решений и лучше переносит знания в рабочую практику.
+        </p>
         <div class="list">
-          <div class="li"><div>1</div><div><b>На нашей платформе:</b> быстрое развертывание и запуск без лишней инфраструктуры.</div></div>
-          <div class="li"><div>2</div><div><b>На отдельном сайте:</b> автономный запуск как самостоятельный продукт.</div></div>
-          <div class="li"><div>3</div><div><b>Интеграция в LMS:</b> экспорт и запуск в системах, поддерживающих формат SCORM.</div></div>
+          <div class="li"><div>🎯</div><div><b>Для методолога это значит:</b> вы можете предлагать клиенту не просто курс, а современный формат обучения с погружением, практикой и вау-эффектом без необходимости самим разбираться в технической реализации.</div></div>
+          <div class="li"><div>⚙️</div><div><b>Основные функции:</b> визуальный редактор сцен, выборов и исходов, логика ветвлений, проверки знаний, сценарные тренажёры, экспорт в SCORM и запуск как на платформе, так и в LMS клиента.</div></div>
+          <div class="li"><div>📈</div><div><b>Почему это ценно:</b> интерактивный формат повышает вовлечённость, помогает доводить обучение до конца и даёт больше практического применения, чем классический линейный курс.</div></div>
+          <div class="li"><div>📊</div><div><b>Дополнительное преимущество:</b> можно смотреть не только факт прохождения, но и то, какие решения принимают пользователи, где ошибаются и какие сценарии работают лучше.</div></div>
         </div>
         <div class="cta-row" style="margin-top:14px;">
-          <a class="btn primary" href="../PeopleGames/index.html">▶️ Посмотреть демо-формат</a>
-          <a class="btn" href="index.html#contacts">Оставить запрос на партнёрство</a>
+          <a class="btn primary" href="index.html#intro">▶️ Перейти на сайт платформы</a>
         </div>
       </div>
     </section>
@@ -353,6 +574,44 @@
       <p style="margin-top:6px;"><a href="index.html#documents">Документы</a> · <a href="index.html#contacts">Контакты</a></p>
     </section>
   </main>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var revealItems = Array.from(document.querySelectorAll('main > .section, main > .footer'));
+
+      if (!revealItems.length) return;
+
+      var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      revealItems.forEach(function (item, index) {
+        item.classList.add('reveal-on-scroll');
+        item.style.setProperty('--reveal-delay', Math.min(index * 80, 240) + 'ms');
+      });
+
+      document.body.classList.add('js-ready');
+
+      if (prefersReducedMotion || !('IntersectionObserver' in window)) {
+        revealItems.forEach(function (item) {
+          item.classList.add('is-visible');
+        });
+        return;
+      }
+
+      var observer = new IntersectionObserver(function (entries, obs) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-visible');
+          obs.unobserve(entry.target);
+        });
+      }, {
+        threshold: 0.18,
+        rootMargin: '0px 0px -8% 0px'
+      });
+
+      revealItems.forEach(function (item) {
+        observer.observe(item);
+      });
+    });
+  </script>
 </body>
 </html>
 
