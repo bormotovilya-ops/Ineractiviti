@@ -3273,15 +3273,29 @@
       var siteBurger = document.getElementById('siteBurger');
       var siteNav = document.getElementById('siteNav');
       if (siteBurger && siteNav) {
+        function closeMobileMenu() {
+          siteNav.classList.remove('open');
+          siteBurger.setAttribute('aria-expanded', 'false');
+        }
         siteBurger.addEventListener('click', function() {
           var open = siteNav.classList.toggle('open');
-          siteBurger.setAttribute('aria-expanded', open);
+          siteBurger.setAttribute('aria-expanded', open ? 'true' : 'false');
         });
         siteNav.querySelectorAll('a').forEach(function(a) {
           a.addEventListener('click', function() {
-            siteNav.classList.remove('open');
-            siteBurger.setAttribute('aria-expanded', 'false');
+            closeMobileMenu();
           });
+        });
+        document.addEventListener('click', function(e) {
+          if (!siteNav.classList.contains('open')) return;
+          if (siteNav.contains(e.target) || siteBurger.contains(e.target)) return;
+          closeMobileMenu();
+        });
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape') closeMobileMenu();
+        });
+        window.addEventListener('resize', function() {
+          if (window.innerWidth > 768) closeMobileMenu();
         });
       }
 

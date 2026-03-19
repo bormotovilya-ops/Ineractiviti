@@ -84,6 +84,18 @@
     .site-logo img { height: 28px; width: auto; display: block; }
     .site-logo span { font-family: 'Unbounded', sans-serif; font-weight: 600; font-size: 14px; letter-spacing: .06em; white-space: nowrap; }
     .site-nav { display: flex; align-items: center; gap: 14px; }
+    .site-menu-toggle {
+      display: none;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(18,18,26,0.7);
+      color: var(--text);
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+    }
     .site-nav a {
       color: var(--text-muted);
       text-decoration: none;
@@ -101,7 +113,25 @@
     }
     .site-nav a.cta:hover { color: var(--accent); filter: brightness(1.15); }
     @media (max-width: 640px) {
-      .site-nav { display: none; }
+      .site-menu-toggle { display: inline-flex; align-items: center; justify-content: center; }
+      .site-nav {
+        position: absolute;
+        top: 48px;
+        right: 10px;
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+        min-width: 220px;
+        padding: 10px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: rgba(10,10,15,0.96);
+        box-shadow: 0 14px 36px rgba(0,0,0,.45);
+      }
+      .site-nav.open { display: flex; }
+      .site-nav a { font-size: 14px; padding: 8px 10px; border-radius: 8px; }
+      .site-nav a.cta { text-align: center; }
     }
 
     .wrap {
@@ -291,7 +321,8 @@
         <img src="img/logo_mini.png" alt="" width="28" height="28" decoding="async" />
         <span>ИНТЕРАКТИВИТИ</span>
       </a>
-      <nav class="site-nav" aria-label="Навигация страницы">
+      <button type="button" class="site-menu-toggle" id="siteMenuToggle" aria-label="Открыть меню" aria-controls="siteNav" aria-expanded="false">☰</button>
+      <nav class="site-nav" id="siteNav" aria-label="Навигация страницы">
         <a href="#solution">Решение</a>
         <a href="#demo">Демо</a>
         <a href="#team">Команда</a>
@@ -414,6 +445,38 @@
       <p style="margin-top:6px;"><a href="index.html#documents">Документы</a> · <a href="index.html#contacts">Контакты</a></p>
     </section>
   </main>
+  <script>
+    (function () {
+      var toggle = document.getElementById('siteMenuToggle');
+      var nav = document.getElementById('siteNav');
+      if (!toggle || !nav) return;
+
+      function setOpen(isOpen) {
+        nav.classList.toggle('open', isOpen);
+        toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      }
+
+      toggle.addEventListener('click', function () {
+        setOpen(!nav.classList.contains('open'));
+      });
+
+      nav.querySelectorAll('a').forEach(function (link) {
+        link.addEventListener('click', function () {
+          setOpen(false);
+        });
+      });
+
+      document.addEventListener('click', function (e) {
+        if (!nav.classList.contains('open')) return;
+        if (nav.contains(e.target) || toggle.contains(e.target)) return;
+        setOpen(false);
+      });
+
+      window.addEventListener('resize', function () {
+        if (window.innerWidth > 640) setOpen(false);
+      });
+    })();
+  </script>
 </body>
 </html>
 
