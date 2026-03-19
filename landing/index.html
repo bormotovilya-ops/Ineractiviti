@@ -212,6 +212,33 @@
       text-shadow: 0 1px 2px rgba(0,0,0,0.4), 0 0 20px rgba(0,0,0,0.3);
       margin-bottom: 0;
     }
+    @media (max-width: 768px) {
+      /* Мобайл: «Как это работает» — стандартная ширина карточек */
+      #how.landing-slide {
+        padding-left: 0.7rem !important;
+        padding-right: 0.7rem !important;
+      }
+      #how .slide-card {
+        margin: 0 auto !important;
+        border-radius: 24px;
+        width: calc(100vw - 1.4rem) !important;
+        max-width: 1100px !important;
+      }
+      #how .slide-card-body {
+        padding-left: 0.65rem;
+        padding-right: 0.65rem;
+      }
+      #how .flip-cards {
+        width: 100% !important;
+        max-width: 1100px !important;
+      }
+      .intro-slide .slide-card-body {
+        top: 58%;
+      }
+      .intro-slide .slide-card-body .intro-slide-inner h1 {
+        font-size: clamp(1.15rem, 4.4vh, 2.8rem);
+      }
+    }
     .intro-slide .intro-lead {
       margin: clamp(0.2rem, 0.9vh, 0.75rem) 0 clamp(0.2rem, 0.7vh, 0.5rem);
       font-size: clamp(0.85rem, 1.7vh, 1.1rem);
@@ -530,14 +557,39 @@
       }
     }
 
-    /* Для слайда «Как это работает» убираем лишний скролл при анимации карточек */
+    /* Для слайда «Как это работает» — стандартная ширина/отступы */
     #how .slide-card-body {
       overflow: hidden;
+      padding-bottom: 1.5rem;
     }
-    /* Увеличим ширину карточек на слайде «Как это работает» на ~20% и добавим нижний отступ */
-    #how .slide-card { max-width: 1200px; }
-    #how .flip-cards.col-4 { max-width: 1200px; }
-    #how .slide-card-body { padding-bottom: 1.5rem; }
+    #how.landing-slide {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+    #how .slide-card {
+      width: 100% !important;
+      max-width: 1100px !important;
+    }
+    #how .flip-cards {
+      width: 100% !important;
+      max-width: 1100px !important;
+    }
+    #how .flip-cards.col-4 {
+      width: 100% !important;
+      max-width: 1100px !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+    }
+    /* Внутренние отступы карточек — стандартные */
+    #how .flip-cards.col-4 .flip-card-front {
+      padding-left: 1.25rem;
+      padding-right: 1.25rem;
+      gap: 1rem;
+    }
+    #how .flip-cards.col-4 .flip-card-back {
+      padding-left: 1.25rem;
+      padding-right: 1.25rem;
+    }
     @media (max-width: 640px) {
       .flip-cards:not(.col-4) { grid-template-columns: 1fr; }
     }
@@ -630,6 +682,14 @@
       border-color: var(--accent);
       transform: scale(1.05);
       box-shadow: 0 4px 20px rgba(99, 102, 241, 0.25);
+    }
+    /* Левая стрелка: прозрачный фон, чтобы не перекрывать текст карточек */
+    .slide-nav .slide-nav-prev {
+      background: transparent;
+      box-shadow: none;
+    }
+    .slide-nav .slide-nav-prev:hover:not(:disabled) {
+      background: transparent;
     }
     .slide-nav button:disabled {
       opacity: 0.35;
@@ -989,6 +1049,11 @@
     section.landing-slide .slide-card {
       width: 100%;
     }
+    /* Слайд «Как это работает»: карточки почти на всю ширину экрана */
+    #how.landing-slide {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
     .intro-slide-inner, .role-slide-inner, .for-you-slide-inner {
       max-width: 640px;
       width: 100%;
@@ -1116,6 +1181,20 @@
       margin: 0;
     }
     .product-intro p + p { margin-top: 0.75rem; }
+    #problemDefIS,
+    #problemDefKIS {
+      display: none;
+    }
+    @media (max-width: 768px) {
+      #problemDefIS {
+        display: block;
+      }
+    }
+    @media (min-width: 769px) {
+      #problemDefKIS {
+        display: block;
+      }
+    }
     /* Слайд «Интерактивные сценарии»: всё в vh/vw — при зуме контент уменьшается, без скролла */
     .product-slide {
       padding: clamp(0.8rem, 1.8vh, 2rem);
@@ -1184,6 +1263,9 @@
     .product-slide .product-layout-cards .flip-card-emoji {
       font-size: clamp(1.3rem, 2.2vh, 2.1rem);
     }
+    .section-problem .problem-intro-toggle {
+      display: none;
+    }
     .product-cards-hint {
       font-size: clamp(0.7rem, 1.4vh, 0.875rem);
       color: var(--text-muted);
@@ -1244,6 +1326,129 @@
       display: block;
     }
     @media (max-width: 768px) {
+      /* Слайд "Частые вопросы": уплотняем, чтобы карточки влезали без скролла */
+      #faq .slide-card-header {
+        padding: 0.55rem 0 !important;
+      }
+      #faq.faq {
+        max-width: none;
+        width: 100%;
+      }
+      #faq.landing-slide {
+        padding: 1.1rem 0.9rem 0.55rem !important;
+      }
+      #faq .slide-card {
+        width: 100% !important;
+        max-width: none !important;
+        align-items: stretch;
+      }
+      #faq .slide-card-body {
+        width: 100%;
+        align-items: stretch;
+        justify-content: flex-start;
+        overflow: hidden;
+        padding: 0.8rem 0.95rem calc(0.55rem + env(safe-area-inset-bottom));
+        gap: 0.3rem;
+      }
+      #faq .slide-card-body > p {
+        margin-bottom: 0.2rem;
+        font-size: 0.72rem;
+        line-height: 1.2;
+      }
+      #faq .flip-cards.col-3 {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        flex: 1 1 auto;
+        min-height: 0;
+        margin: 0 !important;
+        gap: 0.5rem;
+        width: 100%;
+        max-width: none;
+      }
+      #faq .flip-cards.col-3 .flip-card,
+      #faq .flip-cards.col-3 .flip-card-inner {
+        min-height: 200px !important;
+      }
+      #faq .flip-cards.col-3 .flip-card {
+        flex: 0 0 auto;
+        position: relative;
+      }
+      #faq .flip-cards.col-3 .flip-card-inner {
+        height: 200px !important;
+      }
+      #faq .flip-cards.col-3 .flip-card-front,
+      #faq .flip-cards.col-3 .flip-card-back {
+        padding: 0.7rem 0.85rem;
+      }
+      #faq .flip-cards.col-3 .flip-card-front h4 {
+        font-size: 0.9rem;
+        line-height: 1.25;
+      }
+      #faq .flip-cards.col-3 .flip-card-back p {
+        font-size: 0.82rem;
+        line-height: 1.35;
+      }
+      #faq .flip-cards.col-3 .flip-card-emoji {
+        font-size: 1.55rem;
+        margin-bottom: 0.36rem;
+      }
+      #faq .slide-card-body > footer {
+        display: none;
+      }
+
+      /* Слайд «Кто вы?» на мобиле: заголовок + ровная сетка 2x3 */
+      .role-slide .slide-card-body {
+        padding: 0.55rem 0.65rem calc(0.55rem + env(safe-area-inset-bottom)) !important;
+        overflow: hidden;
+      }
+      .role-slide .role-slide-inner {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        max-width: none;
+      }
+      .role-slide .role-slide-inner h2 {
+        display: block !important;
+        margin-bottom: 0.22rem;
+        font-size: clamp(1rem, 2.05vh, 1.28rem);
+        line-height: 1.18;
+      }
+      .role-slide .role-slide-inner > p {
+        margin-bottom: 0.42rem !important;
+        font-size: 0.72rem;
+        line-height: 1.25;
+      }
+      .role-slide .role-choices {
+        margin-top: 0;
+        flex: 1 1 auto;
+        min-height: 0;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-rows: repeat(3, minmax(0, 1fr));
+        gap: 0.36rem;
+      }
+      .role-slide .role-choice {
+        min-height: 0;
+        padding: 0.44rem 0.46rem 0.5rem;
+        gap: 0.12rem;
+        border-radius: 10px;
+      }
+      .role-slide .role-choice-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        margin-bottom: 0.12rem;
+      }
+      .role-slide .role-choice-title {
+        font-size: 0.74rem;
+        line-height: 1.15;
+      }
+      .role-slide .role-choice-caption {
+        font-size: 0.62rem;
+        line-height: 1.2;
+      }
+
       .product-slide .slide-card-body {
         padding: clamp(0.6rem, 1.2vh, 1rem) clamp(0.6rem, 1.5vw, 1.25rem);
         overflow-y: auto;   /* prevent block overlap on short screens */
@@ -1265,35 +1470,89 @@
         gap: clamp(0.35rem, 1vh, 0.85rem);
       }
       .product-slide .product-layout-cards .flip-card {
-        min-height: 140px;
+        min-height: 118px;
       }
       .product-slide .product-layout-cards .flip-card-inner {
-        min-height: 140px;
+        min-height: 118px;
       }
       .product-slide .product-layout-cards .flip-cards.col-4 .flip-card-front {
-        padding: 0 0.85rem;
-        gap: 0.75rem;
+        padding: 0 0.55rem;
+        gap: 0.35rem;
       }
       .product-slide .product-layout-cards .flip-cards.col-4 .flip-card-emoji {
-        font-size: clamp(1.1rem, 1.9vh, 1.6rem);
+        font-size: clamp(0.95rem, 1.6vh, 1.35rem);
       }
       .product-slide .product-layout-cards .flip-cards.col-4 .flip-card-front h4 {
-        font-size: clamp(0.85rem, 1.6vh, 1.05rem);
+        font-size: clamp(0.72rem, 1.25vh, 0.86rem);
       }
       .product-slide .product-layout-cards .flip-cards.col-4 .flip-card-back p {
-        font-size: 0.82rem;
+        font-size: 0.64rem;
+        line-height: 1.3;
       }
       .product-slide .product-layout-text .product-intro p {
-        font-size: clamp(0.85rem, 1.5vh, 1rem);
-        line-height: 1.45;
+        font-size: clamp(0.8rem, 1.35vh, 0.95rem);
+        line-height: 1.4;
       }
       .product-slide .product-layout-text .product-intro p + p {
-        margin-top: 0.6rem;
+        margin-top: 0.45rem;
       }
-      .product-diagram {
-        margin-top: 0.75rem;
-        padding-top: 0.75rem;
-        max-height: min(18vh, 200px);
+      .section-problem .product-intro {
+        margin-bottom: 0.1rem;
+      }
+      .section-problem .problem-intro-toggle {
+        display: inline-flex;
+        margin-top: 0.4rem;
+        align-self: flex-start;
+        border: 1px solid var(--border);
+        background: var(--bg-elevated);
+        color: var(--text);
+        border-radius: 999px;
+        padding: 0.32rem 0.62rem;
+        font-size: 0.72rem;
+        line-height: 1.2;
+        cursor: pointer;
+      }
+      .section-problem .slide-card-body {
+        padding-bottom: calc(0.4rem + env(safe-area-inset-bottom)) !important;
+        overflow-y: hidden;   /* на слайде «О продукте» убираем скролл, всё влезает на экран */
+      }
+      .section-problem .slide-card-body > h2 {
+        margin-bottom: 0.2rem;
+        font-size: clamp(1.05rem, 2.25vh, 1.45rem);
+      }
+      .section-problem .product-title-spacer {
+        display: none;
+      }
+      .section-problem .product-layout {
+        gap: 0.45rem;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+      .section-problem .product-layout-text {
+        order: -1;
+        padding: 0;
+        gap: 0.15rem;
+        background: transparent;
+        border: none;
+        border-radius: 0;
+        overflow: visible;
+        display: flex;
+        flex-direction: column;
+        justify-content: center; /* вертикальное выравнивание содержимого по центру карточки */
+        flex: 0 0 22%;   /* немного меньше 1/4 высоты */
+        min-height: 0;
+      }
+      .section-problem .product-layout-text .product-intro {
+        overflow: visible;
+        flex: initial;
+      }
+      .section-problem .product-layout-cards {
+        flex: 0 0 78%;   /* оставшиеся ~3/4 высоты */
+        min-height: 0;
+      }
+      .section-problem .product-layout-text .product-diagram-wrap {
+        display: none;
       }
     }
     .section-problem .problem-content { margin-bottom: 1.5rem; }
@@ -1426,6 +1685,99 @@
       .demo-section .demo-course-body { padding: 0.5rem 0.75rem; }
       .demo-section .demo-course-body h3 { font-size: 0.95rem; }
       .demo-section .demo-course-body p { font-size: 0.8rem; margin-bottom: 0.35rem; }
+      /* Слайд «Возможности»: уменьшаем превью, чтобы картинка и описание
+         полностью помещались в карточку на мобильных экранах */
+      #features .demo-course-img {
+        width: 100%;
+        height: 56px !important;
+        max-height: 56px !important;
+        min-height: 56px !important;
+        aspect-ratio: auto;
+        object-fit: contain;
+        object-position: center;
+        padding: 0.1rem 0.25rem 0;
+        border-radius: 12px 12px 0 0;
+      }
+      #features .demo-course-body {
+        padding: 0.45rem 0.65rem;
+        gap: 0.28rem;
+      }
+      #features .demo-course-body h3 {
+        font-size: 0.84rem;
+        margin-bottom: 0.15rem;
+        line-height: 1.2;
+      }
+      #features .demo-course-body p {
+        font-size: 0.72rem;
+        line-height: 1.3;
+        margin-bottom: 0.2rem;
+      }
+      /* На слайде «Возможности» убираем второй подзаголовок и
+         перераспределяем высоту в пользу карточек */
+      #features .slide-card-body > p {
+        display: none;
+      }
+      #features .slide-card-body {
+        padding: 0.7rem 0.75rem 0.7rem;
+      }
+      #features .demo-courses {
+        gap: 0.55rem;
+      }
+      #features .demo-course {
+        min-height: 0;
+      }
+      #features .demo-course-body {
+        padding: 0.42rem 0.6rem 0.5rem;
+      }
+      #features .demo-course-body h3 {
+        font-size: 0.8rem;
+        margin-bottom: 0.1rem;
+      }
+      #features .demo-course-body p {
+        font-size: 0.68rem;
+        line-height: 1.25;
+        margin-bottom: 0.16rem;
+      }
+      #features .features-course-btn {
+        min-width: 0;
+        width: 100%;
+        min-height: 36px !important;
+        height: 36px !important;
+        max-height: 36px !important;
+        padding: 0 0.6rem !important;
+        font-size: 0.74rem !important;
+        line-height: 1 !important;
+        white-space: nowrap !important;
+        border-radius: 8px;
+        box-sizing: border-box;
+      }
+      /* Мобильный режим заявки:
+         показываем только карточку "Курс под ключ" и увеличиваем её по высоте */
+      #features .demo-courses.request-mode {
+        grid-template-columns: 1fr;
+        grid-auto-rows: auto;
+        align-content: stretch;
+      }
+      #features .demo-courses.request-mode > .demo-course:not(#featuresCourseKey) {
+        display: none;
+      }
+      #features .demo-courses.request-mode #featuresCourseKey {
+        min-height: clamp(420px, 66vh, 620px);
+      }
+      #features .demo-courses.request-mode #featuresCourseKey .features-course-inner {
+        min-height: 100%;
+      }
+      #features .demo-courses.request-mode #featuresCourseKey .features-course-back .demo-course-body {
+        height: 100%;
+        overflow-y: auto;
+        padding: 0.55rem 0.7rem 0.65rem;
+      }
+      #features .demo-courses.request-mode .features-request-form {
+        gap: 0.35rem;
+      }
+      #features .demo-courses.request-mode .features-request-form textarea {
+        min-height: 2.6rem;
+      }
     }
     .demo-section .demo-course {
       min-height: 0;
@@ -1472,6 +1824,9 @@
       margin-top: auto;
       align-self: center;
       min-width: 120px;
+      min-height: 36px !important;
+      height: 36px !important;
+      max-height: 36px !important;
       text-align: center;
       cursor: pointer;
       /* make features buttons look like primary buttons by default */
@@ -1479,13 +1834,17 @@
       align-items: center;
       justify-content: center;
       gap: .4rem;
-      padding: .6rem .9rem;
+      padding: 0 0.6rem !important;
+      line-height: 1 !important;
+      white-space: nowrap !important;
       border-radius: 10px;
       background: var(--accent);
       color: #fff;
       border: none;
       box-shadow: 0 6px 18px rgba(99, 102, 241, 0.12);
+      font-size: 0.74rem !important;
       font-weight: 600;
+      box-sizing: border-box;
       transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease, color 0.12s ease;
     }
     #features .features-course-btn:hover {
@@ -1495,6 +1854,17 @@
     #features .features-course-btn:active {
       transform: translateY(1px);
       box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+    }
+    /* Явное дублирование для класса "Попробовать", чтобы исключить расхождения */
+    #features .features-lms-btn {
+      min-height: 36px !important;
+      height: 36px !important;
+      max-height: 36px !important;
+      padding: 0 0.6rem !important;
+      font-size: 0.74rem !important;
+      line-height: 1 !important;
+      white-space: nowrap !important;
+      box-sizing: border-box;
     }
     /* keep smaller variant for auth-tab styling if present */
     
@@ -1707,13 +2077,14 @@
       top: 0;
       left: 0;
       right: 0;
-      z-index: 200;
+      z-index: 10000;
       height: 48px;
       max-height: 48px;
-      overflow: hidden;
+      overflow: visible;
       background: rgba(10, 10, 15, 0.9);
       backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--border);
+      pointer-events: auto;
     }
     .site-header-inner {
       display: flex;
@@ -1725,6 +2096,8 @@
       margin: 0 auto;
       padding: 0 1rem;
       gap: 0.75rem;
+      position: relative;
+      z-index: 10001;
     }
     .site-logo {
       display: flex;
@@ -1763,6 +2136,9 @@
     .site-nav a.cta:hover { color: var(--accent); filter: brightness(1.15); }
     .site-header-burger {
       display: none;
+      position: relative;
+      z-index: 300;
+      pointer-events: auto;
       width: 44px;
       height: 44px;
       align-items: center;
@@ -1793,10 +2169,10 @@
     @media (max-width: 768px) {
       .site-header-burger { display: flex; }
       .site-nav {
-        position: fixed;
+        position: absolute;
         top: 48px;
         right: 10px;
-        left: auto;
+        left: unset;
         width: min(260px, calc(100vw - 20px));
         background: var(--bg-elevated);
         border: 1px solid var(--border);
@@ -1805,7 +2181,7 @@
         padding: 0.75rem;
         gap: 0.35rem;
         display: none;
-        z-index: 260;
+        z-index: 10002;
         box-shadow: 0 14px 36px rgba(0,0,0,.45);
       }
       .site-nav.open {
@@ -1816,6 +2192,50 @@
         width: 100%;
         text-align: center;
         border-radius: 8px;
+      }
+    }
+
+    /* FINAL OVERRIDE: фиксируем единый размер кнопок на слайде "Возможности"
+       (включая "Попробовать"), чтобы никакие другие стили не меняли высоту */
+    #features button.features-course-btn,
+    #features .features-course-btn.auth-tab,
+    #features .features-course-btn.auth-tab.auth-tab-active,
+    #features .features-lms-btn {
+      box-sizing: border-box !important;
+      min-height: 36px !important;
+      height: 36px !important;
+      max-height: 36px !important;
+      padding: 0 0.6rem !important;
+      margin-top: auto;
+      line-height: 1 !important;
+      font-size: 0.74rem !important;
+      white-space: nowrap !important;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+
+    /* FINAL WIDTH TUNING: "Как это работает" — средняя ширина */
+    #how.landing-slide {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+    #how .slide-card {
+      width: min(1100px, 92vw) !important;
+      max-width: min(1100px, 92vw) !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+    }
+    #how .flip-cards,
+    #how .flip-cards.col-4 {
+      width: 100% !important;
+      max-width: none !important;
+    }
+    @media (max-width: 768px) {
+      #how .slide-card {
+        width: 94vw !important;
+        max-width: 94vw !important;
       }
     }
   </style>
@@ -1834,11 +2254,60 @@
         <a href="#contacts">Контакты</a>
         <a href="#form" class="cta">Войти</a>
       </nav>
-      <button type="button" class="site-header-burger" id="siteBurger" aria-label="Меню" aria-expanded="false">
+      <button type="button" class="site-header-burger" id="siteBurger" aria-label="Меню" aria-expanded="false" onclick="(function(btn){var nav=document.getElementById('siteNav');if(!nav)return;var isOpen=nav.classList.toggle('open');btn.setAttribute('aria-expanded',isOpen?'true':'false');})(this)">
         <span></span>
       </button>
     </div>
   </header>
+  <script>
+    (function () {
+      function initMobileMenu() {
+        var siteBurger = document.getElementById('siteBurger');
+        var siteNav = document.getElementById('siteNav');
+        if (!siteBurger || !siteNav || siteBurger.dataset.menuInit === '1') return;
+        siteBurger.dataset.menuInit = '1';
+
+        function closeMobileMenu() {
+          siteNav.classList.remove('open');
+          siteBurger.setAttribute('aria-expanded', 'false');
+        }
+
+        siteBurger.addEventListener('click', function (e) {
+          if (e && e.preventDefault) e.preventDefault();
+          if (e && e.stopPropagation) e.stopPropagation();
+          var open = siteNav.classList.toggle('open');
+          siteBurger.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+
+        var menuLinksTop = siteNav.querySelectorAll('a');
+        for (var i = 0; i < menuLinksTop.length; i += 1) {
+          menuLinksTop[i].addEventListener('click', function () {
+            closeMobileMenu();
+          });
+        }
+
+        document.addEventListener('click', function (e) {
+          if (!siteNav.classList.contains('open')) return;
+          if (siteNav.contains(e.target) || siteBurger.contains(e.target)) return;
+          closeMobileMenu();
+        });
+
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape') closeMobileMenu();
+        });
+
+        window.addEventListener('resize', function () {
+          if (window.innerWidth > 768) closeMobileMenu();
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMobileMenu);
+      } else {
+        initMobileMenu();
+      }
+    })();
+  </script>
 
   <div class="landing-slides" id="landingSlides">
   <section class="intro-slide graph-node-section landing-slide active" id="intro" data-slide="0">
@@ -1914,10 +2383,10 @@
               </div>
             </div>
           </div>
-          <div class="product-layout-text">
-            <div class="product-intro">
-              <p><strong>Интерактивный сценарий (ИС)</strong> — это история или кейс, в котором пользователь сам делает выбор: отвечает на вопросы, нажимает варианты, принимает решения. От каждого выбора зависит, что произойдёт дальше: сюжет ветвится, можно прийти к разным концовкам или переиграть и попробовать другой путь.</p>
-              <p><strong>Конструктор интерактивных сценариев (КИС)</strong> — инструмент для создания таких сценариев без программирования: визуальный редактор сцен, выборов и исходов и учебная платформа для назначения курсов и просмотра отчётов в одном месте.</p>
+          <div class="product-layout-text" id="problemTopArea">
+            <div class="product-intro" id="problemDefinitions">
+              <p id="problemDefIS">Интерактивный сценарий (ИС) — это история или кейс, в котором пользователь делает выборы, от которых зависят дальнейшие ветки и исходы.</p>
+              <p id="problemDefKIS">Конструктор интерактивных сценариев «Интерактивити» — это визуальный редактор сцен, выборов и исходов со встроенной учебной платформой.</p>
             </div>
             <div class="product-diagram-wrap">
               <img class="product-diagram" src="img/Product.png" alt="Схема: интерактивный сценарий — узлы и ветвления" />
@@ -2010,8 +2479,7 @@
                   <span>2</span><span>.</span><span>&nbsp;</span>
                   <span>В</span><span>ы</span><span>б</span><span>о</span><span>р</span><span>ы</span>
                   <span>&nbsp;</span>
-                  <span>и</span>
-                  <span>&nbsp;</span>
+                  <span>и</span><br>
                   <span>в</span><span>е</span><span>т</span><span>в</span><span>л</span><span>е</span><span>н</span><span>и</span><span>я</span>
                 </h4>
               </div>
@@ -2166,11 +2634,20 @@
             /* Stack tabs above the form and center everything */
             .slide-card .auth-layout { display: flex; flex-direction: column; gap: .75rem; align-items: center; justify-content: center; width: 100%; }
             .slide-card .auth-tabs { display:flex; gap:.5rem; align-items:center; justify-content:center; }
-            /* Force narrow form width (doubled) */
-            .slide-card .auth-forms { width: 346px !important; max-width: 346px !important; margin: 0 auto !important; }
+            /* Narrow auth container so fields fit comfortably */
+            .slide-card .auth-forms {
+              width: min(320px, calc(100vw - 56px)) !important;
+              max-width: min(320px, calc(100vw - 56px)) !important;
+              margin: 0 auto !important;
+            }
             /* Ensure authorization title stays reasonably sized */
             .slide-card h2, .slide-card .slide-card-body > h2 { font-size: clamp(1.25rem, 2.2vw, 1.75rem); margin-bottom: .5rem; }
-            .slide-card .auth-forms { flex: 0 1 346px; min-width: 240px; max-width: 346px; width: 346px !important; }
+            .slide-card .auth-forms {
+              flex: 0 1 min(320px, calc(100vw - 56px));
+              min-width: 0;
+              max-width: min(320px, calc(100vw - 56px));
+              width: min(320px, calc(100vw - 56px)) !important;
+            }
             .slide-card .auth-social { width: 100%; flex: none; display: flex; flex-direction: column; gap: .5rem; align-items: stretch; margin-top: .5rem; }
             .slide-card .auth-form { display: flex; flex-direction: column; gap: .4rem; margin: 0; }
             .slide-card .auth-form label { font-size: .92rem; margin-bottom: .12rem; }
@@ -2189,8 +2666,12 @@
             @media (max-width: 900px), (max-height: 800px) {
               .slide-card .auth-layout { flex-direction: column; gap: .75rem; }
               .slide-card .auth-social { width: 100%; flex: none; }
-              .slide-card .auth-forms { max-width: 100%; }
-              .slide-card .slide-card-body { padding: .6rem .6rem; }
+              .slide-card .auth-forms {
+                width: min(292px, calc(100vw - 44px)) !important;
+                max-width: min(292px, calc(100vw - 44px)) !important;
+              }
+              .slide-card .slide-card-body { padding: .55rem .55rem; }
+              .slide-card .auth-form input { padding: .4rem .45rem; font-size: .9rem; }
             }
           </style>
 
@@ -2586,6 +3067,56 @@
             .contacts-card { flex-direction: column; align-items: stretch; padding: .75rem; }
             .contacts-card .contacts-icon { align-self: center; }
             .contacts-row strong { width: 90px; flex: 0 0 90px; }
+            #contacts .card-wrap {
+              max-width: 330px !important;
+              margin: 0 auto;
+            }
+            #contacts .contacts-card,
+            #contacts .requisites-card {
+              min-height: 146px;
+            }
+            /* Иконку/аватар показываем внутри карточек над таблицами */
+            #contacts .contacts-card-top-icon,
+            #contacts .requisites-card-top-avatar {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              margin: 0 0 0.35rem;
+            }
+            #contacts .contacts-card-top-icon .contacts-icon {
+              width: 56px !important;
+              height: 56px !important;
+              font-size: 22px !important;
+              border-radius: 10px !important;
+            }
+            #contacts .requisites-card-top-avatar img {
+              width: 56px;
+              height: 56px;
+              object-fit: cover;
+              border-radius: 10px;
+              display: block;
+            }
+            #contacts .contacts-table .avatar-cell {
+              display: none;
+            }
+            #contacts .requisites-table .avatar-cell {
+              display: none;
+            }
+            #contacts .contacts-table {
+              table-layout: fixed;
+            }
+            #contacts .contacts-table td {
+              padding: 0.42rem 0.4rem;
+            }
+            #contacts .contacts-table .label {
+              width: 84px;
+              white-space: normal;
+            }
+            #contacts .contacts-table .value,
+            #contacts .contacts-table .value a {
+              overflow-wrap: anywhere;
+              word-break: break-word;
+            }
           }
           /* Реквизиты — оформить как карточку той же ширины и высоты */
           .requisites-card {
@@ -2625,7 +3156,7 @@
         <!-- Контактная карточка (первая) -->
         <div class="card-wrap" style="max-width:760px;margin:0 auto;width:100%;">
           <!-- Заголовок блока контактов вне карточки, как у реквизитов -->
-          <h4 class="card-title" style="margin:0 0 0.35rem;text-align:left;">Свяжитесь с нами любым удобным способом</h4>
+          <h4 class="card-title" style="margin:0 0 0.35rem;text-align:left;">Свяжитесь с нами<br>любым удобным способом</h4>
 
           <div class="contacts-card" role="group" aria-label="Контактная информация">
             <style>
@@ -2635,7 +3166,13 @@
               .contacts-table img { width:72px;height:72px;object-fit:cover;border-radius:8px;display:block; }
               .contacts-table .label { width:120px; color:var(--text-muted); font-weight:600; white-space:nowrap; }
               .contacts-table .value { font-weight:600; }
+              .contacts-table .value a { overflow-wrap: anywhere; word-break: break-word; }
+              .contacts-card-top-icon,
+              .requisites-card-top-avatar { display: none; }
             </style>
+            <div class="contacts-card-top-icon" aria-hidden="true">
+              <div class="contacts-icon" style="width:72px;height:72px;display:flex;align-items:center;justify-content:center;font-size:28px;background:linear-gradient(135deg, rgba(99,102,241,0.12), rgba(129,140,248,0.06));border-radius:8px;color:var(--accent);">📬</div>
+            </div>
             <table class="contacts-table" role="table" aria-label="Контакты">
               <tr>
                 <td class="avatar-cell" rowspan="4" style="padding-right:.75rem;">
@@ -2670,11 +3207,15 @@
               .requisites-table .avatar-cell { width: 72px; padding: 0; }
               .requisites-table .label { width: 120px; }
               .requisites-table img { width: 72px; height: 72px; object-fit: cover; border-radius: 8px; display: block; }
+              .requisites-card-top-avatar { display: none; }
               @media (max-width:720px) {
                 .requisites-table td { padding: .45rem .5rem; }
                 .requisites-table img { width:56px;height:56px; }
               }
             </style>
+            <div class="requisites-card-top-avatar" aria-hidden="true">
+              <img src="img/Ava.png" alt="" />
+            </div>
             <table class="requisites-table" role="table" aria-label="Реквизиты">
               <tr>
                 <td class="avatar-cell" rowspan="3">
@@ -2735,42 +3276,65 @@
           }
           .docs-card .docs-body {
             flex: 1;
-            display: grid;
-            gap: .4rem;
+            display: flex;
+            flex-direction: column;
+            gap: .5rem;
           }
           .docs-row {
-            display:flex;
-            gap: .75rem;
-            align-items: flex-start;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.02);
+            padding: 0.55rem 0.65rem;
+            min-height: 44px;
           }
-          .docs-row strong {
-            width: 140px;
-            flex: 0 0 140px;
-            color: var(--text-muted);
-            font-weight:600;
-            text-align: right;
-            padding-top: 0.1rem;
+          .docs-row .docs-index {
+            flex: 0 0 1.3rem;
+            width: 1.3rem;
+            height: 1.3rem;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.72rem;
+            font-weight: 700;
+            background: var(--accent-soft);
+            color: var(--accent);
           }
           .docs-row a {
             color: var(--accent);
             text-decoration: none;
             font-weight: 600;
-            display: inline-block;
+            display: block;
             line-height: 1.3;
+            overflow-wrap: anywhere;
+          }
+          .docs-row:hover {
+            border-color: var(--accent);
+            background: rgba(99, 102, 241, 0.08);
           }
           @media (max-width: 720px) {
             .docs-card { flex-direction: column; align-items: stretch; padding: .75rem; }
             .docs-card .docs-icon { align-self: center; }
-            .docs-row strong { width: 90px; flex: 0 0 90px; }
+            .docs-row {
+              padding: 0.5rem 0.55rem;
+              gap: 0.5rem;
+            }
+            .docs-row a {
+              font-size: 0.86rem;
+              line-height: 1.25;
+            }
           }
         </style>
 
         <div class="docs-card" role="group" aria-label="Документы и политика">
           <div class="docs-icon" aria-hidden="true">📄</div>
             <div class="docs-body">
-              <div class="docs-row"><a href="docs/policy.html" class="doc-link">Политика конфиденциальности и обработки персональных данных</a></div>
-              <div class="docs-row"><a href="docs/demo-agreement.html" class="doc-link">Сервисное соглашение (демо‑доступ)</a></div>
-              <div class="docs-row"><a href="docs/service-contract.html" class="doc-link">Типовой договор оказания услуг (для компаний)</a></div>
+              <div class="docs-row"><span class="docs-index" aria-hidden="true">1</span><a href="docs/policy.html" class="doc-link">Политика конфиденциальности и обработки персональных данных</a></div>
+              <div class="docs-row"><span class="docs-index" aria-hidden="true">2</span><a href="docs/demo-agreement.html" class="doc-link">Сервисное соглашение (демо‑доступ)</a></div>
+              <div class="docs-row"><span class="docs-index" aria-hidden="true">3</span><a href="docs/service-contract.html" class="doc-link">Типовой договор оказания услуг (для компаний)</a></div>
             </div>
         </div>
       </div>
@@ -3059,12 +3623,58 @@
           } catch (e) {}
         })();
 
+        var problemTapCount = (window.innerWidth <= 768) ? 1 : 0;
+
         slidesContainer.addEventListener('click', function(e) {
           if (e.target.closest('a, button, input, .role-choice, .demo-course-link, .slide-nav, .flip-card, .demo-course')) return;
           // На слайде авторизации (Попробовать Интерактивити) не переходим дальше по клику в пустую область
           if (currentSlide === authSlideIndex) return;
+
+          var activeSlide = slides[currentSlide];
+          // Для слайда «О продукте» (#problem) на мобиле:
+          // При открытии: показываем ИС.
+          // 1-й клик по слайду — КИС,
+          // 2-й клик по слайду — показываем картинку,
+          // 3-й клик по слайду — переход к следующему слайду.
+          if (activeSlide && activeSlide.id === 'problem' && window.innerWidth <= 768) {
+            var defIS = activeSlide.querySelector('#problemDefIS');
+            var defKIS = activeSlide.querySelector('#problemDefKIS');
+            var diagramWrap = activeSlide.querySelector('.product-diagram-wrap');
+            // если почему-то нет определений — ведём себя как обычно
+            if (defIS && defKIS) {
+              if (problemTapCount === 1) {
+                defIS.style.display = 'none';
+                defKIS.style.display = 'block';
+                problemTapCount = 2;
+                return;
+              } else if (problemTapCount === 2) {
+                if (diagramWrap) {
+                  diagramWrap.style.display = 'flex';
+                }
+                // при появлении картинки определение КИС скрываем
+                defKIS.style.display = 'none';
+                problemTapCount = 3;
+                return;
+              } else if (problemTapCount >= 3) {
+                // третий и последующие клики на этом слайде — обычный переход дальше
+                problemTapCount = 3;
+              }
+            }
+          }
+
           goToSlide(currentSlide + 1);
         });
+
+        // Дополнительно: клик по картинке на слайде «О продукте» на мобиле
+        // тоже ведёт на следующий слайд (когда она уже показана)
+        var problemImage = document.querySelector('#problemTopArea .product-diagram');
+        if (problemImage) {
+          problemImage.addEventListener('click', function() {
+            if (window.innerWidth <= 768 && slides[currentSlide] && slides[currentSlide].id === 'problem') {
+              goToSlide(currentSlide + 1);
+            }
+          });
+        }
       }
       // На слайде «Возможности»:
       // клики по карточке «Учебная платформа» или по её кнопке «Попробовать»
@@ -3072,6 +3682,7 @@
         var featuresSection = document.getElementById('features');
         if (featuresSection) {
           var featuresCourses = featuresSection.querySelectorAll('.demo-course');
+          var featuresCoursesGrid = featuresSection.querySelector('.demo-courses');
           var featuresKey = document.getElementById('featuresCourseKey');
           if (featuresKey) {
             var keyBtn = featuresKey.querySelector('.features-course-btn[data-action="request-course"]');
@@ -3080,7 +3691,12 @@
               // Переворот карточки по клику на «Оставить заявку»
               keyBtn.addEventListener('click', function(e) {
                 e.preventDefault();
-                featuresKey.classList.toggle('is-flipped');
+                if (window.innerWidth <= 768) {
+                  featuresKey.classList.add('is-flipped');
+                  if (featuresCoursesGrid) featuresCoursesGrid.classList.add('request-mode');
+                } else {
+                  featuresKey.classList.toggle('is-flipped');
+                }
               });
 
               var sendBtn = keyForm.querySelector('.features-send-btn');
@@ -3149,7 +3765,6 @@
         if (currentSlide === TOTAL_SLIDES - 1) goToSlide(0);
         else goToSlide(currentSlide + 1);
       });
-
       document.querySelectorAll('.flip-card').forEach(function(card) {
         card.addEventListener('click', function(e) {
           if (e.target.closest('a')) return;
@@ -3244,8 +3859,8 @@
       }, { passive: false });
 
       var navLinks = document.querySelectorAll('.site-nav a[href^="#"]');
-      navLinks.forEach(function(a) {
-        a.addEventListener('click', function(e) {
+      for (var n = 0; n < navLinks.length; n += 1) {
+        navLinks[n].addEventListener('click', function(e) {
           var href = this.getAttribute('href');
           if (href === '#hero' || href === '#intro') { e.preventDefault(); goToSlide(0); return; }
           if (href === '#problem') { e.preventDefault(); goToSlide(1); return; }
@@ -3257,7 +3872,7 @@
           if (href === '#contacts') { e.preventDefault(); goToSlide(9); return; }
           if (href === '#documents') { e.preventDefault(); goToSlide(10); return; }
         });
-      });
+      }
       document.addEventListener('click', function(e) {
         var a = e.target.closest('a[href="#documents"], a[href="#contacts"]');
         if (!a) return;
@@ -3282,11 +3897,12 @@
           var open = siteNav.classList.toggle('open');
           siteBurger.setAttribute('aria-expanded', open ? 'true' : 'false');
         });
-        siteNav.querySelectorAll('a').forEach(function(a) {
-          a.addEventListener('click', function() {
+        var menuLinksBottom = siteNav.querySelectorAll('a');
+        for (var j = 0; j < menuLinksBottom.length; j += 1) {
+          menuLinksBottom[j].addEventListener('click', function() {
             closeMobileMenu();
           });
-        });
+        }
         document.addEventListener('click', function(e) {
           if (!siteNav.classList.contains('open')) return;
           if (siteNav.contains(e.target) || siteBurger.contains(e.target)) return;
