@@ -6,6 +6,24 @@
   <title>Интерактивити — конструктор интерактивных сценариев для учёбы и бизнеса</title>
   <link rel="icon" type="image/png" href="img/logo_mini.png" />
   <link rel="apple-touch-icon" href="img/logo_mini.png" />
+  <script src="cookie-consent.js" defer></script>
+  <script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+      m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+      m[i].l=1*new Date();
+      k=e.createElement(t),a=e.getElementsByTagName(t)[0];
+      k.async=1;
+      k.src=r;
+      a.parentNode.insertBefore(k,a);
+    })(window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(108149796, "init", {
+      clickmap:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:true
+    });
+  </script>
   <!-- Avoid external font loading: some networks/proxies intermittently reset connections -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <style>
@@ -580,59 +598,6 @@
       background: radial-gradient(circle at top left, rgba(129, 140, 248, 0.35), transparent 55%), var(--bg-elevated);
     }
 
-    /* ----- Всплывающее сообщение о cookie (справа внизу) ----- */
-    @keyframes cookie-remind {
-      0%, 88% { transform: translateX(0) scale(1); box-shadow: 0 8px 24px rgba(0,0,0,0.35); border-color: var(--border); }
-      90% { transform: translateX(0) scale(1.03); box-shadow: 0 8px 28px rgba(99,102,241,0.35); border-color: rgba(99,102,241,0.5); }
-      92% { transform: translateX(2px) scale(1.03); box-shadow: 0 8px 28px rgba(99,102,241,0.4); }
-      94% { transform: translateX(-2px) scale(1.03); box-shadow: 0 8px 28px rgba(99,102,241,0.4); }
-      96% { transform: translateX(1px) scale(1.02); box-shadow: 0 8px 26px rgba(99,102,241,0.35); }
-      100% { transform: translateX(0) scale(1); box-shadow: 0 8px 24px rgba(0,0,0,0.35); border-color: var(--border); }
-    }
-    .cookie-consent {
-      position: fixed;
-      right: 1rem;
-      bottom: 15vh;
-      z-index: 140;
-      width: 100%;
-      max-width: 280px;
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 0.75rem 1rem;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
-      transition: opacity 0.35s ease, transform 0.35s ease;
-      text-align: center;
-      animation: cookie-remind 10s ease-in-out infinite;
-    }
-    .cookie-consent.hidden {
-      transform: translateX(120%);
-      opacity: 0;
-      pointer-events: none;
-      animation: none;
-    }
-    .cookie-consent-text {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      line-height: 1.35;
-      margin: 0 0 0.5rem;
-      text-align: center;
-    }
-    .cookie-consent-accept {
-      margin-top: 0.25rem;
-      width: 100%;
-      padding: 0.4rem 0.75rem;
-      border-radius: 8px;
-      font-family: inherit;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      transition: filter 0.2s;
-    }
-    .cookie-consent-accept:hover { filter: brightness(1.1); }
     /* ----- Навигация: стрелки < и > в одном стиле ----- */
     .slide-nav {
       position: fixed;
@@ -2827,11 +2792,6 @@
     <span class="landing-progress-counter" id="landingProgressCounter">1 / 12</span>
   </div>
 
-  <div class="cookie-consent hidden" id="cookieConsent" role="dialog" aria-label="Согласие на использование cookie" aria-hidden="true">
-    <p class="cookie-consent-text">Мы используем cookies.</p>
-    <button type="button" class="cookie-consent-accept" id="cookieAccept">Принять</button>
-  </div>
-
   <script>
     (function() {
       var TOTAL_SLIDES = 11;
@@ -3333,29 +3293,6 @@
         this.appendChild(msg);
         this.querySelector('button[type="submit"]').disabled = true;
       });
-
-      (function initCookieConsent() {
-        var COOKIE_KEY = 'cookie_consent_v3';
-        var banner = document.getElementById('cookieConsent');
-        var btnAccept = document.getElementById('cookieAccept');
-        if (!banner) return;
-        function hideBanner() {
-          banner.classList.add('hidden');
-          banner.setAttribute('aria-hidden', 'true');
-        }
-        if (localStorage.getItem(COOKIE_KEY)) {
-          hideBanner();
-          return;
-        }
-        setTimeout(function() {
-          banner.classList.remove('hidden');
-          banner.setAttribute('aria-hidden', 'false');
-        }, 5000);
-        if (btnAccept) btnAccept.addEventListener('click', function() {
-          localStorage.setItem(COOKIE_KEY, 'accepted');
-          hideBanner();
-        });
-      })();
 
     })();
   </script>

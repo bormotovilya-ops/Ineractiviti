@@ -6,6 +6,23 @@
   <title>Интерактивити — Кабинет</title>
   <link rel="icon" type="image/png" href="img/logo_mini.png" />
   <link rel="apple-touch-icon" href="img/logo_mini.png" />
+  <script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+      m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+      m[i].l=1*new Date();
+      k=e.createElement(t),a=e.getElementsByTagName(t)[0];
+      k.async=1;
+      k.src=r;
+      a.parentNode.insertBefore(k,a);
+    })(window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(108149796, "init", {
+      clickmap:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:true
+    });
+  </script>
   <link rel="stylesheet" href="styles.css" />
   <style>
     :root {
@@ -805,6 +822,10 @@
     const SUPABASE_URL = 'https://gefieowdfimehhnqdiwk.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_P6YBUwpPIYJBoUHkDz2s9A_03CZzq9S';
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const COOKIE_KEY = 'ia_cookie_consent_v1';
+    const VISITOR_KEY = 'ia_visitor_id';
+    const UTM_KEY = 'ia_utm_data_v1';
+    const LAST_PATH_KEY = 'ia_last_path_v1';
 
     const userMini = document.getElementById('userMini');
     const userAvatar = document.getElementById('userAvatar');
@@ -873,6 +894,43 @@
         if (!parts.length) return JSON.stringify(err);
       } catch {}
       return parts.join(' · ');
+    }
+
+    function getStoredConsentPayload() {
+      try {
+        const consent = JSON.parse(localStorage.getItem(COOKIE_KEY) || 'null');
+        if (!consent || !consent.accepted) return null;
+        const visitorId = (consent.visitor_id || localStorage.getItem(VISITOR_KEY) || '').trim();
+        if (!visitorId) return null;
+        const utm = JSON.parse(localStorage.getItem(UTM_KEY) || '{}') || {};
+        return {
+          p_visitor_id: visitorId,
+          p_landing_path: utm.last_path || localStorage.getItem(LAST_PATH_KEY) || window.location.pathname || '/',
+          p_referrer: utm.first_referrer || document.referrer || null,
+          p_utm_source: utm.utm_source || null,
+          p_utm_medium: utm.utm_medium || null,
+          p_utm_campaign: utm.utm_campaign || null,
+          p_utm_term: utm.utm_term || null,
+          p_utm_content: utm.utm_content || null,
+          p_utm_id: utm.utm_id || null,
+          p_gclid: utm.gclid || null,
+          p_fbclid: utm.fbclid || null,
+          p_yclid: utm.yclid || null,
+          p_consent_accepted: true,
+          p_consented_at: consent.accepted_at || new Date().toISOString(),
+          p_user_id: null
+        };
+      } catch {
+        return null;
+      }
+    }
+
+    async function bindCookieConsentToUser(user) {
+      const payload = getStoredConsentPayload();
+      if (!payload || !user || !user.id) return;
+      payload.p_user_id = user.id;
+      const { error } = await supabase.rpc('upsert_cookie_consent', payload);
+      if (error) throw error;
     }
 
     function setProjectsMessage(text, type = 'info') {
@@ -1958,6 +2016,11 @@
       setActiveTab(resolveInitialTab());
       const user = await requireAuthOrRedirect();
       if (!user) return;
+      try {
+        await bindCookieConsentToUser(user);
+      } catch (e) {
+        console.warn('Не удалось привязать cookie consent к пользователю', e);
+      }
       await loadProfile(user);
       await loadCourses(user);
 
