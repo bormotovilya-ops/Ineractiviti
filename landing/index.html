@@ -1260,6 +1260,18 @@
       font-size: 1.1rem;
       margin-top: 0.1rem;
     }
+    .for-you-more-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    .for-you-more-link:hover {
+      text-decoration: underline;
+    }
     section h2 {
       font-family: 'Unbounded', sans-serif;
       font-size: clamp(1.75rem, 3vw, 2.25rem);
@@ -2559,6 +2571,7 @@
             <h2 class="font-display" id="forYouTitle">Для вас</h2>
           </div>
           <ul id="forYouList" class="text-left for-you-list"></ul>
+          <a id="forYouMethodistLink" class="for-you-more-link" href="methodologist-partner.html" hidden>Подробнее тут</a>
         </div>
       </div>
     </div>
@@ -3931,6 +3944,7 @@
       var forYouTitle = document.getElementById('forYouTitle');
       var forYouList = document.getElementById('forYouList');
       var forYouRoleIcon = document.getElementById('forYouRoleIcon');
+      var forYouMethodistLink = document.getElementById('forYouMethodistLink');
 
       function renderRoleBenefits(roleKey) {
         var data = ROLE_BENEFITS[roleKey];
@@ -3957,6 +3971,9 @@
             var items = forYouList.querySelectorAll('li');
             gsap.fromTo(items, { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, stagger: 0.08, ease: 'power2.out', overwrite: true });
           }
+        }
+        if (forYouMethodistLink) {
+          forYouMethodistLink.hidden = roleKey !== 'methodist';
         }
       }
 
