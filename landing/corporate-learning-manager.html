@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Интерактивити — корпоративное обучение под ключ</title>
+  <link rel="icon" type="image/png" href="img/logo_mini.png" />
+  <link rel="apple-touch-icon" href="img/logo_mini.png" />
+  <script src="cookie-consent.js" defer></script>
+  <script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+      m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+      m[i].l=1*new Date();
+      k=e.createElement(t),a=e.getElementsByTagName(t)[0];
+      k.async=1;
+      k.src=r;
+      a.parentNode.insertBefore(k,a);
+    })(window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(108149796, "init", {
+      clickmap:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:true
+    });
+  </script>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --text: #e4e4e7;
+      --text-muted: #a1a1aa;
+      --accent: #6366f1;
+      --border: rgba(255,255,255,0.08);
+      --card: rgba(18,18,26,0.86);
+      --shadow: 0 18px 60px rgba(0,0,0,.5);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+      background: radial-gradient(1200px 800px at 12% 18%, rgba(99,102,241,0.22), transparent 55%),
+                  radial-gradient(900px 700px at 90% 20%, rgba(34,197,94,0.10), transparent 60%),
+                  var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding-top: 48px;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: auto;
+      pointer-events: none;
+      z-index: -1;
+      filter: blur(70px);
+      opacity: .45;
+      animation: ambientShift 16s ease-in-out infinite alternate;
+    }
+    body::before {
+      width: 340px;
+      height: 340px;
+      top: 90px;
+      left: -80px;
+      background: radial-gradient(circle, rgba(99,102,241,0.30), transparent 68%);
+    }
+    body::after {
+      width: 300px;
+      height: 300px;
+      right: -60px;
+      top: 320px;
+      background: radial-gradient(circle, rgba(34,197,94,0.18), transparent 68%);
+      animation-duration: 20s;
+    }
+    section[id] { scroll-margin-top: 70px; }
+
+    .site-header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 48px;
+      background: rgba(10,10,15,0.72);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      z-index: 50;
+    }
+    .site-header-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      height: 48px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .site-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: inherit;
+      transition: transform .25s ease, opacity .25s ease;
+    }
+    .site-logo:hover { transform: translateY(-1px); opacity: .96; }
+    .site-logo img { height: 28px; width: auto; display: block; }
+    .site-logo span { font-weight: 700; font-size: 14px; letter-spacing: .06em; white-space: nowrap; }
+    .site-nav { display: flex; align-items: center; gap: 14px; }
+    .site-nav a {
+      position: relative;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 13px;
+      transition: color .25s ease;
+    }
+    .site-nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -5px;
+      width: 100%;
+      height: 2px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, transparent, rgba(99,102,241,0.95), transparent);
+      transform: scaleX(0);
+      transform-origin: center;
+      transition: transform .25s ease;
+    }
+    .site-nav a:hover { color: var(--text); }
+    .site-nav a:hover::after { transform: scaleX(1); }
+    .site-nav a.cta {
+      color: var(--text);
+      border: 1px solid var(--border);
+      background: rgba(18,18,26,0.6);
+      padding: 7px 12px;
+      border-radius: 999px;
+    }
+    .site-nav a.cta::after { display: none; }
+    @media (max-width: 640px) {
+      .site-nav { display: none; }
+    }
+
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 16px 56px;
+    }
+    .hero {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr);
+      gap: 22px;
+      align-items: start;
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background:
+        radial-gradient(900px 520px at 10% 10%, rgba(99,102,241,0.20), transparent 58%),
+        linear-gradient(180deg, rgba(18,18,26,0.88), rgba(18,18,26,0.62));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.045) 50%, transparent 80%);
+      transform: translateX(-120%);
+      animation: heroSweep 11s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .badge {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(10,10,15,0.35);
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 12px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+    .badge::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(110deg, transparent 25%, rgba(255,255,255,0.16) 50%, transparent 75%);
+      transform: translateX(-130%);
+      animation: shineSweep 7s ease-in-out infinite;
+    }
+    .hero h1 { font-size: clamp(1.6rem, 2.6vw, 2.3rem); line-height: 1.15; }
+    .hero p.lead { margin-top: 10px; color: var(--text-muted); font-size: 1.02rem; max-width: 62ch; }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .btn {
+      position: relative;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 10px 14px;
+      background: rgba(10,10,15,0.30);
+      color: var(--text);
+      font-weight: 700;
+      font-size: 14px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      overflow: hidden;
+      transition: transform .25s ease, border-color .25s ease, background .25s ease, box-shadow .25s ease;
+    }
+    .btn.primary { background: rgba(99,102,241,0.18); border-color: rgba(99,102,241,0.40); }
+    .btn::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.16) 50%, transparent 80%);
+      transform: translateX(-140%);
+      transition: transform .55s ease;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      border-color: rgba(99,102,241,0.45);
+      background: rgba(99,102,241,0.14);
+      box-shadow: 0 12px 28px rgba(99,102,241,0.18);
+    }
+    .btn:hover::after { transform: translateX(140%); }
+
+    .hero-card, .card {
+      position: relative;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: var(--card);
+      padding: 14px;
+      box-shadow: 0 12px 36px rgba(0,0,0,.32);
+      transition: transform .32s ease, border-color .32s ease, box-shadow .32s ease, background .32s ease;
+      overflow: hidden;
+    }
+    .hero-card::before, .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(99,102,241,0.10), transparent 38%, transparent 62%, rgba(34,197,94,0.08));
+      opacity: 0;
+      transition: opacity .32s ease;
+      pointer-events: none;
+    }
+    .hero-card:hover, .card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(99,102,241,0.24);
+      box-shadow: 0 18px 42px rgba(0,0,0,.38);
+      background: rgba(20,20,30,0.94);
+    }
+    .hero-card:hover::before, .card:hover::before { opacity: 1; }
+    .hero-side {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-self: start;
+      min-width: 0;
+    }
+    .hero-side .hero-card:first-child {
+      animation: floatCard 6s ease-in-out infinite;
+    }
+    .hero-side .hero-card:last-child {
+      animation: floatCard 7.5s ease-in-out infinite 1s;
+    }
+    .hero-card h3, .card h3 { font-size: 15px; margin-bottom: 8px; }
+    .hero-card p, .card p { color: var(--text-muted); font-size: 14px; }
+
+    .section { margin-top: 28px; }
+    .section h2 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      position: relative;
+      display: inline-block;
+      padding-right: 18px;
+    }
+    .section h2::after {
+      content: "";
+      position: absolute;
+      left: calc(100% + 4px);
+      top: 50%;
+      width: 54px;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(99,102,241,0.85), transparent);
+    }
+    body.js-ready .reveal-on-scroll {
+      opacity: 0;
+      transform: translateY(36px) scale(0.985);
+      filter: blur(10px);
+      transition:
+        opacity 0.7s ease,
+        transform 0.7s cubic-bezier(.22, 1, .36, 1),
+        filter 0.7s ease;
+      transition-delay: var(--reveal-delay, 0ms);
+      will-change: opacity, transform, filter;
+    }
+    body.js-ready .reveal-on-scroll.is-visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      filter: blur(0);
+    }
+    .grid3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .list { margin-top: 10px; display: grid; gap: 8px; }
+    .li {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 10px;
+      color: var(--text-muted);
+      font-size: 14px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(10,10,15,0.26);
+      transition: transform .22s ease, border-color .22s ease, background .22s ease;
+    }
+    .li:hover {
+      transform: translateX(4px);
+      border-color: rgba(99,102,241,0.26);
+      background: rgba(99,102,241,0.08);
+    }
+    .li b { color: var(--text); }
+
+    .person {
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+    .avatar {
+      width: 96px; height: 96px;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(10,10,15,0.35);
+    }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .person h3 { margin: 0; font-size: 15px; }
+    .person .role { color: var(--text-muted); font-size: 13px; margin-top: 2px; }
+    .person .meta { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(10,10,15,0.28);
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 12px;
+    }
+    .pill:hover { color: var(--text); border-color: rgba(99,102,241,0.40); }
+
+    .footer {
+      margin-top: 34px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      text-align: center;
+      font-size: 13px;
+    }
+    .footer a { color: inherit; text-decoration: none; }
+
+    @keyframes ambientShift {
+      0% { transform: translate3d(0, 0, 0) scale(1); }
+      100% { transform: translate3d(30px, -24px, 0) scale(1.08); }
+    }
+    @keyframes floatCard {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-7px); }
+    }
+    @keyframes shineSweep {
+      0%, 60%, 100% { transform: translateX(-130%); }
+      20% { transform: translateX(130%); }
+    }
+    @keyframes heroSweep {
+      0%, 100% { transform: translateX(-120%); opacity: 0; }
+      15% { opacity: 1; }
+      45% { transform: translateX(120%); opacity: .9; }
+      60% { opacity: 0; }
+    }
+
+    @media (max-width: 940px) {
+      .hero { grid-template-columns: 1fr; }
+      .grid3 { grid-template-columns: 1fr; }
+      .person { grid-template-columns: 1fr; }
+      .avatar { width: 88px; height: 88px; }
+      .hero-side .hero-card:first-child,
+      .hero-side .hero-card:last-child { animation: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      body::before,
+      body::after,
+      .hero::after,
+      .badge::after,
+      .hero-side .hero-card:first-child,
+      .hero-side .hero-card:last-child {
+        animation: none;
+      }
+      body.js-ready .reveal-on-scroll,
+      body.js-ready .reveal-on-scroll.is-visible {
+        opacity: 1;
+        transform: none;
+        filter: none;
+        transition: none;
+      }
+      .btn,
+      .hero-card,
+      .card,
+      .li,
+      .site-logo,
+      .site-nav a {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="index.html#intro" class="site-logo" aria-label="На сайт Интерактивити">
+        <img src="img/logo_mini.png" alt="" />
+        <span>ИНТЕРАКТИВИТИ</span>
+      </a>
+      <nav class="site-nav" aria-label="Навигация страницы">
+        <a href="#offer">Для корпоративного клиента</a>
+        <a href="#model">Сроки и гарантии</a>
+        <a href="#launch">Интерактивити</a>
+        <a href="index.html#contacts" class="cta">Связаться</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero" id="top">
+      <div>
+        <div class="badge">🧩 Корпоративное обучение под ключ для вашей команды</div>
+        <h1>Для руководителя корпоративного обучения: интерактивный курс с фиксированными этапами и поддержкой</h1>
+        <p class="lead" style="margin-top:12px;">
+          Мы делаем тренинг так, чтобы он проходил “как внедрение”, а не “как разовая разработка”:
+          <br>— согласовываем сроки и этапы
+          <br>— собираем сценарий с ветвлениями и трекингом
+          <br>— делаем и запускаем на платформе «Интерактивити»
+          <br>— и при необходимости экспортируем/упаковываем в вашу LMS (SCORM/контент)
+          <br>— сопровождаем выпуск и правки по согласованному объёму
+        </p>
+
+        <div class="cta-row">
+          <a class="btn" href="#offer">🤝 Кому это подходит</a>
+          <a class="btn primary" href="index.html#contacts">📌 Обсудить проект</a>
+          <a class="btn" href="#model">⏱️ Сроки и гарантии</a>
+          <a class="btn" href="../PeopleGames/index.html" target="_blank" rel="noopener">▶️ Смотреть демо</a>
+        </div>
+
+        <p style="margin-top:10px; color: var(--text-muted); font-size: 0.98rem;">
+          Формат корпоративных проектов: как правило, стартуем от бюджета <b>100 000 ₽</b> и при наличии согласованной
+          цели/материалов (часто через методолога-подрядчика).
+        </p>
+      </div>
+
+      <aside class="hero-side">
+        <div class="hero-card">
+          <h3>Что получает руководитель (ЛПР)</h3>
+          <div class="list">
+            <div class="li"><div>⏱️</div><div><b>Сроки фиксируются по этапам:</b> бриф → прототип → сборка → тест → выпуск.</div></div>
+            <div class="li"><div>🛡️</div><div><b>Гарантии в рамках договора:</b> понятный объём работ и поэтапная приёмка.</div></div>
+            <div class="li"><div>🧠</div><div><b>Сопровождение на всех этапах:</b> консультации и помощь до запуска и после него.</div></div>
+          </div>
+        </div>
+
+        <div class="hero-card">
+          <h3>Что получает обучение внутри компании</h3>
+          <div class="list">
+            <div class="li"><div>🎓</div><div><b>Вовлечённость через выбор:</b> участник видит последствия решений и применяет знания на практике.</div></div>
+            <div class="li"><div>📊</div><div><b>Трекинг и отчёты:</b> контроль прохождения и аналитика для обучения/HR/методологии.</div></div>
+            <div class="li"><div>⚡</div><div><b>Быстрый запуск:</b> настройка интеграций/экспорта и доведение до результата в срок.</div></div>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="section" id="about">
+      <h2>Коротко о команде</h2>
+      <div class="card">
+        <div class="person">
+          <div class="avatar"><img src="img/Ava.png" alt="Бормотов Илья" width="96" height="96" decoding="async" /></div>
+          <div>
+            <h3>Бормотов Илья</h3>
+            <div class="role">
+              Технический специалист, основатель «Интерактивити» — конструктора интерактивных сценариев
+            </div>
+            <div class="meta">
+              <a class="pill" href="https://t.me/IlyaBorm" target="_blank" rel="noopener">Telegram · @IlyaBorm</a>
+            </div>
+          </div>
+        </div>
+        <p style="margin-top:12px;">
+          Закрываю “техническую часть под ключ”: собираю тренажёр, обеспечиваю запуск и довожу до результата.
+          Работаю либо в команде с вашими методологами, либо подключаю своих партнёров под состав проекта.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" id="offer">
+      <h2>Кому подходит корпоративный проект</h2>
+      <div class="card">
+        <p>
+          Корпорациям, корпоративным школам и крупным экспертам, которые хотят интерактивный формат обучения
+          без потери сроков, качества и ответственности. Обычно нам подходят проекты, где:
+        </p>
+        <div class="list" style="margin-top:14px;">
+          <div class="li"><div>🎯</div><div><b>Есть цель и критерии успеха</b> (что должно измениться в навыках/поведении).</div></div>
+          <div class="li"><div>🧩</div><div><b>Есть методологический контур</b> (через методолога-подрядчика или внутреннюю команду).</div></div>
+          <div class="li"><div>⏱️</div><div><b>Нужны согласованные сроки</b> и управляемые этапы до выпуска курса.</div></div>
+          <div class="li"><div>🤝</div><div><b>Нужна поддержка</b> до запуска и сопровождение после него.</div></div>
+          <div class="li"><div>🧩</div><div><b>Разработка и запуск приоритетно на платформе «Интерактивити»</b>; экспорт в вашу LMS — во вторую очередь.</div></div>
+        </div>
+        <div class="cta-row" style="margin-top:14px;">
+          <a class="btn primary" href="index.html#contacts">Написать через контакты и обсудить задачу →</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="model">
+      <h2>Как мы работаем в команде (все этапы)</h2>
+      <div class="card" style="margin-bottom:14px;">
+        <p>
+          Мы выстраиваем процесс вокруг реального запуска обучения. Коммуникации и согласования ведём так, чтобы
+          ЛПР видел прогресс, а методолог-подрядчик не “терял” техреализацию в деталях.
+          <br><br>
+          Три опоры проекта: <b>сроки</b>, <b>этапные гарантии</b> и <b>сопровождение до результата</b>.
+        </p>
+      </div>
+
+      <div class="grid3" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
+        <div class="card">
+          <h3>1) На платформе «Интерактивити»</h3>
+          <p>
+            Вы обсуждаете сценарий и логику, мы внедряем её на платформе: трекинг, сценарные переходы,
+            упаковка и запуск. Это сокращает время выхода в “боевую” версию.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>2) Экспорт в вашу LMS / SCORM</h3>
+          <p>
+            Если у вас уже есть СДО — мы упаковываем курс под требования LMS: экспорт SCORM/контент,
+            настройка и подготовка к размещению. Запуск под вашу инфраструктуру не превращается в “разовую магию”.
+          </p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px;">
+        <h3>Контрольные точки, сроки и гарантии</h3>
+        <p>
+          <b>Согласование объёма</b> до старта → <b>поэтапная приёмка</b> (прототип, сборка, тест, выпуск) → <b>сопровождение</b>
+          после релиза. Правки и доработки — по согласованному scope и этапам проекта.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" id="launch">
+      <h2>Что такое Интерактивити</h2>
+      <div class="card">
+        <p>
+          <b>Интерактивити</b> — это конструктор интерактивных сценариев со встроенной учебной платформой.
+          Вместо обычного формата «лекция + тест» здесь можно собирать ветвящиеся кейсы‑тренажёры:
+          участник делает выбор, видит последствия решений и лучше переносит знания в рабочую практику.
+        </p>
+        <div class="list" style="margin-top:14px;">
+          <div class="li"><div>🎯</div><div><b>Для корпоративного обучения:</b> вовлечение и закрепление через практику в сценариях.</div></div>
+          <div class="li"><div>📊</div><div><b>Для HR/методологии:</b> трекинг прохождения и аналитика по решениям.</div></div>
+          <div class="li"><div>⚙️</div><div><b>Для внедрения:</b> упаковка, запуск и сопровождение без лишних потерь по срокам.</div></div>
+        </div>
+        <div class="cta-row" style="margin-top:14px;">
+          <a class="btn primary" href="index.html#intro">▶️ Перейти на сайт платформы</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="footer">
+      <p><a href="index.html#intro">Интерактивити — конструктор интерактивных сценариев</a></p>
+      <p style="margin-top:6px;"><a href="index.html#documents">Документы</a> · <a href="index.html#contacts">Контакты</a></p>
+    </section>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var revealItems = Array.from(document.querySelectorAll('main > .section, main > .footer'));
+      if (!revealItems.length) return;
+
+      var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      revealItems.forEach(function (item, index) {
+        item.classList.add('reveal-on-scroll');
+        item.style.setProperty('--reveal-delay', Math.min(index * 80, 240) + 'ms');
+      });
+
+      document.body.classList.add('js-ready');
+
+      if (prefersReducedMotion || !('IntersectionObserver' in window)) {
+        revealItems.forEach(function (item) {
+          item.classList.add('is-visible');
+        });
+        return;
+      }
+
+      var observer = new IntersectionObserver(function (entries, obs) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-visible');
+          obs.unobserve(entry.target);
+        });
+      }, {
+        threshold: 0.18,
+        rootMargin: '0px 0px -8% 0px'
+      });
+
+      revealItems.forEach(function (item) {
+        observer.observe(item);
+      });
+    });
+  </script>
+</body>
+</html>
+

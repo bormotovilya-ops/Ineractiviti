@@ -54,6 +54,38 @@
       min-height: 100vh;
       min-height: 100svh;
     }
+
+    /* Мягкие анимированные фоновые “блобсы” (без скролл-логики). */
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: auto;
+      pointer-events: none;
+      z-index: -1;
+      filter: blur(70px);
+      opacity: 0.22;
+      animation: ambientShiftLanding 16s ease-in-out infinite alternate;
+    }
+    body::before {
+      width: 420px;
+      height: 420px;
+      top: 110px;
+      left: -170px;
+      background: radial-gradient(circle, rgba(99,102,241,0.40), transparent 68%);
+    }
+    body::after {
+      width: 360px;
+      height: 360px;
+      right: -130px;
+      top: 360px;
+      background: radial-gradient(circle, rgba(34,197,94,0.22), transparent 68%);
+      animation-duration: 20s;
+    }
+    @keyframes ambientShiftLanding {
+      0% { transform: translate3d(0, 0, 0) scale(1); }
+      100% { transform: translate3d(30px, -24px, 0) scale(1.08); }
+    }
     .font-display { font-family: 'Unbounded', sans-serif; }
 
     /* ----- Novel-style: one scene at a time, switch by click/choice ----- */
@@ -339,8 +371,50 @@
       text-decoration: none;
       border-bottom: 1px solid var(--border);
       transition: color 0.2s, border-color 0.2s;
+      display: inline-block;
+      position: relative;
+      overflow: hidden;
+      padding: 0 0.35rem 0.1rem;
+      border-radius: 999px;
     }
     .intro-docs-link:hover { color: var(--accent); border-color: var(--accent); }
+
+    .intro-docs-link::after {
+      content: "";
+      position: absolute;
+      top: -8px;
+      left: -60%;
+      width: 60%;
+      height: 32px;
+      background: linear-gradient(90deg, transparent, rgba(99,102,241,0.35), transparent);
+      transform: translateX(-200%) skewX(-18deg);
+      opacity: 0;
+      pointer-events: none;
+    }
+    #intro.active .intro-docs-link::after {
+      animation: docsLinkShineSweep 2.8s ease-in-out both;
+      opacity: 1;
+    }
+    @keyframes docsLinkShineSweep {
+      0% { transform: translateX(-200%) skewX(-18deg); opacity: 0; }
+      20% { opacity: 1; }
+      60% { opacity: 1; }
+      100% { transform: translateX(350%) skewX(-18deg); opacity: 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      body::before,
+      body::after {
+        animation: none;
+      }
+      .intro-slide .intro-slide-hero::after {
+        animation: none;
+        transform: none;
+      }
+      #intro.active .intro-docs-link::after {
+        animation: none;
+      }
+    }
     .contacts-list, .documents-list {
       list-style: none;
       text-align: left;
@@ -1333,6 +1407,11 @@
     .for-you-more-link:hover {
       text-decoration: underline;
     }
+    /* JS прячет ссылку через атрибут `hidden`, но авторский CSS класса
+       может переопределить поведение браузера. Гарантируем `display:none`. */
+    .for-you-more-link[hidden] {
+      display: none !important;
+    }
     section h2 {
       font-family: 'Unbounded', sans-serif;
       font-size: clamp(1.75rem, 3vw, 2.25rem);
@@ -2311,8 +2390,27 @@
       font-size: 0.85rem;
       font-weight: 500;
       transition: color 0.2s;
+      position: relative;
     }
     .site-nav a:hover { color: var(--text); }
+    .site-nav a::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -6px;
+      height: 2px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, transparent, rgba(99,102,241,0.95), transparent);
+      transform: scaleX(0);
+      transform-origin: center;
+      transition: transform 0.25s ease;
+      pointer-events: none;
+    }
+    .site-nav a:hover::after,
+    .site-nav a:focus-visible::after {
+      transform: scaleX(1);
+    }
     .site-nav a.cta {
       color: var(--accent);
     }
@@ -2401,30 +2499,31 @@
       text-size-adjust: 100%;
     }
 
-    /* FINAL WIDTH TUNING: "Как это работает" — средняя ширина */
-    #how.landing-slide {
-      padding-left: 0 !important;
-      padding-right: 0 !important;
+    /* Убираем специальные width/отступы для #how,
+       чтобы слайд выглядел так же, как остальные. */
+
+    /* Hard override: make scaling consistent across specific slides.
+       Some browsers/extensions can report/introduce per-element zoom/scale;
+       we force both CSS transform and zoom back to defaults. */
+    #form,
+    #features,
+    #demo,
+    #how {
+      zoom: 1 !important;
+      transform: none !important;
     }
-    #how .slide-card {
-      width: min(1100px, 92vw) !important;
-      max-width: min(1100px, 92vw) !important;
-      margin-left: auto !important;
-      margin-right: auto !important;
-    }
-    #how .flip-cards,
-    #how .flip-cards.col-4 {
-      width: 100% !important;
-      max-width: none !important;
-    }
-    @media (max-width: 768px) {
-      #how .slide-card {
-        width: 94vw !important;
-        max-width: 94vw !important;
-      }
-      #how .slide-card-body {
-        padding-bottom: calc(0.8rem + var(--mobile-ui-clearance));
-      }
+
+    /* Also normalize the main slide containers where scaling might be applied */
+    #form .slide-card,
+    #features .slide-card,
+    #demo .slide-card,
+    #how .slide-card,
+    #form .slide-card-body,
+    #features .slide-card-body,
+    #demo .slide-card-body,
+    #how .slide-card-body {
+      zoom: 1 !important;
+      transform: none !important;
     }
   </style>
 </head>
@@ -2592,15 +2691,20 @@
           <h2 class="font-display">Кто вы?</h2>
           <p style="margin-bottom: 0.75rem;">Выберите роль — покажем, чем Интерактивити полезен лично вам.</p>
           <div class="role-choices">
-            <button type="button" class="role-choice" data-role="teacher">
-              <img class="role-choice-icon" src="img/Roles/Role1.png" alt="Преподаватель" />
-              <span class="role-choice-title">Преподаватель</span>
-              <span class="role-choice-caption">Живые сценарии вместо сухих лекций.</span>
+            <button type="button" class="role-choice" data-role="manager">
+              <img class="role-choice-icon" src="img/Roles/Role5.png" alt="Руководитель корпоративного обучения" />
+              <span class="role-choice-title">Руководитель корпоративного обучения</span>
+              <span class="role-choice-caption">Обучаете команду в безопасных сценариях и видите результаты.</span>
             </button>
             <button type="button" class="role-choice" data-role="methodist">
               <img class="role-choice-icon" src="img/Roles/Role2.png" alt="Методист" />
               <span class="role-choice-title">Методист</span>
               <span class="role-choice-caption">Собираете кейсы и тренажёры без программиста.</span>
+            </button>
+            <button type="button" class="role-choice" data-role="teacher">
+              <img class="role-choice-icon" src="img/Roles/Role1.png" alt="Преподаватель" />
+              <span class="role-choice-title">Преподаватель</span>
+              <span class="role-choice-caption">Живые сценарии вместо сухих лекций.</span>
             </button>
             <button type="button" class="role-choice" data-role="producer">
               <img class="role-choice-icon" src="img/Roles/Role3.png" alt="Продюсер" />
@@ -2611,11 +2715,6 @@
               <img class="role-choice-icon" src="img/Roles/Role4.png" alt="Маркетолог" />
               <span class="role-choice-title">Маркетолог</span>
               <span class="role-choice-caption">Строите сценарии, которые прогревают и сегментируют.</span>
-            </button>
-            <button type="button" class="role-choice" data-role="manager">
-              <img class="role-choice-icon" src="img/Roles/Role5.png" alt="Руководитель" />
-              <span class="role-choice-title">Руководитель</span>
-              <span class="role-choice-caption">Обучаете команду в безопасных сценариях и видите результаты.</span>
             </button>
             <button type="button" class="role-choice" data-role="other">
               <img class="role-choice-icon" src="img/Roles/Role6.png" alt="Другая роль" />
@@ -2638,6 +2737,7 @@
           </div>
           <ul id="forYouList" class="text-left for-you-list"></ul>
           <a id="forYouMethodistLink" class="for-you-more-link" href="methodologist-partner.html" hidden>Подробнее тут</a>
+          <a id="forYouManagerLink" class="for-you-more-link" href="corporate-learning-manager.html" hidden>Подробнее про корпоративное обучение</a>
         </div>
       </div>
     </div>
@@ -3272,6 +3372,9 @@
             to { opacity: 1; transform: translateY(0); }
           }
           @media (max-width: 720px) {
+            #contacts .card-wrap > .card-title:first-of-type {
+              display: none;
+            }
             .contacts-card { flex-direction: column; align-items: stretch; padding: .75rem; }
             .contacts-card .contacts-icon { align-self: center; }
             .contacts-row strong { width: 90px; flex: 0 0 90px; }
@@ -3620,8 +3723,14 @@
           emojis: ['🎯', '✨', '📈', '📋']
         },
         manager: {
-          title: 'Для руководителя',
-          items: ['Обучение без программистов и сложных инструментов', 'Отчёты и прогресс по сотрудникам в одной платформе', 'Масштаб: назначение и контроль многих курсов', 'Безопасная среда для отработки решений', 'Быстрое внедрение без интеграций'],
+          title: 'Для руководителя корпоративного обучения',
+          items: [
+            'Сроки: старт и выпуск курса в согласованные даты',
+            'Гарантии: договорные обязательства и прозрачные этапы разработки',
+            'Поддержка после запуска: правки, сопровождение и развитие контента',
+            'Управление обучением: назначение курсов сотрудникам и трекинг прохождения в одной LMS',
+            'Процесс через методолога-подрядчика: управляемые коммуникации и согласования для ЛПР'
+          ],
           emojis: ['👥', '📊', '📐', '🛡️', '⚡']
         },
         other: {
@@ -4011,6 +4120,7 @@
       var forYouList = document.getElementById('forYouList');
       var forYouRoleIcon = document.getElementById('forYouRoleIcon');
       var forYouMethodistLink = document.getElementById('forYouMethodistLink');
+      var forYouManagerLink = document.getElementById('forYouManagerLink');
 
       function renderRoleBenefits(roleKey) {
         var data = ROLE_BENEFITS[roleKey];
@@ -4040,6 +4150,9 @@
         }
         if (forYouMethodistLink) {
           forYouMethodistLink.hidden = roleKey !== 'methodist';
+        }
+        if (forYouManagerLink) {
+          forYouManagerLink.hidden = roleKey !== 'manager';
         }
       }
 
