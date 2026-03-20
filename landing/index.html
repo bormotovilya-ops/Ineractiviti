@@ -3132,11 +3132,30 @@
             align-items: start;
             min-width: 0;
           }
+          #contacts .slide-card-header {
+            padding: 0.95rem 0 0.3rem !important;
+          }
+          #contacts .slide-card-header h2 {
+            font-size: clamp(1.35rem, 2.2vw, 1.8rem);
+            line-height: 1.1;
+          }
+          #contacts .slide-card-body {
+            justify-content: flex-start;
+            padding-top: 0.2rem !important;
+            padding-bottom: 0.65rem !important;
+          }
+          #contacts .card-wrap {
+            max-width: 720px !important;
+          }
           .card-title {
             margin: 0 0 .25rem;
             font-size: 1rem;
             font-weight: 600;
             color: var(--text);
+          }
+          #contacts .card-title {
+            font-size: 0.92rem;
+            line-height: 1.15;
           }
           .contacts-row {
             display:flex;
@@ -3183,7 +3202,7 @@
             }
             #contacts .contacts-card,
             #contacts .requisites-card {
-              min-height: 146px;
+              min-height: 136px;
             }
             /* Иконку/аватар показываем внутри карточек над таблицами */
             #contacts .contacts-card-top-icon,
@@ -3222,8 +3241,12 @@
               width: 84px;
               white-space: normal;
             }
+            #contacts .requisites-table .label {
+              width: 84px;
+            }
             #contacts .contacts-table .value,
-            #contacts .contacts-table .value a {
+            #contacts .contacts-table .value a,
+            #contacts .requisites-table .value {
               overflow-wrap: anywhere;
               word-break: break-word;
             }
@@ -3271,12 +3294,16 @@
           <div class="contacts-card" role="group" aria-label="Контактная информация">
             <style>
               .contacts-table { width:100%; border-collapse: collapse; }
-              .contacts-table td { vertical-align: middle; padding: 0.5rem 0.75rem; }
+              #contacts .contacts-table {
+                font-size: 0.92rem;
+                line-height: 1.2;
+              }
+              .contacts-table td { vertical-align: middle; padding: 0.38rem 0.6rem; }
               .contacts-table .avatar-cell { width:72px; padding:0; }
               .contacts-table img { width:72px;height:72px;object-fit:cover;border-radius:8px;display:block; }
-              .contacts-table .label { width:120px; color:var(--text-muted); font-weight:600; white-space:nowrap; }
+              .contacts-table .label { width:108px; color:var(--text-muted); font-weight:600; font-size:0.82rem; white-space:nowrap; }
               .contacts-table .value { font-weight:600; }
-              .contacts-table .value a { overflow-wrap: anywhere; word-break: break-word; }
+              .contacts-table .value a { overflow-wrap: anywhere; word-break: break-word; font-size:0.9rem; }
               .contacts-card-top-icon,
               .requisites-card-top-avatar { display: none; }
             </style>
@@ -3311,11 +3338,15 @@
           <div class="requisites-card" role="group" aria-label="Реквизиты организации" style="padding:0.5rem;">
             <style>
               .requisites-table { width:100%; border-collapse: collapse; }
-              .requisites-table td { vertical-align: middle; padding: 0.5rem 0.75rem; border-bottom: 1px solid transparent; }
-              .requisites-table .label { color: var(--text-muted); font-weight: 600; width: 1px; white-space: nowrap; }
-              .requisites-table .value { font-weight: 600; }
+              #contacts .requisites-table {
+                font-size: 0.92rem;
+                line-height: 1.2;
+              }
+              .requisites-table td { vertical-align: middle; padding: 0.38rem 0.6rem; border-bottom: 1px solid transparent; }
+              .requisites-table .label { color: var(--text-muted); font-weight: 600; width: 1px; white-space: nowrap; font-size: 0.82rem; }
+              .requisites-table .value { font-weight: 600; font-size: 0.9rem; }
               .requisites-table .avatar-cell { width: 72px; padding: 0; }
-              .requisites-table .label { width: 120px; }
+              .requisites-table .label { width: 108px; }
               .requisites-table img { width: 72px; height: 72px; object-fit: cover; border-radius: 8px; display: block; }
               .requisites-card-top-avatar { display: none; }
               @media (max-width:720px) {
