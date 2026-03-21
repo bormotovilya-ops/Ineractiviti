@@ -4,8 +4,14 @@
   var UTM_KEY = "ia_utm_data_v1";
   var LAST_PATH_KEY = "ia_last_path_v1";
 
-  var SUPABASE_URL = "https://gefieowdfimehhnqdiwk.supabase.co";
-  var SUPABASE_ANON_KEY = "sb_publishable_P6YBUwpPIYJBoUHkDz2s9A_03CZzq9S";
+  var SUPABASE_URL =
+    typeof window !== "undefined" && window.__IA_SUPABASE_URL
+      ? window.__IA_SUPABASE_URL
+      : "";
+  var SUPABASE_ANON_KEY =
+    typeof window !== "undefined" && window.__IA_SUPABASE_ANON_KEY
+      ? window.__IA_SUPABASE_ANON_KEY
+      : "";
 
   function nowIso() {
     try {

@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <link rel="icon" href="data:," />
+  <title>SCORM — запуск курса</title>
+  <style>
+    :root {
+      --bg: #050816;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --border: rgba(148, 163, 184, 0.25);
+      --accent: #38bdf8;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
+    #toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.95);
+      flex-wrap: wrap;
+    }
+    #toolbar .title { font-weight: 600; font-size: 0.92rem; max-width: 55vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #toolbar .muted { color: var(--muted); font-size: 0.8rem; }
+    #status { font-size: 0.78rem; color: var(--muted); }
+    #frame-wrap {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    #scoFrame {
+      flex: 1;
+      width: 100%;
+      border: 0;
+      background: #fff;
+    }
+    .btn {
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: 0.35rem 0.85rem;
+      background: rgba(30, 41, 59, 0.9);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.82rem;
+    }
+    .btn:hover { border-color: var(--accent); }
+    #err {
+      padding: 1rem;
+      color: #f97373;
+      font-size: 0.9rem;
+      max-width: 42rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="toolbar" hidden>
+    <div>
+      <div id="courseTitle" class="title"></div>
+      <div id="scoHint" class="muted"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:.5rem;">
+      <span id="status"></span>
+      <button type="button" class="btn" id="closeWinBtn">Закрыть окно</button>
+    </div>
+  </div>
+  <div id="err"></div>
+  <div id="frame-wrap" hidden>
+    <!-- SCO подставляется через srcdoc + <base href> (тот же origin, что плеер) — см. mountScoInPlayer. Классика: ?scoIframeSrc=1 -->
+    <iframe
+      id="scoFrame"
+      title="SCORM"
+      allow="fullscreen; autoplay; clipboard-read; clipboard-write"
+      referrerpolicy="no-referrer-when-downgrade"
+    ></iframe>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.48.0';
+    import { SUPABASE_URL, SUPABASE_ANON_KEY } from './supabase-config.js';
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const errEl = document.getElementById('err');
+    const statusEl = document.getElementById('status');
+    const toolbar = document.getElementById('toolbar');
+    const frameWrap = document.getElementById('frame-wrap');
+    const scoFrame = document.getElementById('scoFrame');
+    const courseTitleEl = document.getElementById('courseTitle');
+    const scoHintEl = document.getElementById('scoHint');
+
+    function scormDebug() {
+      try {
+        return new URLSearchParams(window.location.search).get('scormDebug') === '1';
+      } catch {
+        return false;
+      }
+    }
+
+    /** Подробные логи в консоли плеера и во вложенном документе курса (?scormTrace=1). В DevTools переключите контекст на iframe курса, чтобы видеть [SCORM-embed]. */
+    function scormTrace() {
+      try {
+        const v = new URLSearchParams(window.location.search).get('scormTrace');
+        return v === '1' || String(v || '').toLowerCase() === 'true';
+      } catch {
+        return false;
+      }
+    }
+
+    /** Классическая загрузка через iframe.src (?scoIframeSrc=1) — для отладки. */
+    function forceScoClassicIframeSrc() {
+      try {
+        const v = new URLSearchParams(window.location.search).get('scoIframeSrc');
+        return v === '1' || String(v || '').toLowerCase() === 'true';
+      } catch {
+        return false;
+      }
+    }
+
+    function parentDirectoryHref(fileUrl) {
+      try {
+        const u = new URL(fileUrl);
+        const p = u.pathname;
+        const i = p.lastIndexOf('/');
+        u.pathname = i >= 0 ? p.slice(0, i + 1) : '/';
+        return u.href;
+      } catch {
+        return fileUrl;
+      }
+    }
+
+    /**
+     * Чанки вне пар тега script (в комментариях не писать буквально «/» + «script» — HTML обрежет модуль).
+     * Внутри script — только замена путей «/assets/…» и т.п. на «./…», иначе при srcdoc они уходят на localhost.
+     */
+    function mapHtmlPreservingScriptInner(html, fnMarkup, fnScriptInner) {
+      if (!html) return html;
+      const re = /<script\b[^>]*>[\s\S]*?<\/script>/gi;
+      const out = [];
+      let last = 0;
+      let m;
+      const rewriteJs = typeof fnScriptInner === 'function' ? fnScriptInner : (x) => x;
+      while ((m = re.exec(html)) !== null) {
+        out.push(fnMarkup(html.slice(last, m.index)));
+        const full = m[0];
+        const om = full.match(/^<script\b[^>]*>/i);
+        const endm = full.match(/<\/script\s*>$/i);
+        if (om && endm) {
+          const inner = full.slice(om[0].length, full.length - endm[0].length);
+          out.push(om[0] + rewriteJs(inner) + endm[0]);
+        } else {
+          out.push(full);
+        }
+        last = m.index + m[0].length;
+      }
+      out.push(fnMarkup(html.slice(last)));
+      return out.join('');
+    }
+
+    /**
+     * При srcdoc документ с origin плеера; CSP вида default-src 'self' блокирует img/media/script с Supabase.
+     */
+    function stripBlockingDocumentPolicies(html) {
+      if (!html) return html;
+      let out = html;
+      out = out.replace(
+        /<meta\b[^>]*\bhttp-equiv\s*=\s*["']Content-Security-Policy["'][^>]*>/gi,
+        ''
+      );
+      out = out.replace(
+        /<meta\b[^>]*\bhttp-equiv\s*=\s*["']Content-Security-Policy-Report-Only["'][^>]*>/gi,
+        ''
+      );
+      return out;
+    }
+
+    /**
+     * src="/story_content/..." при <base href=".../PeopleGames/"> превращается в https://host/story_content/... (без /storage/...).
+     * Считаем ведущий / как «от корня папки запуска» → ./...
+     */
+    function demoteRootRelativeUrlsInMarkupChunk(html) {
+      if (!html) return html;
+      let out = html;
+      out = out.replace(
+        /\b(src|href|poster|data-src|data-href)\s*=\s*(["'])\/([^"']*)\2/gi,
+        (full, attr, q, rest) => {
+          if (rest.startsWith('/')) return full;
+          if (/^(https?:|data:|blob:)/i.test(rest)) return full;
+          const path = rest.replace(/^\/+/, '');
+          if (!path) return full;
+          return `${attr}=${q}./${path}${q}`;
+        }
+      );
+      out = out.replace(/url\s*\(\s*(["'])\/(?!\/)/gi, 'url($1./');
+      out = out.replace(/url\s*\(\s*(?!["'])\/(?!\/)/g, 'url(./');
+      return out;
+    }
+
+    /**
+     * В строках JS путь от корня пакета (/assets/, /media/…) при origin плеера даёт localhost — меняем на ./ относительно base href.
+     */
+    function demotePathAbsoluteStringsInCourseJs(js, packageRootHref) {
+      if (!js) return js;
+      const base = packageRootHref ? String(packageRootHref).replace(/\/?$/, '/') : '';
+      let s = js;
+      const folderRoots = [
+        'assets',
+        'media',
+        'audio',
+        'video',
+        'images',
+        'img',
+        'story_content',
+        'storyline',
+        'mobile',
+        'lms',
+        'res',
+        'shared',
+        'publish',
+        'html5',
+        'quiz',
+        'shell',
+        'content',
+        'course'
+      ];
+      for (const r of folderRoots) {
+        const esc = r.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        if (base) {
+          s = s.replace(new RegExp(`(\`|["'])\\s*\\/${esc}\\/`, 'g'), `$1${base}${r}/`);
+        } else {
+          s = s.replace(new RegExp(`(\`|["'])\\s*\\/${esc}\\/`, 'g'), `$1./${r}/`);
+        }
+      }
+      if (base) {
+        s = s.replace(
+          /(["'`])\/([A-Za-z0-9][A-Za-z0-9_.-]*\.(?:png|jpe?g|gif|webp|svg|bmp|ico|mp3|mp4|wav|ogg|m4a|webm|woff2?|ttf|eot))\1/g,
+          `$1${base}$2$1`
+        );
+      } else {
+        s = s.replace(
+          /(["'`])\/([A-Za-z0-9][A-Za-z0-9_.-]*\.(?:png|jpe?g|gif|webp|svg|bmp|ico|mp3|mp4|wav|ogg|m4a|webm|woff2?|ttf|eot))\1/g,
+          '$1./$2$1'
+        );
+      }
+      return s;
+    }
+
+    /** Пути src="/…", url(/…) в разметке при srcdoc дают localhost; подставляем полный URL корня пакета в Storage. */
+    function rewriteMarkupAbsoluteRefsToFullStorageRoot(html, packageRootHref) {
+      const root = String(packageRootHref || '').replace(/\/?$/, '/');
+      if (!root || !html) return html;
+      let h = html;
+      h = h.replace(
+        /\b(src|href|poster|data-src|data-href)\s*=\s*(["'])\/(?!\/)([^"']*)\2/gi,
+        (_, attr, q, rest) => `${attr}=${q}${root}${String(rest).replace(/^\/+/, '')}${q}`
+      );
+      h = rewriteCssAbsoluteUrlsToStorageRoot(h, packageRootHref);
+      return h;
+    }
+
+    function prepareHtmlForSrcdocEmbedding(html, packageRootHref) {
+      return mapHtmlPreservingScriptInner(
+        html,
+        (chunk) => {
+          const st = stripBlockingDocumentPolicies(chunk);
+          if (packageRootHref) {
+            return rewriteMarkupAbsoluteRefsToFullStorageRoot(st, packageRootHref);
+          }
+          return demoteRootRelativeUrlsInMarkupChunk(st);
+        },
+        (innerJs) => demotePathAbsoluteStringsInCourseJs(innerJs, packageRootHref || '')
+      );
+    }
+
+    /** Каталог пакета в Storage: ключ объекта без имени файла (для разрешения link href). */
+    function storageDirFromObjectKey(objectPath) {
+      const parts = String(objectPath || '').split('/').filter(Boolean);
+      if (!parts.length) return '';
+      parts.pop();
+      return parts.join('/');
+    }
+
+    function resolveStorageKeyUnderPackageDir(entryDirKey, hrefRaw) {
+      const h = String(hrefRaw || '').trim().split(/[#?]/)[0];
+      if (!h || /^https?:\/\//i.test(h) || h.startsWith('//') || h.startsWith('data:')) return null;
+      let rel = h.replace(/\\/g, '/');
+      if (rel.startsWith('/')) rel = rel.replace(/^\/+/, '');
+      const base = String(entryDirKey || '').split('/').filter(Boolean);
+      const segs = rel.split('/').filter(Boolean);
+      const stack = [...base];
+      for (const seg of segs) {
+        if (seg === '..') {
+          if (stack.length) stack.pop();
+        } else if (seg !== '.') {
+          stack.push(seg);
+        }
+      }
+      if (!stack.length) return null;
+      return stack.join('/');
+    }
+
+    /**
+     * В CSS url(/assets/…) и @import "/…" резолвятся от origin документа (localhost при srcdoc), не от base href.
+     * Подставляем абсолютный URL корня пакета в Storage.
+     */
+    function rewriteCssAbsoluteUrlsToStorageRoot(css, packageRootHref) {
+      const base = String(packageRootHref || '').replace(/\/?$/, '/');
+      if (!base || !css) return css;
+      let s = css;
+      s = s.replace(/@import\s+url\s*\(\s*(["'])\/(?!\/)/gi, (_, q) => `@import url(${q}${base}`);
+      s = s.replace(/@import\s+(["'])\/(?!\/)/gi, (_, q) => `@import ${q}${base}`);
+      s = s.replace(/url\s*\(\s*(["'])\/(?!\/)/gi, (_, q) => `url(${q}${base}`);
+      s = s.replace(/url\s*\(\s*(?!["'])\/(?!\/)/gi, () => `url(${base}`);
+      return s;
+    }
+
+    function serializeDomDocumentToHtml(doc) {
+      if (!doc || !doc.documentElement) return '';
+      const dt = doc.doctype;
+      let pre = '';
+      if (dt) {
+        pre = `<!DOCTYPE ${dt.name}`;
+        if (dt.publicId) pre += ` PUBLIC "${dt.publicId}"`;
+        if (dt.systemId) pre += ` "${dt.systemId}"`;
+        pre += '>\n';
+      }
+      return pre + doc.documentElement.outerHTML;
+    }
+
+    /**
+     * Подтягивает link rel=stylesheet из Storage и вставляет как style (с переписыванием url(/…)).
+     */
+    async function inlineExternalStylesheetsForSrcdoc(htmlString, bucket, entryObjectPath, packageRootHref) {
+      const entryDir = storageDirFromObjectKey(entryObjectPath);
+      if (!entryDir || !bucket || !htmlString) return htmlString;
+      let doc;
+      try {
+        doc = new DOMParser().parseFromString(htmlString, 'text/html');
+      } catch {
+        return htmlString;
+      }
+      if (!doc.querySelector('html')) return htmlString;
+
+      const links = [...doc.querySelectorAll('link[rel="stylesheet"], link[rel="preload"][as="style"]')];
+      for (const link of links) {
+        const href = link.getAttribute('href');
+        if (!href || /^https?:\/\//i.test(href.trim()) || href.trim().startsWith('//')) continue;
+        const key = resolveStorageKeyUnderPackageDir(entryDir, href);
+        if (!key) continue;
+        const { text: cssText, error } = await downloadObjectAsText(bucket, key);
+        if (error || cssText == null) {
+          if (scormDebug()) console.warn('[SCORM] CSS не загружен:', key, error);
+          continue;
+        }
+        const css = rewriteCssAbsoluteUrlsToStorageRoot(cssText, packageRootHref);
+        const style = doc.createElement('style');
+        style.setAttribute('data-scorm-inlined-css', key.slice(0, 120));
+        const media = link.getAttribute('media');
+        if (media) style.setAttribute('media', media);
+        style.textContent = css;
+        link.parentNode.insertBefore(style, link);
+        link.remove();
+      }
+      return serializeDomDocumentToHtml(doc);
+    }
+
+    /**
+     * Во фрейме с srcdoc origin = localhost; внешний JS (frame.js и т.д.) часто ставит src="/assets/…" → уходит на :5500.
+     * Ранний скрипт: переписать такие URL относительно первого &lt;base href&gt; (Storage), плюс fetch/XHR.
+     * Собираем без литерала &lt;/script&gt; в исходнике этого файла.
+     */
+    function buildSrcdocRootPathShimTag(enableTrace) {
+      const closer = '<' + '/script>';
+      const t = enableTrace ? '1' : '0';
+      const code = '(function(){'
+        + 'var __ST=' + t + ';'
+        + 'var b=document.querySelector("base");var R=(b&&b.href)||document.baseURI;'
+        + 'if(__ST)try{console.log("[SCORM-embed] base (разрешение /путей):",R);}catch(e){}'
+        + 'function A(u){if(u==null||typeof u!=="string")return u;'
+        + 'if(u.indexOf("//")===0)return u;'
+        + 'if(u.charAt(0)==="/"&&u.charAt(1)!=="/"){try{var rel=u;while(rel.charAt(0)==="/")rel=rel.slice(1);var out=new URL(rel,R).href;if(__ST)console.log("[SCORM-embed] A():",u,"->",out);return out;}catch(e){if(__ST)console.warn("[SCORM-embed] A() ошибка",u,e);}}'
+        + 'return u;}'
+        + 'function patchSrc(C){try{if(!C||!C.prototype)return;var d=Object.getOwnPropertyDescriptor(C.prototype,"src");'
+        + 'if(!d||!d.set)return;var g=d.get,st=d.set;Object.defineProperty(C.prototype,"src",{configurable:true,'
+        + 'enumerable:d.enumerable,get:g,set:function(v){var x=typeof v==="string"?A(v):v;'
+        + 'if(__ST&&typeof v==="string"&&v&&v.charAt(0)==="/")console.log("[SCORM-embed] .src setter",C&&C.name,v,"->",x);'
+        + 'return st.call(this,x);}});}catch(e){if(__ST)console.warn("[SCORM-embed] patch src",C&&C.name,e);}}'
+        + 'patchSrc(window.HTMLImageElement);patchSrc(window.HTMLMediaElement);patchSrc(window.HTMLSourceElement);'
+        + 'patchSrc(window.HTMLScriptElement);'
+        + 'function fix(n){if(!n||n.nodeType!==1)return;var t=n.tagName;'
+        + 'if((t==="IMG"||t==="IMAGE"||t==="SOURCE"||t==="AUDIO"||t==="VIDEO"||t==="SCRIPT")&&n.hasAttribute("src")){'
+        + 'var s=n.getAttribute("src");if(s&&s.charAt(0)==="/"&&s.charAt(1)!=="/")n.src=A(s);}'
+        + 'if(n.hasAttribute("srcset")){var ss=n.getAttribute("srcset").split(",").map(function(p){'
+        + 'var x=p.trim().split(/\\s+/);if(x[0]&&x[0].charAt(0)==="/"&&x[0].charAt(1)!=="/")x[0]=A(x[0]);'
+        + 'return x.join(" ");}).join(", ");n.setAttribute("srcset",ss);}'
+        + '}'
+        + 'function walk(n){fix(n);if(n.querySelectorAll)n.querySelectorAll("img,source,audio,video,script[src]").forEach(fix);}'
+        + 'walk(document.documentElement);'
+        + 'new MutationObserver(function(ms){ms.forEach(function(m){'
+        + 'if(m.type==="attributes"&&(m.attributeName==="src"||m.attributeName==="srcset"))fix(m.target);'
+        + 'm.addedNodes.forEach(function(node){if(node.nodeType===1)walk(node);});});'
+        + '}).observe(document.documentElement,{childList:true,subtree:true,attributes:true,'
+        + 'attributeFilter:["src","srcset"]});'
+        + 'var XO=XMLHttpRequest.prototype.open;'
+        + 'XMLHttpRequest.prototype.open=function(){'
+        + 'var u=arguments[1];if(typeof u==="string"&&u.charAt(0)==="/"&&u.charAt(1)!=="/"){var nu=A(u);if(__ST&&nu!==u)console.log("[SCORM-embed] XHR.open",u,"->",nu);arguments[1]=nu;}'
+        + 'return XO.apply(this,arguments);};'
+        + 'if(typeof fetch==="function"){var OF=window.fetch;'
+        + 'window.fetch=function(i,init){'
+        + 'if(typeof i==="string"&&i.charAt(0)==="/"&&i.charAt(1)!=="/"){var ni=A(i);if(__ST&&ni!==i)console.log("[SCORM-embed] fetch",i,"->",ni);i=ni;}'
+        + 'return OF.call(this,i,init);};}'
+        + 'var OA=window.Audio;window.Audio=function(s){'
+        + 'if(arguments.length&&typeof s==="string"&&s.charAt(0)==="/"&&s.charAt(1)!=="/"){var ns=A(s);if(__ST)console.log("[SCORM-embed] Audio()",s,"->",ns);return new OA(ns);}'
+        + 'return arguments.length?new OA(s):new OA();};'
+        + '})();';
+      return '<script>' + code + closer;
+    }
+
+    /** <base> чтобы относительные src/href в SCO резолвились на Storage, при этом origin документа = плеер (srcdoc). */
+    function injectBaseHref(html, baseHref, traceInEmbed) {
+      const b = baseHref.replace(/\\/g, '/').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+      if (!html) return html;
+      const tag = `<base href="${b}" target="_self">`;
+      const shim = buildSrcdocRootPathShimTag(!!traceInEmbed);
+      if (/<base\s[^>]*>/i.test(html)) {
+        return html.replace(/<base\b[^>]*>/i, `${tag}\n${shim}`);
+      }
+      if (/<head[^>]*>/i.test(html)) {
+        return html.replace(/<head[^>]*>/i, (m) => `${m}\n${tag}\n${shim}\n`);
+      }
+      return `<!DOCTYPE html><html><head><meta charset="utf-8">${tag}\n${shim}</head><body>\n${html}\n</body></html>`;
+    }
+
+    async function downloadObjectAsText(bucket, objectPath) {
+      const clean = String(objectPath || '').split('/').filter(Boolean).join('/');
+      if (!bucket || !clean) return { text: null, error: new Error('нет bucket/path') };
+      const { data, error } = await supabase.storage.from(bucket).download(clean);
+      if (error || !data) return { text: null, error: error || new Error('пустой ответ') };
+      const text = await data.text();
+      return { text, error: null };
+    }
+
+    const SCORM_SRCDOC_MAX_CHARS = 12 * 1024 * 1024;
+
+    function looksLikeHtmlDocument(text) {
+      const t = String(text || '').trimStart().slice(0, 8000);
+      return /<!DOCTYPE\s+html/i.test(t) || /<\s*html[\s>/]/i.test(t);
+    }
+
+    /**
+     * Встраивает SCO через srcdoc: тот же origin, что у scorm-player → window.parent.API и скрипты без cross-origin/sandbox CDN.
+     * Ресурсы подгружаются с каталога Storage через <base href="…public…/папка/">.
+     */
+    async function mountScoInPlayer(scoFrame, resolved, launchUrl) {
+      scoFrame.removeAttribute('src');
+      scoFrame.removeAttribute('srcdoc');
+
+      const classic = forceScoClassicIframeSrc();
+      const { bucket, objectPath, publicUrl } = resolved || {};
+
+      const trySrcdoc = !classic && bucket && objectPath && publicUrl;
+
+      if (trySrcdoc) {
+        const { text, error } = await downloadObjectAsText(bucket, objectPath);
+        if (
+          !error
+          && text
+          && text.length
+          && text.length < SCORM_SRCDOC_MAX_CHARS
+          && looksLikeHtmlDocument(text)
+        ) {
+          const baseHref = parentDirectoryHref(publicUrl);
+          let prepared = prepareHtmlForSrcdocEmbedding(text, baseHref);
+          prepared = await inlineExternalStylesheetsForSrcdoc(prepared, bucket, objectPath, baseHref);
+          const trace = scormTrace();
+          scoFrame.srcdoc = injectBaseHref(prepared, baseHref, trace);
+          if (trace) {
+            console.info('[SCORM] srcdoc вставлен. base для курса:', baseHref, '| bucket/key:', bucket, objectPath);
+            console.info('[SCORM] В DevTools выберите контекст iframe курса (top ▼) — там логи [SCORM-embed] при загрузке /assets/…');
+          }
+          if (scormDebug()) {
+            console.info('[SCORM] srcdoc + base:', baseHref);
+          }
+          return { mode: 'srcdoc', baseHref };
+        }
+        if (scormDebug()) {
+          console.warn('[SCORM] srcdoc недоступен → iframe.src', error?.message || error || 'не HTML');
+        }
+      }
+
+      scoFrame.removeAttribute('srcdoc');
+      scoFrame.src = launchUrl;
+      return { mode: 'src' };
+    }
+
+    function showErr(msg) {
+      errEl.textContent = msg || '';
+      toolbar.hidden = true;
+      frameWrap.hidden = true;
+    }
+
+    function setStatus(t) {
+      if (statusEl) statusEl.textContent = t || '';
+    }
+
+    async function requireAuthOrRedirect(cabinetLoginUrl) {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error || !user) {
+        window.location.href = cabinetLoginUrl || 'index.html#form';
+        return null;
+      }
+      return user;
+    }
+
+    /** Сегменты пути в один ключ объекта Storage без пустых сегментов и без // */
+    function normalizeStorageKey(...parts) {
+      return parts
+        .flatMap((p) => String(p || '').replace(/\\/g, '/').split('/'))
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .join('/');
+    }
+
+    /** Убирает повторяющиеся / в pathname публичного URL (не трогает https://) */
+    function normalizePublicStorageUrl(url) {
+      try {
+        const u = new URL(url);
+        u.pathname = u.pathname.replace(/\/{2,}/g, '/');
+        return u.href;
+      } catch {
+        return url;
+      }
+    }
+
+    /**
+     * storage_root_path в БД: "{bucket}/путь/внутри/bucket/" (как в app.html).
+     * Загрузка пробует сначала course-scorm, затем scorm — перебираем оба bucket с одним и тем же ключом объекта.
+     * Проверка без fetch(HEAD) (CORS): storage.download() по JWT — работает и для private bucket при нужных политиках.
+     */
+    function collectLaunchPaths(storageRootPath, entryHref) {
+      let root = String(storageRootPath || '').trim();
+      if (/\/storage\/v1\/object\/public\//i.test(root)) {
+        const m = root.match(/\/object\/public\/([^/]+)\/(.+?)(?:\?|#|$)/i);
+        if (m) root = `${m[1]}/${m[2].replace(/\/+$/, '')}`;
+      }
+      root = root.replace(/\/+$/, '').replace(/^\/+/, '');
+
+      let href = String(entryHref || 'index.html').replace(/\\/g, '/');
+      href = href.split(/[?#]/)[0];
+      href = href.replace(/^\/+/, '');
+      href = href || 'index.html';
+
+      const out = [];
+      const add = (bucket, objectPath) => {
+        const clean = normalizeStorageKey(objectPath);
+        if (!bucket || !clean) return;
+        const { data } = supabase.storage.from(bucket).getPublicUrl(clean);
+        if (data && data.publicUrl) {
+          const publicUrl = normalizePublicStorageUrl(data.publicUrl);
+          out.push({ bucket, objectPath: clean, publicUrl });
+        }
+      };
+
+      if (!root) return out;
+
+      const slash = root.indexOf('/');
+      if (slash <= 0) return out;
+
+      const declaredBucket = root.slice(0, slash);
+      const prefix = normalizeStorageKey(root.slice(slash + 1));
+      const rel = normalizeStorageKey(prefix, href);
+
+      /** Иногда в пути появляется мусор вида /1/1/ — убираем для второй попытки */
+      const relVariants = [rel];
+      const relNoOnes = rel.replace(/\/1\/1\//g, '/');
+      if (relNoOnes !== rel) relVariants.push(relNoOnes);
+
+      const buckets = [...new Set([declaredBucket, 'course-scorm', 'scorm'].filter(Boolean))];
+      for (const r of [...new Set(relVariants)]) {
+        for (const b of buckets) {
+          add(b, r);
+        }
+      }
+
+      if (declaredBucket === 'scorm' && prefix) {
+        for (const r of [...new Set(relVariants)]) {
+          add('course-scorm', normalizeStorageKey('scorm', r));
+        }
+      }
+
+      const seen = new Set();
+      return out.filter((x) => {
+        if (seen.has(x.publicUrl)) return false;
+        seen.add(x.publicUrl);
+        return true;
+      });
+    }
+
+    async function storageObjectAccessible(bucket, objectPath) {
+      try {
+        const clean = String(objectPath || '').split('/').filter(Boolean).join('/');
+        if (!clean) return false;
+        const { error } = await supabase.storage.from(bucket).download(clean);
+        if (error) return false;
+        return true;
+      } catch (e) {
+        console.warn('[SCORM] storage.download', bucket, objectPath, e);
+        return false;
+      }
+    }
+
+    /** Принудительно подписанный URL во iframe: ?signedIframe=1 (нужно для приватного bucket без публичного GET). */
+    function iframePreferSignedUrl() {
+      try {
+        const v = new URLSearchParams(window.location.search).get('signedIframe');
+        return v === '1' || String(v || '').toLowerCase() === 'true';
+      } catch {
+        return false;
+      }
+    }
+
+    /** Подписанный URL: для приватного bucket или когда public GET недоступен из браузера. */
+    async function getSignedLaunchUrl(bucket, objectPath, expiresSec = 86400) {
+      const clean = String(objectPath || '').split('/').filter(Boolean).join('/');
+      if (!bucket || !clean) return null;
+      const { data, error } = await supabase.storage.from(bucket).createSignedUrl(clean, expiresSec);
+      if (error) {
+        console.warn('[SCORM] createSignedUrl:', bucket, clean, error.message || error);
+        return null;
+      }
+      return data?.signedUrl || null;
+    }
+
+    /**
+     * URL для iframe: при публичном bucket лучше /object/public/… — ответ signed иногда даёт ограничения
+     * (в т.ч. «sandbox» без скриптов во вложенном контексте). Если файл уже проверен через download — грузим public.
+     * Приватный bucket: откройте плеер с ?signedIframe=1 или оставьте только public политики на чтение.
+     */
+    async function resolveIframeSrc(resolved) {
+      const publicUrl = resolved?.publicUrl || null;
+      const { bucket, objectPath, verified } = resolved || {};
+      const forceSigned = iframePreferSignedUrl();
+
+      if (publicUrl && verified && !forceSigned) {
+        console.info(
+          '[SCORM] iframe → public URL (избегаем /object/sign/… для совместимости со скриптами). '
+          + 'При пустом iframe и приватном bucket добавьте ?signedIframe=1 к URL плеера.'
+        );
+        return publicUrl;
+      }
+
+      if (bucket && objectPath) {
+        const signed = await getSignedLaunchUrl(bucket, objectPath);
+        if (signed) {
+          console.info('[SCORM] iframe → signed URL (bucket:', bucket + ')');
+          return signed;
+        }
+      }
+      return publicUrl;
+    }
+
+    /**
+     * Если entry_href в БД не совпадает с ключами в Storage (например после safeStorageRelPath),
+     * перечисляем файлы в префиксе пакета и ищем .html (корень + один уровень вложенных папок).
+     */
+    async function gatherLaunchHtmlCandidates(storageRootPath) {
+      let root = String(storageRootPath || '').trim();
+      if (/\/storage\/v1\/object\/public\//i.test(root)) {
+        const m = root.match(/\/object\/public\/([^/]+)\/(.+?)(?:\?|#|$)/i);
+        if (m) root = `${m[1]}/${m[2].replace(/\/+$/, '')}`;
+      }
+      root = root.replace(/\/+$/, '').replace(/^\/+/, '');
+      const slash = root.indexOf('/');
+      if (slash <= 0) return [];
+      const declaredBucket = root.slice(0, slash);
+      const prefix = normalizeStorageKey(root.slice(slash + 1));
+      const buckets = [...new Set([declaredBucket, 'course-scorm', 'scorm'].filter(Boolean))];
+      const cands = [];
+      for (const b of buckets) {
+        const { data, error } = await supabase.storage.from(b).list(prefix, { limit: 1000 });
+        if (error || !data) continue;
+        for (const it of data) {
+          if (!it?.name) continue;
+          const basePath = normalizeStorageKey(prefix, it.name);
+          if (/\.html?$/i.test(it.name)) {
+            const pr = it.name.toLowerCase() === 'index.html' ? 0 : 2;
+            cands.push({ bucket: b, objectPath: basePath, priority: pr });
+            continue;
+          }
+          if (it.name.includes('.')) continue;
+          const sub = await supabase.storage.from(b).list(basePath, { limit: 400 });
+          for (const s of sub.data || []) {
+            if (s?.name && /\.html?$/i.test(s.name)) {
+              const pr = s.name.toLowerCase() === 'index.html' ? 1 : 3;
+              cands.push({ bucket: b, objectPath: normalizeStorageKey(basePath, s.name), priority: pr });
+            }
+          }
+        }
+      }
+      const seen = new Set();
+      return cands
+        .filter((c) => {
+          const k = `${c.bucket}|${c.objectPath}`;
+          if (seen.has(k)) return false;
+          seen.add(k);
+          return true;
+        })
+        .sort((a, b) => a.priority - b.priority);
+    }
+
+    async function resolveBestLaunchUrl(storageRootPath, entryHrefs) {
+      const hrefs = [...new Set((entryHrefs || []).map((h) => String(h || '').trim().replace(/\\/g, '/')).filter(Boolean))];
+      if (!hrefs.length) hrefs.push('index.html');
+
+      const allPublicUrls = [];
+      for (const h of hrefs) {
+        const paths = collectLaunchPaths(storageRootPath, h);
+        const urls = paths.map((p) => p.publicUrl);
+        paths.forEach((p) => allPublicUrls.push(p.publicUrl));
+
+        for (const p of paths) {
+          if (await storageObjectAccessible(p.bucket, p.objectPath)) {
+            console.info('[SCORM] файл найден:', p.bucket, p.objectPath, '→', p.publicUrl);
+            return {
+              publicUrl: p.publicUrl,
+              bucket: p.bucket,
+              objectPath: p.objectPath,
+              candidates: [...new Set(urls)],
+              usedHref: h,
+              verified: true
+            };
+          }
+        }
+      }
+
+      const auto = await gatherLaunchHtmlCandidates(storageRootPath);
+      for (const c of auto) {
+        if (await storageObjectAccessible(c.bucket, c.objectPath)) {
+          const { data } = supabase.storage.from(c.bucket).getPublicUrl(c.objectPath);
+          const publicUrl = data?.publicUrl ? normalizePublicStorageUrl(data.publicUrl) : null;
+          if (publicUrl) {
+            console.warn(
+              '[SCORM] entry_href из БД не сработал; найден HTML через list():',
+              c.bucket,
+              c.objectPath,
+              '— перезагрузите SCORM в app или обновите course_scorm_scos.entry_href.'
+            );
+            return {
+              publicUrl,
+              bucket: c.bucket,
+              objectPath: c.objectPath,
+              candidates: [...new Set([...allPublicUrls, publicUrl])],
+              usedHref: c.objectPath.split('/').pop() || 'index.html',
+              verified: true,
+              viaListFallback: true
+            };
+          }
+        }
+      }
+
+      const fb = collectLaunchPaths(storageRootPath, hrefs[0]);
+      const first = fb[0] || null;
+      console.warn(
+        '[SCORM] storage.download не прошёл ни для одного варианта. storage_root_path:',
+        storageRootPath,
+        '| Выполните tech/supabase-storage-scorm-read.sql; проверьте, что в папке пакета есть .html (не только package.zip).'
+      );
+      return {
+        publicUrl: first?.publicUrl || null,
+        bucket: first?.bucket || null,
+        objectPath: first?.objectPath || null,
+        candidates: [...new Set(allPublicUrls.length ? allPublicUrls : fb.map((x) => x.publicUrl))],
+        usedHref: hrefs[0],
+        verified: false
+      };
+    }
+
+    function parseQuery() {
+      const q = new URLSearchParams(window.location.search);
+      return {
+        courseId: (q.get('courseId') || q.get('course') || '').trim(),
+        scoIdentifier: (q.get('sco') || '').trim() || null,
+        cabinetLoginUrl: (q.get('cabinet') || '').trim() || null
+      };
+    }
+
+    async function startAttempt(courseId, packageVersionId, scoIdentifier) {
+      const { data, error } = await supabase.rpc('scorm_start_attempt', {
+        p_course_id: courseId,
+        p_package_version_id: packageVersionId,
+        p_sco_identifier: scoIdentifier || null
+      });
+      if (error) throw error;
+      if (data == null) throw new Error('scorm_start_attempt: пустой ответ');
+      return typeof data === 'object' && data !== null && 'attempt_id' in data ? data.attempt_id : data;
+    }
+
+    async function loadScoState(attemptId, scoUuid) {
+      const r1 = await supabase.rpc('scorm_get_sco_state', {
+        p_attempt_id: attemptId,
+        p_sco_id: scoUuid
+      });
+      if (!r1.error && r1.data != null) return r1.data;
+
+      const r2 = await supabase.rpc('scorm_get_sco_state', {
+        attempt_id: attemptId,
+        sco_id: scoUuid
+      });
+      if (!r2.error && r2.data != null) return r2.data;
+
+      const { data: rows, error } = await supabase
+        .from('course_scorm_sco_states')
+        .select('*')
+        .eq('attempt_id', attemptId)
+        .eq('sco_id', scoUuid)
+        .maybeSingle();
+      if (error) throw error;
+      return rows || {};
+    }
+
+    function stateToCmiMap(state) {
+      if (!state || typeof state !== 'object') return {};
+      if (state.cmi && typeof state.cmi === 'object') return { ...state.cmi };
+      if (state.fields && typeof state.fields === 'object') return { ...state.fields };
+      if (state.cmi_data && typeof state.cmi_data === 'object') return { ...state.cmi_data };
+      const out = {};
+      for (const k of Object.keys(state)) {
+        if (k.startsWith('cmi.')) out[k] = String(state[k] ?? '');
+      }
+      return out;
+    }
+
+    async function persistFields(attemptId, scoUuid, fields) {
+      const { error: e1 } = await supabase.rpc('scorm_set_sco_fields', {
+        p_attempt_id: attemptId,
+        p_sco_id: scoUuid,
+        p_fields: fields
+      });
+      if (!e1) return;
+
+      const { error: e2 } = await supabase.rpc('scorm_set_sco_fields', {
+        attempt_id: attemptId,
+        sco_id: scoUuid,
+        fields
+      });
+      if (!e2) return;
+
+      throw e1 || e2;
+    }
+
+    async function finishAttempt(attemptId) {
+      const { error: e1 } = await supabase.rpc('scorm_finish_attempt', { p_attempt_id: attemptId });
+      if (!e1) return;
+      const { error: e2 } = await supabase.rpc('scorm_finish_attempt', { attempt_id: attemptId });
+      if (!e2) return;
+      console.warn('scorm_finish_attempt', e1 || e2);
+    }
+
+    /**
+     * SCORM 1.2 API — объект window.API для контента в iframe (тот же origin, что и этот документ).
+     */
+    function createScorm12Api(ctx) {
+      const { attemptId, scoUuid } = ctx;
+      let initialized = false;
+      let finished = false;
+      let lastError = '0';
+      /** @type {Record<string, string>} */
+      const values = { ...ctx.initialCmi };
+
+      const err = (code, diagnostic = '') => {
+        lastError = String(code);
+        return 'false';
+      };
+
+      const ok = () => {
+        lastError = '0';
+        return 'true';
+      };
+
+      return {
+        LMSInitialize: function (param) {
+          if (finished) return err('101');
+          if (initialized) return err('101');
+          initialized = true;
+          setStatus('SCORM: инициализировано');
+          return ok();
+        },
+        LMSFinish: function (param) {
+          if (!initialized) return err('301');
+          finished = true;
+          (async () => {
+            try {
+              await persistFields(attemptId, scoUuid, values);
+              await finishAttempt(attemptId);
+              setStatus('Сессия завершена');
+            } catch (e) {
+              console.error(e);
+              setStatus('Ошибка сохранения при завершении');
+            }
+          })();
+          return ok();
+        },
+        LMSGetValue: function (element) {
+          if (!initialized) return '';
+          const el = String(element || '');
+          if (values[el] !== undefined) return String(values[el]);
+          return '';
+        },
+        LMSSetValue: function (element, value) {
+          if (!initialized) return err('301');
+          if (finished) return err('101');
+          const el = String(element || '');
+          values[el] = value == null ? '' : String(value);
+          return ok();
+        },
+        LMSCommit: function (param) {
+          if (!initialized) return err('301');
+          (async () => {
+            try {
+              await persistFields(attemptId, scoUuid, values);
+              setStatus('Сохранено');
+            } catch (e) {
+              console.error(e);
+              setStatus('Ошибка сохранения');
+            }
+          })();
+          return ok();
+        },
+        LMSGetLastError: function () {
+          return lastError;
+        },
+        LMSGetErrorString: function (code) {
+          return lastError === '0' ? 'No error' : `Error ${code}`;
+        },
+        LMSGetDiagnostic: function (code) {
+          return '';
+        }
+      };
+    }
+
+    document.getElementById('closeWinBtn').addEventListener('click', () => {
+      window.close();
+    });
+
+    (async function main() {
+      const { courseId, scoIdentifier, cabinetLoginUrl } = parseQuery();
+      if (!courseId) {
+        showErr('Не указан courseId в URL (?courseId=…)');
+        return;
+      }
+
+      const user = await requireAuthOrRedirect(cabinetLoginUrl);
+      if (!user) return;
+
+      const { data: course, error: cErr } = await supabase
+        .from('project_courses')
+        .select('id, project_id, title, is_published')
+        .eq('id', courseId)
+        .maybeSingle();
+      if (cErr) throw cErr;
+      if (!course) {
+        showErr('Курс не найден или нет доступа.');
+        return;
+      }
+
+      const { data: mem, error: mErr } = await supabase
+        .from('project_members')
+        .select('role')
+        .eq('project_id', course.project_id)
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (mErr) throw mErr;
+      if (!mem) {
+        showErr('Вы не участник проекта этого курса.');
+        return;
+      }
+
+      const role = mem.role || 'listener';
+      const canManage = role === 'admin' || role === 'methodologist';
+      if (!canManage && !course.is_published) {
+        showErr('Курс ещё не опубликован.');
+        return;
+      }
+
+      const { data: ver, error: vErr } = await supabase
+        .from('course_scorm_package_versions')
+        .select('id, storage_root_path, manifest_entry_href')
+        .eq('course_id', courseId)
+        .eq('is_active', true)
+        .maybeSingle();
+      if (vErr) throw vErr;
+      if (!ver || !ver.storage_root_path) {
+        showErr('Нет активной версии SCORM для этого курса.');
+        return;
+      }
+
+      let q = supabase
+        .from('course_scorm_scos')
+        .select('id, sco_identifier, entry_href, sort_order')
+        .eq('package_version_id', ver.id)
+        .order('sort_order', { ascending: true });
+      const { data: scos, error: sErr } = await q;
+      if (sErr) throw sErr;
+      if (!scos || !scos.length) {
+        showErr('В пакете не найдены SCO (таблица course_scorm_scos).');
+        return;
+      }
+
+      let sco = scos[0];
+      if (scoIdentifier) {
+        const found = scos.find((s) => s.sco_identifier === scoIdentifier);
+        if (found) sco = found;
+      }
+
+      const hrefCandidates = [sco.entry_href, ver.manifest_entry_href, 'index.html'];
+      setStatus('Проверка файла в Storage…');
+      const resolved = await resolveBestLaunchUrl(ver.storage_root_path, hrefCandidates);
+      const launchUrl = await resolveIframeSrc(resolved);
+      const { candidates, usedHref, verified, publicUrl: resolvedPublic } = resolved;
+
+      if (!launchUrl) {
+        showErr(
+          'Не удалось собрать URL запуска. Проверьте в БД course_scorm_package_versions.storage_root_path '
+          + 'и entry_href SCO (должен совпадать с ключом файла в bucket).'
+        );
+        return;
+      }
+      if (verified === false) {
+        setStatus(
+          'Открытие без проверки download. Если 400/JSON вместо курса — SQL политики Storage + Public bucket; см. консоль [SCORM].'
+        );
+      }
+      if (scormDebug() && candidates.length > 1) {
+        console.info('[SCORM] URL кандидаты:', candidates);
+      }
+      if (scormDebug()) {
+        console.info(
+          '[SCORM] entry_href:',
+          usedHref,
+          '→',
+          launchUrl,
+          verified ? '(verified)' : '(fallback public: ' + (resolvedPublic || '—') + ')'
+        );
+      }
+
+      const scoIdStr = sco.sco_identifier != null ? String(sco.sco_identifier) : '';
+      let attemptId;
+      try {
+        attemptId = await startAttempt(courseId, ver.id, scoIdStr || null);
+      } catch (e) {
+        console.error(e);
+        showErr('Не удалось начать попытку (RPC scorm_start_attempt): ' + (e.message || String(e)));
+        return;
+      }
+
+      let initialCmi = {};
+      try {
+        const state = await loadScoState(attemptId, sco.id);
+        initialCmi = stateToCmiMap(state);
+      } catch (e) {
+        console.warn('loadScormState', e);
+      }
+
+      window.API = createScorm12Api({
+        attemptId,
+        scoUuid: sco.id,
+        initialCmi
+      });
+
+      courseTitleEl.textContent = course.title || 'Курс';
+      scoHintEl.textContent = `SCO: ${scoIdStr || sco.id}`;
+      toolbar.hidden = false;
+      frameWrap.hidden = false;
+      errEl.textContent = '';
+      setStatus('Загрузка контента…');
+
+      const mount = await mountScoInPlayer(scoFrame, resolved, launchUrl);
+      if (mount.mode === 'srcdoc') {
+        setStatus('Курс загружен (встроенный режим, LMS API доступен из пакета).');
+      } else {
+        try {
+          const contentOrigin = new URL(scoFrame.src || launchUrl).origin;
+          if (contentOrigin !== window.location.origin) {
+            console.warn(
+              '[SCORM] iframe.src с другого origin — API в parent может быть недоступен. '
+              + 'Добавьте ?scormDebug=1 или уберите ?scoIframeSrc=1; по умолчанию используется srcdoc.'
+            );
+            setStatus('Курс по прямой ссылке (cross-origin). Для связи с LMS лучше режим srcdoc.');
+          } else {
+            setStatus('Курс загружен.');
+          }
+        } catch (_) {
+          setStatus('Курс загружен.');
+        }
+      }
+    })().catch((e) => {
+      console.error(e);
+      showErr(e.message || String(e));
+    });
+  </script>
+</body>
+</html>

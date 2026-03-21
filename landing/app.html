@@ -44,12 +44,13 @@
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
       background: radial-gradient(circle at top left, #1e293b 0, #020617 40%, #000 100%);
       color: var(--text);
+      --sidebar-w: 280px;
     }
 
     .app-shell {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 1.1rem 1.25rem 1.75rem;
+      max-width: 100%;
+      margin: 0;
+      padding: 1.1rem 1rem 1.75rem;
       display: flex;
       flex-direction: column;
       gap: 1rem;
@@ -133,10 +134,61 @@
     }
     .btn-danger:hover { background: rgba(248, 113, 113, 0.15); }
 
+    .auth-tabs {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .auth-tab {
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: 0.42rem 0.95rem;
+      background: rgba(2, 6, 23, 0.25);
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease, color 0.15s ease;
+      user-select: none;
+    }
+
+    .auth-tab:hover {
+      background: rgba(56, 189, 248, 0.10);
+      border-color: rgba(56, 189, 248, 0.65);
+      transform: translateY(-1px);
+      color: var(--text);
+    }
+
+    .auth-tab:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+      border-color: rgba(56, 189, 248, 0.9);
+    }
+
+    .auth-tab-active {
+      border-color: rgba(56, 189, 248, 0.9);
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), rgba(2, 6, 23, 0.25) 55%);
+      color: var(--text);
+    }
+
+    .project-card-panels {
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+    .project-card-panel[hidden] { display: none !important; }
+
+    body.sidebar-collapsed {
+      --sidebar-w: 92px;
+    }
+
     .app-layout {
       flex: 1;
       display: grid;
-      grid-template-columns: 280px minmax(0, 1fr);
+      grid-template-columns: var(--sidebar-w, 280px) minmax(0, 1fr);
       gap: 1rem;
       align-items: start;
     }
@@ -158,6 +210,11 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 0.5rem;
+    }
+    .sidebar-title-right {
+      display: flex;
+      align-items: center;
       gap: 0.5rem;
     }
     .sidebar-title h2 {
@@ -206,6 +263,39 @@
     .nav-btn[aria-selected="true"] {
       border-color: rgba(56, 189, 248, 0.9);
       background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), rgba(2, 6, 23, 0.25) 55%);
+    }
+
+    body.sidebar-collapsed aside.sidebar {
+      padding: 0.75rem 0.6rem;
+    }
+    body.sidebar-collapsed .sidebar-title {
+      justify-content: center;
+    }
+    body.sidebar-collapsed .sidebar-title-right {
+      gap: 0;
+    }
+    body.sidebar-collapsed .sidebar-title h2 {
+      display: none;
+    }
+    body.sidebar-collapsed #sidebarChip {
+      display: none;
+    }
+    body.sidebar-collapsed aside.sidebar .sidebar-foot {
+      display: none;
+    }
+    body.sidebar-collapsed aside.sidebar .nav-text {
+      display: none;
+    }
+    body.sidebar-collapsed aside.sidebar .nav-right {
+      display: none;
+    }
+    body.sidebar-collapsed aside.sidebar .nav-btn {
+      justify-content: center;
+      gap: 0;
+      padding: 0.6rem 0.55rem;
+    }
+    body.sidebar-collapsed aside.sidebar .nav-left {
+      justify-content: center;
     }
     .nav-left {
       display: inline-flex;
@@ -263,6 +353,109 @@
       color: var(--text-muted);
       font-size: 0.78rem;
     }
+
+    /* Tree navigation: проекты (верхний уровень) -> курсы (нижний уровень) */
+    .projects-tree {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      margin-top: 0.55rem;
+      min-width: 0;
+    }
+    .projects-tree[data-loading="1"] { opacity: 0.7; pointer-events: none; }
+
+    .tree-group-title {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin: 0.2rem 0 0.1rem;
+      padding: 0 0.2rem;
+    }
+
+    .tree-group-body {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      min-width: 0;
+    }
+
+    .tree-row {
+      width: 100%;
+      text-align: left;
+      padding: 0.62rem 0.7rem;
+      border-radius: 0.85rem;
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      background: rgba(2, 6, 23, 0.25);
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+      transition: transform 0.1s ease, border-color 0.15s ease, background 0.15s ease;
+      user-select: none;
+    }
+    .tree-row:hover {
+      transform: translateY(-1px);
+      border-color: rgba(56, 189, 248, 0.65);
+      background: rgba(56, 189, 248, 0.10);
+    }
+    .tree-row[aria-current="true"] {
+      border-color: rgba(56, 189, 248, 0.9);
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), rgba(2, 6, 23, 0.25) 55%);
+    }
+    .tree-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      min-width: 0;
+    }
+    .tree-ico {
+      width: 28px;
+      height: 28px;
+      border-radius: 0.75rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.82rem;
+      font-weight: 750;
+      color: #0b1120;
+      background: linear-gradient(135deg, var(--accent), #6366f1);
+      flex: 0 0 auto;
+      box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.25);
+    }
+    .tree-title {
+      display: flex;
+      flex-direction: column;
+      gap: 0.08rem;
+      min-width: 0;
+    }
+    .tree-title strong {
+      font-weight: 650;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 240px;
+    }
+    .tree-title span {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 240px;
+    }
+    .tree-course-row { margin-left: 1rem; }
+
+    .project-card {
+      padding: 0.7rem 0.85rem;
+      border-radius: 0.95rem;
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      background: rgba(2, 6, 23, 0.35);
+    }
+    .project-card-title { font-weight: 700; }
 
     .card {
       border-radius: 1rem;
@@ -358,6 +551,22 @@
     .btn-sm {
       padding: 0.35rem 0.7rem;
       font-size: 0.8rem;
+    }
+
+    .btn-icon {
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+    }
+
+    .btn-icon[disabled] {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
     }
     .form-row {
       display: flex;
@@ -471,6 +680,24 @@
       gap: 0.8rem;
       align-items: start;
     }
+
+    #lmsProjectsView.lms-card-mode .split {
+      grid-template-columns: 1fr;
+    }
+    #lmsProjectsView.lms-card-mode #lmsLeftStack {
+      display: none;
+    }
+
+    /* В режиме списка показываем только правый список (и скрываем левую панель) */
+    #lmsProjectsView:not(.lms-card-mode) #lmsLeftStack { display: none; }
+    #lmsProjectsView:not(.lms-card-mode) #lmsRightListArea { display: flex; flex-direction: column; gap: 0.45rem; }
+    #lmsProjectsView.lms-card-mode #lmsRightListArea { display: none; }
+    #lmsProjectsView:not(.lms-card-mode) #projectCard { display: none; }
+    #lmsProjectsView:not(.lms-card-mode) #courseCreateBlock { display: none; }
+    #lmsProjectsView:not(.lms-card-mode) #coursesContainer { display: none; }
+    #lmsProjectsView:not(.lms-card-mode) #coursesMessage { display: none; }
+    #lmsProjectsView:not(.lms-card-mode) #membersBlock { display: none; }
+    #lmsProjectsView:not(.lms-card-mode) #invitesBlock { display: none; }
     .stack { display: flex; flex-direction: column; gap: 0.7rem; }
     .row {
       display: flex;
@@ -503,6 +730,31 @@
     }
     .table tr:last-child td { border-bottom: none; }
     .table td.muted-cell { color: var(--text-muted); }
+
+    /* Модальное окно курса */
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+    }
+    .modal[hidden] { display: none !important; }
+    .modal .modal-body {
+      width: 520px;
+      max-width: 94%;
+      padding: 1.25rem 1.4rem;
+      border-radius: 1rem;
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      background: var(--bg-elevated);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
     .select {
       border-radius: 0.8rem;
       border: 1px solid rgba(148, 163, 184, 0.28);
@@ -558,7 +810,12 @@
       <aside class="sidebar" role="navigation" aria-label="Навигация кабинета">
         <div class="sidebar-title">
           <h2>Разделы</h2>
-          <span class="chip" id="sidebarChip">—</span>
+          <div class="sidebar-title-right">
+            <span class="chip" id="sidebarChip">—</span>
+            <button class="btn btn-ghost btn-sm" type="button" id="sidebarCollapseBtn" aria-label="Свернуть панель" title="Свернуть">
+              <span id="sidebarCollapseBtnIcon">&lt;&lt;</span>
+            </button>
+          </div>
         </div>
 
         <div class="nav" role="tablist" aria-label="Вкладки">
@@ -673,10 +930,7 @@
             <span class="chip" id="coursesSummary">Загрузка…</span>
           </div>
           <div class="divider"></div>
-          <div class="auth-tabs" role="tablist" aria-label="Разделы учебной платформы" style="justify-content:flex-start;">
-            <button type="button" class="auth-tab auth-tab-active" data-lms-tab="invites" aria-selected="true">Мои приглашения</button>
-            <button type="button" class="auth-tab" data-lms-tab="projects" aria-selected="false">Мои проекты</button>
-          </div>
+          <!-- Вкладки учебной платформы упрощены: проекты/приглашения уже в левом списке -->
 
           <div id="lmsInvitesView" style="margin-top:.75rem;">
             <div id="myInvitesBlock">
@@ -699,91 +953,146 @@
 
           <div id="lmsProjectsView" hidden style="margin-top:.75rem;">
             <div class="split">
-              <div class="stack">
+              <div class="stack" id="lmsLeftStack">
                 <div>
-                  <div class="profile-label">Мои проекты</div>
-                  <select class="select" id="projectSelect" style="width:100%;" aria-label="Выбор проекта"></select>
-                  <div class="muted" style="margin-top:0.35rem;">Роль и доступ зависят от выбранного проекта.</div>
+                  <div id="projectsTree" class="projects-tree" role="tree" aria-label="Проекты и курсы">
+                    <div class="tree-group-title">Проекты</div>
+                    <div id="projectsTreeProjectsBody" class="tree-group-body" role="group" aria-label="Список проектов"></div>
+                    <div class="divider" style="margin:0.45rem 0;"></div>
+                    <div class="tree-group-title">Приглашения</div>
+                    <div id="invitesTreeBody" class="tree-group-body" role="group" aria-label="Список приглашений"></div>
+                  </div>
                 </div>
 
                 <div class="divider"></div>
 
-                <div>
-                  <div class="profile-label">Создать новый проект</div>
-                  <div class="row">
-                    <input class="input" id="projectTitleInput" placeholder="Название проекта" style="flex:1;min-width:220px;" />
-                    <button type="button" class="btn" id="createProjectBtn">Создать</button>
-                  </div>
-                  <div class="muted">Проекты, созданные вами, автоматически дают роль администратора.</div>
-                </div>
-
                 <div class="divider"></div>
-
-                <div id="inviteBlock" hidden>
-                  <div class="profile-label">Пригласить участника</div>
-                  <div class="row">
-                    <input class="input" id="inviteEmailInput" placeholder="email@example.com" style="flex:1;min-width:220px;" />
-                    <select class="select" id="inviteRoleSelect" aria-label="Роль приглашения">
-                      <option value="listener">Слушатель</option>
-                      <option value="methodologist">Куратор</option>
-                    </select>
-                    <button type="button" class="btn" id="inviteBtn">Пригласить</button>
-                  </div>
-                  <div class="muted">Приглашение создаётся по email. После принятия у пользователя появится доступ к проекту.</div>
-                </div>
-
-                <div class="divider"></div>
-
-                <div>
-                  <div class="profile-label">Мои курсы (в проектах)</div>
-                  <div id="courseCreateBlock" hidden style="margin-bottom:.6rem;">
-                    <div class="row" style="align-items:flex-start;">
-                      <input class="input" id="courseTitleInput" placeholder="Название курса" style="flex:1;min-width:220px;" />
-                      <button type="button" class="btn" id="createCourseBtn">Создать курс</button>
-                    </div>
-                    <div class="muted" style="margin-top:.35rem;">Курс можно сохранить как черновик или опубликовать в карточке курса.</div>
-                  </div>
-                  <div id="coursesContainer">
-                    <p class="muted">Выберите проект, чтобы увидеть курсы.</p>
-                  </div>
-                  <div id="coursesMessage" class="message-banner"></div>
-                </div>
               </div>
 
-              <div class="stack">
-                <div class="notice" id="projectAccessNotice">Выберите проект, чтобы увидеть доступные действия.</div>
-
-                <div id="membersBlock" hidden>
-                  <div class="profile-label">Участники проекта</div>
-                  <table class="table" aria-label="Список участников проекта">
-                    <thead>
-                      <tr>
-                        <th>Пользователь</th>
-                        <th>Роль</th>
-                        <th style="width:160px;">Действия</th>
-                      </tr>
-                    </thead>
-                    <tbody id="membersTbody">
-                      <tr><td class="muted-cell" colspan="3">Загрузка…</td></tr>
-                    </tbody>
-                  </table>
-                  <div class="muted" style="margin-top:0.4rem;">Администратор может менять роли. Куратор видит список без редактирования. Слушатель не видит участников.</div>
+                <div class="stack" id="lmsRightStack">
+                <div id="lmsRightListArea">
+                    <!-- Кнопка создания нового проекта + список -->
+                  <div id="projectsSingleListRight" class="projects-tree" role="tree" aria-label="Список проектов"></div>
                 </div>
+                <div class="notice project-card" id="projectCard" hidden>
+                  <div id="projectCardView">
+                    <div class="card-header" style="padding:0;">
+                      <div style="min-width:0;">
+                        <div class="profile-label" style="margin-bottom:.25rem;">Проект</div>
+                        <div class="project-card-title" id="projectCardTitle">—</div>
+                        <div class="muted" id="projectCardRole">—</div>
+                      </div>
+                      <span class="chip" id="projectCardRoleChip">—</span>
+                    </div>
+                    <div class="auth-tabs" role="tablist" aria-label="Вкладки проекта" style="justify-content:flex-start;">
+                      <button type="button" class="auth-tab auth-tab-active" data-project-tab="details" aria-selected="true">Основные реквизиты</button>
+                      <button type="button" class="auth-tab" data-project-tab="courses" aria-selected="false">Курсы</button>
+                      <button type="button" class="auth-tab" data-project-tab="members" aria-selected="false">Участники</button>
+                    </div>
+                    <div class="project-card-panels">
+                      <div class="project-card-panel" id="projectTabDetails">
+                        <div class="form-row">
+                          <div class="profile-label">Название</div>
+                          <input class="input" id="projectEditTitleInput" placeholder="Название проекта" />
+                        </div>
+                        <div class="form-row">
+                          <div class="profile-label">Описание</div>
+                          <textarea class="input" id="projectEditDescInput" rows="4" style="resize:vertical;"></textarea>
+                        </div>
+                        <div class="form-row">
+                          <div class="profile-label">Картинка (URL)</div>
+                          <input class="input" id="projectEditImageInput" placeholder="https://..." />
+                        </div>
+                        <div class="row" style="margin-top:.55rem;">
+                          <button type="button" class="btn" id="saveProjectDetailsBtn">Сохранить</button>
+                        </div>
+                      </div>
 
-                <div id="invitesBlock" hidden>
-                  <div class="profile-label">Приглашённые (ожидают)</div>
-                  <table class="table" aria-label="Список приглашений проекта">
-                    <thead>
-                      <tr>
-                        <th>Email</th>
-                        <th>Роль</th>
-                        <th style="width:160px;">Действия</th>
-                      </tr>
-                    </thead>
-                    <tbody id="invitesTbody">
-                      <tr><td class="muted-cell" colspan="3">Загрузка…</td></tr>
-                    </tbody>
-                  </table>
+                      <div class="project-card-panel" id="projectTabCourses" hidden>
+                        <div id="courseCreateBlock" hidden style="margin-bottom:.6rem;">
+                          <div class="row" style="align-items:center;">
+                            <button type="button" class="btn" id="createCourseBtn" style="width:100%;">Создать курс</button>
+                          </div>
+                          <div class="muted" style="margin-top:.35rem;">Курс можно сохранить как черновик или опубликовать в карточке курса.</div>
+                        </div>
+                        <div id="coursesContainer">
+                          <!-- Содержимое курсов появляется после выбора проекта -->
+                        </div>
+                        <div id="coursesMessage" class="message-banner"></div>
+                      </div>
+
+                      <div class="project-card-panel" id="projectTabMembers" hidden>
+                        <div id="inviteBlock" hidden>
+                          <div class="profile-label">Пригласить участника</div>
+                          <div class="row">
+                            <input class="input" id="inviteEmailInput" placeholder="email@example.com" style="flex:1;min-width:220px;" />
+                            <select class="select" id="inviteRoleSelect" aria-label="Роль приглашения">
+                              <option value="listener">Слушатель</option>
+                              <option value="methodologist">Куратор</option>
+                            </select>
+                            <button type="button" class="btn" id="inviteBtn">Пригласить</button>
+                          </div>
+                          <div class="muted">Приглашение создаётся по email. После принятия у пользователя появится доступ к проекту.</div>
+                        </div>
+
+                        <div id="membersBlock" hidden style="margin-top:.6rem;">
+                          <div class="profile-label">Участники проекта</div>
+                          <table class="table" aria-label="Список участников проекта">
+                            <thead>
+                              <tr>
+                                <th>Пользователь</th>
+                                <th>Роль</th>
+                                <th style="width:180px;">Действия</th>
+                              </tr>
+                            </thead>
+                            <tbody id="membersTbody">
+                              <tr><td class="muted-cell" colspan="3">Загрузка…</td></tr>
+                            </tbody>
+                          </table>
+                          <div class="muted" style="margin-top:0.4rem;">Администратор может менять роли и исключать участников. Куратор видит список без редактирования. Слушатель не видит участников.</div>
+                        </div>
+
+                        <div id="invitesBlock" hidden style="margin-top:.6rem;">
+                          <div class="profile-label">Приглашённые (ожидают)</div>
+                          <table class="table" aria-label="Список приглашений проекта">
+                            <thead>
+                              <tr>
+                                <th>Email</th>
+                                <th>Роль</th>
+                                <th style="width:160px;">Действия</th>
+                              </tr>
+                            </thead>
+                            <tbody id="invitesTbody">
+                              <tr><td class="muted-cell" colspan="3">Загрузка…</td></tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div id="projectCardCreateMode" hidden>
+                    <div class="profile-label" style="margin-bottom:.35rem;">Новый проект</div>
+                    <div class="form-row">
+                      <div class="profile-label">Название</div>
+                      <input class="input" id="projectCreateTitleInput" placeholder="Название проекта" />
+                    </div>
+                    <div class="form-row">
+                      <div class="profile-label">Описание</div>
+                      <textarea class="input" id="projectCreateDescInput" rows="4" style="resize:vertical;"></textarea>
+                    </div>
+                    <div class="form-row">
+                      <div class="profile-label">Картинка (URL)</div>
+                      <input class="input" id="projectCreateImageInput" placeholder="https://..." />
+                    </div>
+                    <div class="row" style="align-items:center;justify-content:space-between;margin-top:.55rem;">
+                      <div style="display:flex;gap:.55rem;align-items:center;">
+                        <button type="button" class="btn" id="confirmCreateProjectBtn">Создать</button>
+                      </div>
+                    </div>
+                    <div style="display:flex;gap:.55rem;flex-wrap:wrap;margin-top:.65rem;">
+                      <button type="button" class="btn btn-ghost" id="cancelCreateProjectBtn">Отмена</button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -818,10 +1127,41 @@
 
   <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.48.0';
+    import JSZip from 'https://esm.sh/jszip@3.10.1';
+    import { SUPABASE_URL, SUPABASE_ANON_KEY } from './supabase-config.js';
 
-    const SUPABASE_URL = 'https://gefieowdfimehhnqdiwk.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_P6YBUwpPIYJBoUHkDz2s9A_03CZzq9S';
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    /**
+     * Запуск: новое окно с scorm-player.html; сам пакет грузится во внутренний iframe плеера.
+     * SCORM ищет API в window.parent — идеально один origin у плеера и файлов пакета.
+     * Локальный плеер (127.0.0.1) + файлы на *.supabase.co → контент может открыться (signed URL),
+     * но вызов parent.API из пакета часто блокируется (cross-origin); для продакшена — общий домен или прокси контента.
+     * Вариант: загрузить scorm-player.html в public bucket (ia-lms) и выставить SCORM_PLAYER_USE_SUPABASE_STORAGE = true
+     * (тогда нужен вход в кабинет с того же origin, что и плеер в Storage).
+     */
+    /** true = плеер с того же хоста, что и SCORM в Storage (LMS API работает), но вход в кабинет должен быть с того же origin, иначе сессии не будет. false = плеер рядом с app.html (сессия есть), но LMS API обычно не работает без прокси контента на ваш домен. */
+    const SCORM_PLAYER_USE_SUPABASE_STORAGE = false;
+    const SCORM_PLAYER_BUCKET = 'ia-lms';
+    const SCORM_PLAYER_FILENAME = 'scorm-player.html';
+
+    function getScormPlayerLaunchUrl(courseId) {
+      const q = new URLSearchParams({ courseId: String(courseId) });
+      try {
+        q.set('cabinet', new URL('index.html#form', window.location.href).href);
+      } catch (_) {}
+      if (SCORM_PLAYER_USE_SUPABASE_STORAGE) {
+        return `${SUPABASE_URL}/storage/v1/object/public/${SCORM_PLAYER_BUCKET}/${SCORM_PLAYER_FILENAME}?${q}`;
+      }
+      return new URL(`scorm-player.html?${q}`, window.location.href).href;
+    }
+
+    function launchScormCourseInNewWindow(courseId) {
+      if (!courseId) return;
+      const url = getScormPlayerLaunchUrl(courseId);
+      const w = window.open(url, '_blank', 'noopener,noreferrer');
+      if (!w) setProjectsMessage('Разрешите всплывающие окна для запуска курса.', 'error');
+    }
     const COOKIE_KEY = 'ia_cookie_consent_v1';
     const VISITOR_KEY = 'ia_visitor_id';
     const UTM_KEY = 'ia_utm_data_v1';
@@ -852,6 +1192,19 @@
     const coursesCountPill = document.getElementById('coursesCountPill');
     const projectsCountPill = null;
     const sidebarChip = document.getElementById('sidebarChip');
+    const sidebarCollapseBtn = document.getElementById('sidebarCollapseBtn');
+    const sidebarCollapseBtnIcon = document.getElementById('sidebarCollapseBtnIcon');
+
+    const SIDEBAR_COLLAPSED_KEY = 'ia_sidebar_collapsed_v1';
+
+    function applySidebarCollapseState(collapsed) {
+      const isCollapsed = !!collapsed;
+      document.body.classList.toggle('sidebar-collapsed', isCollapsed);
+      if (sidebarCollapseBtn) {
+        sidebarCollapseBtn.setAttribute('aria-label', isCollapsed ? 'Развернуть панель' : 'Свернуть панель');
+      }
+      if (sidebarCollapseBtnIcon) sidebarCollapseBtnIcon.textContent = isCollapsed ? '>>' : '<<';
+    }
 
     const navButtons = Array.from(document.querySelectorAll('.nav-btn[data-tab]'));
     const panels = {
@@ -880,6 +1233,15 @@
       if (!coursesMessage) return;
       coursesMessage.textContent = text || '';
       coursesMessage.className = 'message-banner' + (type === 'error' ? ' error' : '');
+    }
+
+    // Legacy hook: init() still calls loadCourses(user).
+    // Keep it lightweight and non-failing to avoid breaking app bootstrap.
+    async function loadCourses() {
+      try {
+        if (coursesSummary) coursesSummary.textContent = '—';
+        if (coursesCountPill) coursesCountPill.textContent = '—';
+      } catch {}
     }
 
     function formatErr(err) {
@@ -968,7 +1330,7 @@
     function resolveInitialTab() {
       const hash = (window.location.hash || '').replace('#', '').trim();
       if (hash === 'lms' || hash === 'profile' || hash === 'builder') return hash;
-      return 'profile';
+      return 'lms';
     }
 
     async function requireAuthOrRedirect() {
@@ -1115,14 +1477,48 @@
 
     // ===== Projects =====
     const projectsSummary = document.getElementById('projectsSummary');
-    const projectSelect = document.getElementById('projectSelect');
-    const projectTitleInput = document.getElementById('projectTitleInput');
+    const projectsTree = document.getElementById('projectsTree');
+    const projectsTreeProjectsBody = document.getElementById('projectsTreeProjectsBody');
+    const projectsSingleListRight = document.getElementById('projectsSingleListRight');
+    const invitesTreeBody = document.getElementById('invitesTreeBody');
+    const lmsProjectsView = document.getElementById('lmsProjectsView');
+    const lmsLeftStack = document.getElementById('lmsLeftStack');
+    let currentUser = null;
+
+    function setLmsCardMode(enabled) {
+      if (!lmsProjectsView) return;
+      lmsProjectsView.classList.toggle('lms-card-mode', !!enabled);
+      if (!enabled) {
+        // When returning to list mode, refresh right list.
+        // (Fire-and-forget; UI will update when loaded.)
+        refreshProjectsSingleListRight().catch(() => {});
+        refreshCoursesForActiveProject();
+      }
+    }
     const createProjectBtn = document.getElementById('createProjectBtn');
     const inviteBlock = document.getElementById('inviteBlock');
     const inviteEmailInput = document.getElementById('inviteEmailInput');
     const inviteRoleSelect = document.getElementById('inviteRoleSelect');
     const inviteBtn = document.getElementById('inviteBtn');
-    const projectAccessNotice = document.getElementById('projectAccessNotice');
+    const projectCard = document.getElementById('projectCard');
+    const projectCardView = document.getElementById('projectCardView');
+    const projectCardCreateMode = document.getElementById('projectCardCreateMode');
+    const projectCardTitle = document.getElementById('projectCardTitle');
+    const projectCardRole = document.getElementById('projectCardRole');
+    const projectCardRoleChip = document.getElementById('projectCardRoleChip');
+    const projectTabButtons = Array.from(document.querySelectorAll('[data-project-tab]'));
+    const projectTabDetails = document.getElementById('projectTabDetails');
+    const projectTabCourses = document.getElementById('projectTabCourses');
+    const projectTabMembers = document.getElementById('projectTabMembers');
+    const projectEditTitleInput = document.getElementById('projectEditTitleInput');
+    const projectEditDescInput = document.getElementById('projectEditDescInput');
+    const projectEditImageInput = document.getElementById('projectEditImageInput');
+    const saveProjectDetailsBtn = document.getElementById('saveProjectDetailsBtn');
+    const projectCreateTitleInput = document.getElementById('projectCreateTitleInput');
+    const projectCreateDescInput = document.getElementById('projectCreateDescInput');
+    const projectCreateImageInput = document.getElementById('projectCreateImageInput');
+    const confirmCreateProjectBtn = document.getElementById('confirmCreateProjectBtn');
+    const cancelCreateProjectBtn = document.getElementById('cancelCreateProjectBtn');
     const membersBlock = document.getElementById('membersBlock');
     const membersTbody = document.getElementById('membersTbody');
     const invitesBlock = document.getElementById('invitesBlock');
@@ -1130,7 +1526,6 @@
     const myInvitesBlock = document.getElementById('myInvitesBlock');
     const myInvitesTbody = document.getElementById('myInvitesTbody');
     const courseCreateBlock = document.getElementById('courseCreateBlock');
-    const courseTitleInput = document.getElementById('courseTitleInput');
     const createCourseBtn = document.getElementById('createCourseBtn');
 
     const PROJECT_ROLE_LABELS = {
@@ -1150,7 +1545,10 @@
 
     function setProjectsLoading(isLoading) {
       if (projectsSummary) projectsSummary.textContent = isLoading ? 'Загрузка…' : (projectsSummary.textContent || '—');
-      if (projectSelect) projectSelect.disabled = isLoading;
+      if (projectsTree) {
+        if (isLoading) projectsTree.setAttribute('data-loading', '1');
+        else projectsTree.removeAttribute('data-loading');
+      }
     }
 
     function clearTbody(tbody, text) {
@@ -1170,18 +1568,675 @@
       const isAdmin = myRole === 'admin';
       const isMethodologist = myRole === 'methodologist';
       const canSeeMembers = isAdmin || isMethodologist;
+      const isCreatingProject = !!(projectCardCreateMode && !projectCardCreateMode.hidden);
 
-      if (projectAccessNotice) {
-        if (!hasProject) {
-          projectAccessNotice.textContent = 'Выберите проект, чтобы увидеть доступные действия.';
-        } else {
-          projectAccessNotice.textContent = `Текущий проект: ${project.title || 'Без названия'} · Ваша роль: ${PROJECT_ROLE_LABELS[myRole] || 'Слушатель'}`;
+      if (projectCard) {
+        projectCard.hidden = !hasProject && !isCreatingProject;
+        if (hasProject) {
+          if (projectCardTitle) projectCardTitle.textContent = project.title || 'Без названия';
+          const roleLabel = PROJECT_ROLE_LABELS[myRole] || 'Слушатель';
+          if (projectCardRole) projectCardRole.textContent = `Ваша роль: ${roleLabel}`;
+          if (projectCardRoleChip) projectCardRoleChip.textContent = roleLabel;
         }
       }
 
       if (inviteBlock) inviteBlock.hidden = !(hasProject && isAdmin);
       if (membersBlock) membersBlock.hidden = !(hasProject && canSeeMembers);
       if (invitesBlock) invitesBlock.hidden = !(hasProject && canSeeMembers);
+    }
+
+    function setProjectCardTab(tabId = 'details') {
+      const panels = {
+        details: projectTabDetails,
+        courses: projectTabCourses,
+        members: projectTabMembers
+      };
+      projectTabButtons.forEach((btn) => {
+        const isActive = btn.dataset.projectTab === tabId;
+        btn.classList.toggle('auth-tab-active', isActive);
+        btn.setAttribute('aria-selected', String(isActive));
+      });
+      Object.entries(panels).forEach(([key, panel]) => {
+        if (!panel) return;
+        panel.hidden = key !== tabId;
+      });
+    }
+
+    async function fetchProjectDetails(projectId) {
+      if (!projectId) return null;
+      try {
+        const { data, error } = await supabase
+          .from('projects')
+          .select('id, title, description, image_url, owner_id, created_at')
+          .eq('id', projectId)
+          .maybeSingle();
+        if (error) throw error;
+        return data || null;
+      } catch (e) {
+        const { data, error } = await supabase
+          .from('projects')
+          .select('id, title, owner_id, created_at')
+          .eq('id', projectId)
+          .maybeSingle();
+        if (error) throw error;
+        return data || null;
+      }
+    }
+
+    function fillProjectDetailsForm(project) {
+      if (projectEditTitleInput) projectEditTitleInput.value = (project && project.title) || '';
+      if (projectEditDescInput) projectEditDescInput.value = (project && project.description) || '';
+      if (projectEditImageInput) projectEditImageInput.value = (project && project.image_url) || '';
+    }
+
+    function setProjectCardCreateMode(enabled) {
+      if (!projectCard) return;
+      if (projectCardView) projectCardView.hidden = !!enabled;
+      if (projectCardCreateMode) projectCardCreateMode.hidden = !enabled;
+      projectCard.hidden = !enabled; // если создаём - показываем, если нет и проект не выбран, обновит updateProjectAccessUI
+      setLmsCardMode(!!enabled);
+      if (enabled) {
+        if (projectCreateTitleInput) projectCreateTitleInput.value = '';
+        if (projectCreateDescInput) projectCreateDescInput.value = '';
+        if (projectCreateImageInput) projectCreateImageInput.value = '';
+        try { projectCreateTitleInput && projectCreateTitleInput.focus(); } catch {}
+        try { projectCard.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch {}
+        // Без активного проекта скрываем зависимости
+        if (membersBlock) membersBlock.hidden = true;
+        if (invitesBlock) invitesBlock.hidden = true;
+        if (coursesContainer) coursesContainer.innerHTML = '';
+      }
+    }
+
+    // Project create flow (bind once, not inside async init)
+    createProjectBtn && createProjectBtn.addEventListener('click', () => {
+      setProjectsMessage('');
+      setProjectCardCreateMode(true);
+    });
+
+    confirmCreateProjectBtn && confirmCreateProjectBtn.addEventListener('click', async () => {
+      const user = await requireAuthOrRedirect();
+      if (!user) return;
+
+      setProjectsMessage('');
+      const title = (projectCreateTitleInput && projectCreateTitleInput.value ? projectCreateTitleInput.value : '').trim().slice(0, 120);
+      const desc = (projectCreateDescInput && projectCreateDescInput.value ? projectCreateDescInput.value : '').trim();
+      const imageUrl = (projectCreateImageInput && projectCreateImageInput.value ? projectCreateImageInput.value : '').trim();
+      const cleanDesc = desc ? desc.slice(0, 2000) : null;
+      const cleanImageUrl = imageUrl ? imageUrl.slice(0, 500) : null;
+
+      if (!title) {
+        setProjectsMessage('Введите название проекта.', 'error');
+        return;
+      }
+
+      if (projectCreateTitleInput) projectCreateTitleInput.disabled = true;
+      if (projectCreateDescInput) projectCreateDescInput.disabled = true;
+      if (projectCreateImageInput) projectCreateImageInput.disabled = true;
+
+      setLoadingBtn(confirmCreateProjectBtn, true, 'Создаём…');
+      try {
+        const proj = await createProject(user, title, cleanDesc, cleanImageUrl);
+        setProjectCardCreateMode(false);
+        if (projectCreateTitleInput) projectCreateTitleInput.value = '';
+        if (projectCreateDescInput) projectCreateDescInput.value = '';
+        if (projectCreateImageInput) projectCreateImageInput.value = '';
+
+        await loadMyProjects(user);
+        await selectProjectById(user, proj.id);
+        setProjectsMessage('Проект создан.', 'info');
+      } catch (e) {
+        console.error(e);
+        setProjectsMessage(e.message || 'Не удалось создать проект.', 'error');
+      } finally {
+        setLoadingBtn(confirmCreateProjectBtn, false, 'Создать');
+        if (projectCreateTitleInput) projectCreateTitleInput.disabled = false;
+        if (projectCreateDescInput) projectCreateDescInput.disabled = false;
+        if (projectCreateImageInput) projectCreateImageInput.disabled = false;
+      }
+    });
+
+    cancelCreateProjectBtn && cancelCreateProjectBtn.addEventListener('click', async () => {
+      const user = await requireAuthOrRedirect();
+      setProjectsMessage('');
+      setProjectCardCreateMode(false);
+      if (!user) return;
+      await selectProjectById(user, null);
+    });
+
+    projectTabButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        setProjectCardTab(btn.dataset.projectTab || 'details');
+      });
+    });
+
+    saveProjectDetailsBtn && saveProjectDetailsBtn.addEventListener('click', async () => {
+      const user = currentUser || await requireAuthOrRedirect();
+      const active = window.__activeProject;
+      if (!user || !active || !active.id) return;
+
+      const title = (projectEditTitleInput && projectEditTitleInput.value ? projectEditTitleInput.value : '').trim().slice(0, 120);
+      const description = (projectEditDescInput && projectEditDescInput.value ? projectEditDescInput.value : '').trim().slice(0, 2000);
+      const image_url = (projectEditImageInput && projectEditImageInput.value ? projectEditImageInput.value : '').trim().slice(0, 500);
+      if (!title) {
+        setProjectsMessage('Введите название проекта.', 'error');
+        return;
+      }
+
+      setProjectsMessage('');
+      setLoadingBtn(saveProjectDetailsBtn, true, 'Сохраняем…');
+      try {
+        await updateProjectDetails(active.id, {
+          title,
+          description: description || null,
+          image_url: image_url || null
+        });
+        if (window.__activeProject) {
+          window.__activeProject.title = title;
+          window.__activeProject.description = description || null;
+          window.__activeProject.image_url = image_url || null;
+        }
+        if (projectCardTitle) projectCardTitle.textContent = title;
+        await loadMyProjects(user);
+        renderProjectsSingleListRight(user, window.__myInvitesPending || [], window.__myProjects || []);
+        syncActiveProjectInTree(active.id);
+        setProjectsMessage('Реквизиты проекта сохранены.', 'info');
+      } catch (e) {
+        console.error(e);
+        setProjectsMessage(e.message || 'Не удалось сохранить проект.', 'error');
+      } finally {
+        setLoadingBtn(saveProjectDetailsBtn, false, 'Сохранить');
+      }
+    });
+
+    function syncActiveProjectInTree(projectId) {
+      if (!projectsTreeProjectsBody) return;
+      const buttons = Array.from(projectsTreeProjectsBody.querySelectorAll('button[data-project-id]'));
+      buttons.forEach((b) => {
+        const isActive = b.dataset.projectId === String(projectId || '');
+        b.setAttribute('aria-current', isActive ? 'true' : 'false');
+      });
+    }
+
+    function renderProjectsTree(projects, user) {
+      if (!projectsTreeProjectsBody) return;
+      projectsTreeProjectsBody.innerHTML = '';
+
+      if (!projects || !projects.length) {
+        projectsTreeProjectsBody.innerHTML = '<div class="muted">У вас пока нет проектов.</div>';
+        return;
+      }
+
+      projects.forEach((p) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'tree-row tree-project-row';
+        btn.dataset.projectId = p.id;
+        btn.setAttribute('role', 'treeitem');
+        btn.setAttribute('aria-current', 'false');
+
+        const roleLabel = PROJECT_ROLE_LABELS[p.my_role] || 'Слушатель';
+
+        const safeTitle = String(p.title || 'Без названия')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
+
+        btn.innerHTML = `
+          <span class="tree-left">
+            <span class="tree-ico">📁</span>
+            <span class="tree-title">
+              <strong>${safeTitle}</strong>
+              <span>${roleLabel}</span>
+            </span>
+          </span>
+          <span class="nav-right" style="flex:0 0 auto;">›</span>
+        `;
+
+        btn.addEventListener('click', async () => {
+          await selectProjectById(user, p.id);
+          if (projectCard && !projectCard.hidden) {
+            try { projectCard.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch {}
+          }
+        });
+
+        projectsTreeProjectsBody.appendChild(btn);
+      });
+    }
+
+    function renderInvitesTree(invites, user) {
+      if (!invitesTreeBody) return;
+      invitesTreeBody.innerHTML = '';
+
+      const list = invites || [];
+      if (!list.length) {
+        invitesTreeBody.innerHTML = '<div class="muted">Приглашений пока нет.</div>';
+        return;
+      }
+
+      list.forEach((inv) => {
+        const row = document.createElement('div');
+        row.className = 'tree-row tree-invite-row';
+        row.style.cursor = 'default';
+
+        const projectTitle = inv.project_title || inv.project_id || '—';
+        const roleLabel = PROJECT_ROLE_LABELS[inv.role] || 'Слушатель';
+
+        const safeProjectTitle = String(projectTitle)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
+        const safeEmail = String(inv.email || '—')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
+
+        const left = document.createElement('span');
+        left.className = 'tree-left';
+        left.innerHTML = `
+          <span class="tree-ico" style="background:linear-gradient(135deg,var(--accent-2),#60a5fa);">✉️</span>
+          <span class="tree-title">
+            <strong title="${safeProjectTitle}">${safeProjectTitle}</strong>
+            <span>${safeEmail} · ${roleLabel}</span>
+          </span>
+        `;
+
+        const actionWrap = document.createElement('span');
+        actionWrap.style.display = 'flex';
+        actionWrap.style.alignItems = 'center';
+        actionWrap.style.gap = '.65rem';
+        actionWrap.style.flex = '0 0 auto';
+
+        const acceptBtn = document.createElement('button');
+        acceptBtn.type = 'button';
+        acceptBtn.className = 'btn btn-sm';
+        acceptBtn.textContent = 'Принять';
+        actionWrap.appendChild(acceptBtn);
+
+        row.style.justifyContent = 'space-between';
+        row.appendChild(left);
+        row.appendChild(actionWrap);
+
+        acceptBtn.addEventListener('click', async () => {
+          setProjectsMessage('');
+          setLoadingBtn(acceptBtn, true, 'Принятие…');
+          try {
+            await acceptInvite(inv.id);
+            setProjectsMessage('Приглашение принято.', 'info');
+            // refresh invitations + projects
+            const refreshedInv = await fetchMyInvites(user.email || '');
+            renderInvitesTree(refreshedInv, user);
+            await loadMyProjects(user);
+            renderProjectsSingleListRight(user, refreshedInv, window.__myProjects || []);
+            if (inv.project_id) {
+              await selectProjectById(user, inv.project_id);
+            }
+          } catch (e) {
+            console.error(e);
+            setProjectsMessage(e.message || 'Не удалось принять приглашение.', 'error');
+          } finally {
+            setLoadingBtn(acceptBtn, false, 'Принять');
+          }
+        });
+
+        invitesTreeBody.appendChild(row);
+      });
+    }
+
+    function renderProjectsSingleListRight(user, pendingInvites, projects) {
+      if (!projectsSingleListRight) return;
+      projectsSingleListRight.innerHTML = '';
+
+      const invites = pendingInvites || [];
+      const listProjects = projects || window.__myProjects || [];
+
+      // Create new project button (first item)
+      const createBtnRow = document.createElement('button');
+      createBtnRow.type = 'button';
+      createBtnRow.className = 'tree-row tree-project-row';
+      createBtnRow.style.cursor = 'pointer';
+      createBtnRow.innerHTML = `
+        <span class="tree-left">
+          <span class="tree-ico">＋</span>
+          <span class="tree-title">
+            <strong>Новый проект</strong>
+          </span>
+        </span>
+        <span class="nav-right" style="flex:0 0 auto;">›</span>
+      `;
+      createBtnRow.addEventListener('click', () => {
+        setProjectCardCreateMode(true);
+      });
+      projectsSingleListRight.appendChild(createBtnRow);
+
+      // 1) pending invites first
+      (invites || []).forEach((inv) => {
+        const projectId = inv.project_id;
+        const projectTitle = inv.project_title || inv.project_id || '—';
+        const role = inv.role || 'listener';
+        const canManage = role === 'admin' || role === 'methodologist';
+
+        const row = document.createElement('div');
+        row.className = 'tree-row tree-invite-row';
+        row.style.cursor = 'default';
+        row.style.justifyContent = 'space-between';
+
+        const left = document.createElement('span');
+        left.className = 'tree-left';
+
+        const ico = document.createElement('span');
+        ico.className = 'tree-ico';
+        ico.style.background = 'linear-gradient(135deg,var(--accent-2),#60a5fa)';
+        ico.textContent = '✉️';
+
+        const titleWrap = document.createElement('span');
+        titleWrap.className = 'tree-title';
+
+        const strong = document.createElement('strong');
+        strong.textContent = String(projectTitle);
+        strong.title = String(projectTitle);
+
+        const countSpan = document.createElement('span');
+        countSpan.textContent = 'Участники: …';
+
+        titleWrap.appendChild(strong);
+        titleWrap.appendChild(countSpan);
+
+        left.appendChild(ico);
+        left.appendChild(titleWrap);
+
+        const actionsWrap = document.createElement('span');
+        actionsWrap.style.display = 'flex';
+        actionsWrap.style.alignItems = 'center';
+        actionsWrap.style.gap = '.55rem';
+        actionsWrap.style.flex = '0 0 auto';
+
+        const acceptBtn = document.createElement('button');
+        acceptBtn.type = 'button';
+        acceptBtn.className = 'btn btn-sm';
+        acceptBtn.textContent = 'Принять';
+        acceptBtn.title = 'Принять приглашение';
+        acceptBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setProjectsMessage('');
+          setLoadingBtn(acceptBtn, true, 'Принятие…');
+          try {
+            await acceptInvite(inv.id);
+            setProjectsMessage('Приглашение принято.', 'info');
+            const refreshedInv = await fetchMyInvites(user.email || '');
+            await loadMyProjects(user);
+            renderInvitesTree(refreshedInv, user);
+            renderProjectsSingleListRight(user, refreshedInv, window.__myProjects || []);
+            if (inv.project_id) {
+              await selectProjectById(user, inv.project_id);
+            }
+          } catch (err) {
+            console.error(err);
+            setProjectsMessage(err.message || 'Не удалось принять приглашение.', 'error');
+          } finally {
+            setLoadingBtn(acceptBtn, false, 'Принять');
+          }
+        });
+        actionsWrap.appendChild(acceptBtn);
+
+        const copyBtn = document.createElement('button');
+        copyBtn.type = 'button';
+        copyBtn.className = 'btn btn-ghost btn-sm btn-icon';
+        copyBtn.textContent = '⧉';
+        copyBtn.title = 'Сделать копию проекта';
+        copyBtn.setAttribute('aria-label', 'Сделать копию проекта');
+        copyBtn.disabled = !canManage;
+        copyBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (!canManage) return;
+          try { await duplicateProject(projectId); } catch (err) { setProjectsMessage(err.message || 'Не удалось скопировать.', 'error'); }
+        });
+        actionsWrap.appendChild(copyBtn);
+
+        const delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.className = 'btn btn-ghost btn-sm btn-icon';
+        delBtn.textContent = '🗑';
+        delBtn.title = 'Удалить проект';
+        delBtn.setAttribute('aria-label', 'Удалить проект');
+        delBtn.disabled = !canManage;
+        delBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (!canManage) return;
+          try { await deleteProject(projectId); } catch (err) { setProjectsMessage(err.message || 'Не удалось удалить.', 'error'); }
+        });
+        actionsWrap.appendChild(delBtn);
+
+        row.appendChild(left);
+        row.appendChild(actionsWrap);
+
+        projectsSingleListRight.appendChild(row);
+
+        void fetchProjectMembersCount(projectId).then((c) => {
+          countSpan.textContent = `Участники: ${c}`;
+        }).catch(() => {
+          countSpan.textContent = 'Участники: ?';
+        });
+      });
+
+      // 2) accepted projects next
+      (listProjects || []).forEach((p) => {
+        const projectId = p.id;
+        const title = p.title || 'Без названия';
+        const canManage = p.my_role === 'admin' || p.my_role === 'methodologist';
+
+        const row = document.createElement('div');
+        row.className = 'tree-row tree-project-row';
+        row.dataset.projectId = projectId;
+        row.setAttribute('role', 'treeitem');
+        row.tabIndex = 0;
+        row.setAttribute('aria-current', 'false');
+        row.setAttribute('aria-expanded', 'false');
+        row.style.justifyContent = 'space-between';
+
+        const left = document.createElement('span');
+        left.className = 'tree-left';
+
+        const toggleBtn = document.createElement('button');
+        toggleBtn.type = 'button';
+        toggleBtn.className = 'btn btn-ghost btn-sm btn-icon';
+        toggleBtn.textContent = '▸';
+        toggleBtn.title = 'Показать курсы';
+        toggleBtn.setAttribute('aria-label', 'Показать/скрыть курсы');
+
+        const childrenWrap = document.createElement('div');
+        childrenWrap.hidden = true;
+        childrenWrap.setAttribute('role', 'group');
+        childrenWrap.setAttribute('aria-label', `Курсы проекта: ${title}`);
+        childrenWrap.style.display = 'flex';
+        childrenWrap.style.flexDirection = 'column';
+        childrenWrap.style.gap = '0.45rem';
+        childrenWrap.style.marginLeft = '0.15rem';
+
+        const ico = document.createElement('span');
+        ico.className = 'tree-ico';
+        ico.textContent = '📁';
+
+        const titleWrap = document.createElement('span');
+        titleWrap.className = 'tree-title';
+
+        const strong = document.createElement('strong');
+        strong.textContent = String(title);
+        strong.title = String(title);
+
+        const countSpan = document.createElement('span');
+        countSpan.textContent = 'Участники: …';
+
+        titleWrap.appendChild(strong);
+        titleWrap.appendChild(countSpan);
+        left.appendChild(toggleBtn);
+        left.appendChild(ico);
+        left.appendChild(titleWrap);
+
+        const actionsWrap = document.createElement('span');
+        actionsWrap.style.display = 'flex';
+        actionsWrap.style.alignItems = 'center';
+        actionsWrap.style.gap = '.55rem';
+        actionsWrap.style.flex = '0 0 auto';
+
+        const copyBtn = document.createElement('button');
+        copyBtn.type = 'button';
+        copyBtn.className = 'btn btn-ghost btn-sm btn-icon';
+        copyBtn.textContent = '⧉';
+        copyBtn.title = 'Сделать копию проекта';
+        copyBtn.setAttribute('aria-label', 'Сделать копию проекта');
+        copyBtn.disabled = !canManage;
+        copyBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (!canManage) return;
+          try { await duplicateProject(projectId); } catch (err) { setProjectsMessage(err.message || 'Не удалось скопировать.', 'error'); }
+        });
+        actionsWrap.appendChild(copyBtn);
+
+        const delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.className = 'btn btn-ghost btn-sm btn-icon';
+        delBtn.textContent = '🗑';
+        delBtn.title = 'Удалить проект';
+        delBtn.setAttribute('aria-label', 'Удалить проект');
+        delBtn.disabled = !canManage;
+        delBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (!canManage) return;
+          try { await deleteProject(projectId); } catch (err) { setProjectsMessage(err.message || 'Не удалось удалить.', 'error'); }
+        });
+        actionsWrap.appendChild(delBtn);
+
+        toggleBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+
+          const willOpen = !!childrenWrap.hidden;
+          childrenWrap.hidden = !willOpen;
+          row.setAttribute('aria-expanded', String(willOpen));
+          toggleBtn.textContent = willOpen ? '▾' : '▸';
+          toggleBtn.title = willOpen ? 'Скрыть курсы' : 'Показать курсы';
+
+          if (!willOpen) return;
+          if (childrenWrap.dataset.loaded === '1') return;
+          childrenWrap.dataset.loaded = '1';
+
+          childrenWrap.innerHTML = '<div class="muted" style="padding:0.35rem 0.7rem;">Загрузка курсов…</div>';
+          try {
+            const courses = await fetchProjectCourses(projectId);
+            childrenWrap.innerHTML = '';
+            if (!courses || !courses.length) {
+              const empty = document.createElement('div');
+              empty.className = 'muted';
+              empty.style.padding = '0.35rem 0.7rem';
+              empty.textContent = 'Курсы пока не созданы.';
+              childrenWrap.appendChild(empty);
+              return;
+            }
+
+            courses.forEach((c) => {
+              const courseRow = document.createElement('div');
+              courseRow.className = 'tree-row tree-course-row';
+              courseRow.style.cursor = 'pointer';
+              courseRow.setAttribute('role', 'treeitem');
+              courseRow.tabIndex = -1;
+              courseRow.style.justifyContent = 'space-between';
+
+              const courseLeft = document.createElement('span');
+              courseLeft.className = 'tree-left';
+
+              const courseIco = document.createElement('span');
+              courseIco.className = 'tree-ico';
+              courseIco.style.background = 'linear-gradient(135deg,var(--accent),#60a5fa)';
+              courseIco.textContent = '📘';
+
+              const courseTitleWrap = document.createElement('span');
+              courseTitleWrap.className = 'tree-title';
+
+              const courseStrong = document.createElement('strong');
+              courseStrong.textContent = c.title ? String(c.title) : 'Без названия';
+              courseStrong.title = courseStrong.textContent;
+
+              const courseStatus = document.createElement('span');
+              courseStatus.textContent = c.is_published ? 'Опубликован' : 'Черновик';
+
+              courseTitleWrap.appendChild(courseStrong);
+              courseTitleWrap.appendChild(courseStatus);
+              courseLeft.appendChild(courseIco);
+              courseLeft.appendChild(courseTitleWrap);
+
+              const arrow = document.createElement('span');
+              arrow.className = 'nav-right';
+              arrow.style.flex = '0 0 auto';
+              arrow.style.fontSize = '0.78rem';
+              arrow.style.color = 'var(--text-muted)';
+              arrow.textContent = canManage ? '›' : (c.is_published ? '▶' : '—');
+
+              courseRow.appendChild(courseLeft);
+              courseRow.appendChild(arrow);
+
+              courseRow.addEventListener('click', (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                if (!canManage) {
+                  if (!c.is_published) {
+                    setProjectsMessage('Курс ещё не опубликован.', 'error');
+                    return;
+                  }
+                  setProjectsMessage('');
+                  launchScormCourseInNewWindow(c.id);
+                  return;
+                }
+                openCourseCard(c, { canManage });
+              });
+
+              childrenWrap.appendChild(courseRow);
+            });
+          } catch (err) {
+            console.error(err);
+            childrenWrap.innerHTML = '<div class="muted" style="padding:0.35rem 0.7rem;">Не удалось загрузить курсы.</div>';
+          }
+        });
+
+        row.appendChild(left);
+        row.appendChild(actionsWrap);
+
+        row.addEventListener('click', async (e) => {
+          if (e.target && (e.target.closest && e.target.closest('button'))) return;
+          await selectProjectById(user, projectId);
+          if (projectCard && !projectCard.hidden) {
+            try { projectCard.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch {}
+          }
+        });
+        row.addEventListener('keydown', async (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            await selectProjectById(user, projectId);
+          }
+        });
+
+        projectsSingleListRight.appendChild(row);
+        projectsSingleListRight.appendChild(childrenWrap);
+
+        void fetchProjectMembersCount(projectId).then((c) => {
+          countSpan.textContent = `Участники: ${c}`;
+        }).catch(() => {
+          countSpan.textContent = 'Участники: ?';
+        });
+      });
+
+      // Empty state (after create button)
+      if ((!invites || !invites.length) && (!listProjects || !listProjects.length)) {
+        const empty = document.createElement('div');
+        empty.className = 'muted';
+        empty.textContent = 'Проекты не найдены.';
+        projectsSingleListRight.appendChild(empty);
+      }
     }
 
     async function loadMyProjects(user) {
@@ -1214,20 +2269,9 @@
         if (projectsSummary) projectsSummary.textContent = `${count} проект(ов)`;
         if (projectsCountPill) projectsCountPill.textContent = String(count);
 
-        if (projectSelect) {
-          projectSelect.innerHTML = '';
-          const opt0 = document.createElement('option');
-          opt0.value = '';
-          opt0.textContent = count ? '— выберите проект —' : '— проектов нет —';
-          projectSelect.appendChild(opt0);
-
-          projects.forEach((p) => {
-            const opt = document.createElement('option');
-            opt.value = p.id;
-            opt.textContent = `${p.title || 'Без названия'} · ${PROJECT_ROLE_LABELS[p.my_role] || 'Слушатель'}`;
-            projectSelect.appendChild(opt);
-          });
-        }
+        renderProjectsTree(projects, user);
+        syncActiveProjectInTree(null);
+        if (coursesContainer) coursesContainer.innerHTML = '';
 
         window.__myProjects = projects;
         return projects;
@@ -1251,19 +2295,9 @@
           if (projectsSummary) projectsSummary.textContent = `${count} проект(ов)`;
           if (projectsCountPill) projectsCountPill.textContent = String(count);
 
-          if (projectSelect) {
-            projectSelect.innerHTML = '';
-            const opt0 = document.createElement('option');
-            opt0.value = '';
-            opt0.textContent = count ? '— выберите проект —' : '— проектов нет —';
-            projectSelect.appendChild(opt0);
-            projects.forEach((p) => {
-              const opt = document.createElement('option');
-              opt.value = p.id;
-              opt.textContent = `${p.title || 'Без названия'} · ${PROJECT_ROLE_LABELS[p.my_role] || 'Администратор'}`;
-              projectSelect.appendChild(opt);
-            });
-          }
+          renderProjectsTree(projects, user);
+          syncActiveProjectInTree(null);
+          if (coursesContainer) coursesContainer.innerHTML = '';
 
           window.__myProjects = projects;
           setProjectsMessage('Загрузка проектов через участников недоступна (RLS/связи). Показаны проекты, где вы владелец.', 'error');
@@ -1272,13 +2306,9 @@
           console.error(e2);
           if (projectsSummary) projectsSummary.textContent = 'Ошибка';
           if (projectsCountPill) projectsCountPill.textContent = '!';
-          if (projectSelect) {
-            projectSelect.innerHTML = '';
-            const opt = document.createElement('option');
-            opt.value = '';
-            opt.textContent = '— не удалось загрузить —';
-            projectSelect.appendChild(opt);
-          }
+          renderProjectsTree([], user);
+          syncActiveProjectInTree(null);
+          if (coursesContainer) coursesContainer.innerHTML = '<p class="muted">Не удалось загрузить курсы.</p>';
           setProjectsMessage(
             'Не удалось загрузить проекты. Проверьте таблицы `projects`, `project_members` и политики RLS в Supabase.'
               + (e2 ? ` Ошибка: ${formatErr(e2)}` : ''),
@@ -1292,17 +2322,47 @@
       }
     }
 
-    async function createProject(user, title) {
+    async function createProject(user, title, description = null, image_url = null) {
       const cleanTitle = (title || '').trim().slice(0, 120);
       if (!cleanTitle) throw new Error('Введите название проекта.');
 
-      const { data: proj, error: projErr } = await supabase
-        .from('projects')
-        // owner_id is filled by DB default auth.uid()
-        .insert({ title: cleanTitle })
-        .select('id, title, owner_id, created_at')
-        .single();
-      if (projErr) throw projErr;
+      const payloadFull = {
+        title: cleanTitle,
+        description: description || null,
+        image_url: image_url || null
+      };
+
+      const payloadMinimal = { title: cleanTitle };
+
+      let proj = null;
+      let projErr = null;
+      try {
+        const res = await supabase
+          .from('projects')
+          .insert(payloadFull)
+          .select('id, title, owner_id, created_at')
+          .single();
+        proj = res.data;
+        projErr = res.error;
+      } catch (e) {
+        projErr = e;
+      }
+
+      // Fallback if description/image_url columns are absent.
+      if (projErr) {
+        const msg = (projErr && (projErr.message || projErr.error_description || projErr.details)) ? String(projErr.message || projErr.error_description || projErr.details) : '';
+        const indicatesMissingCols = /description|image_url|column|не существует|unknown column|атрибут/i.test(msg);
+        if (!indicatesMissingCols) throw projErr;
+
+        const res2 = await supabase
+          .from('projects')
+          .insert(payloadMinimal)
+          .select('id, title, owner_id, created_at')
+          .single();
+        proj = res2.data;
+        projErr = res2.error;
+        if (projErr) throw projErr;
+      }
 
       const { error: memErr } = await supabase
         .from('project_members')
@@ -1433,6 +2493,121 @@
       return data;
     }
 
+    async function fetchProjectMembersCount(projectId) {
+      if (!projectId) return 0;
+      try {
+        const { count, error } = await supabase
+          .from('project_members')
+          .select('user_id', { count: 'exact', head: true })
+          .eq('project_id', projectId);
+        if (error) throw error;
+        return typeof count === 'number' ? count : 0;
+      } catch (e) {
+        console.warn('Не удалось посчитать участников', e);
+        return 0;
+      }
+    }
+
+    async function duplicateProject(projectId) {
+      const user = currentUser || await requireAuthOrRedirect();
+      if (!user) return;
+
+      const { data: projData, error: projErr } = await supabase
+        .from('projects')
+        .select('id, title, description, image_url')
+        .eq('id', projectId)
+        .maybeSingle();
+
+      let title = projData && projData.title ? projData.title : null;
+      let description = projData && Object.prototype.hasOwnProperty.call(projData, 'description') ? projData.description : null;
+      let image_url = projData && Object.prototype.hasOwnProperty.call(projData, 'image_url') ? projData.image_url : null;
+
+      if (projErr || !title) {
+        // Fallback: only title column exists
+        const { data: projMinimal, error: projErr2 } = await supabase
+          .from('projects')
+          .select('id, title')
+          .eq('id', projectId)
+          .maybeSingle();
+        if (projErr2) throw projErr2;
+        title = projMinimal && projMinimal.title ? projMinimal.title : null;
+        description = null;
+        image_url = null;
+      }
+
+      if (!title) throw new Error('Не удалось получить данные проекта для копирования.');
+
+      const newTitle = `${String(title)} (копия)`;
+      const newProject = await createProject(user, newTitle, description, image_url);
+
+      // Copy courses
+      const courses = await fetchProjectCourses(projectId);
+      if (courses && courses.length) {
+        for (const c of courses) {
+          const payloadFull = {
+            project_id: newProject.id,
+            title: c.title || 'Без названия',
+            description: c.description || null,
+            image_url: c.image_url || null,
+            is_published: !!c.is_published
+          };
+          const payloadMinimal = {
+            project_id: newProject.id,
+            title: c.title || 'Без названия',
+            is_published: !!c.is_published
+          };
+
+          try {
+            const { error } = await supabase.from('project_courses').insert(payloadFull);
+            if (error) throw error;
+          } catch (e) {
+            // Fallback: if columns description/image_url don't exist.
+            const { error: e2 } = await supabase.from('project_courses').insert(payloadMinimal);
+            if (e2) throw e2;
+          }
+        }
+      }
+
+      await refreshProjectsSingleListRight();
+      // Optionally, open the new project card:
+      // await selectProjectById(user, newProject.id);
+    }
+
+    async function deleteProject(projectId) {
+      const user = currentUser || await requireAuthOrRedirect();
+      if (!user) return;
+      if (!projectId) return;
+      if (!window.confirm('Удалить проект? Действие нельзя отменить.')) return;
+
+      // Try delete in dependency order.
+      try {
+        await supabase.from('project_courses').delete().eq('project_id', projectId);
+      } catch (e) {
+        console.warn('Не удалось удалить курсы', e);
+      }
+      try {
+        await supabase.from('project_members').delete().eq('project_id', projectId);
+      } catch (e) {
+        console.warn('Не удалось удалить участников', e);
+      }
+      try {
+        await supabase.from('project_invites').delete().eq('project_id', projectId);
+      } catch (e) {
+        console.warn('Не удалось удалить приглашения', e);
+      }
+
+      const { error: projErr } = await supabase.from('projects').delete().eq('id', projectId);
+      if (projErr) throw projErr;
+
+      // If it was active - clear card.
+      const activePid = window.__activeProject ? window.__activeProject.id : null;
+      if (activePid && String(activePid) === String(projectId)) {
+        await selectProjectById(user, null);
+      }
+
+      await refreshProjectsSingleListRight();
+    }
+
     async function inviteToProject(user, projectId, email, role) {
       const e = normalizeEmail(email);
       if (!isValidEmail(e)) throw new Error('Введите корректный email.');
@@ -1465,6 +2640,38 @@
         .eq('project_id', projectId)
         .eq('user_id', userId);
       if (error) throw error;
+    }
+
+    async function removeMember(projectId, userId) {
+      const { error } = await supabase
+        .from('project_members')
+        .delete()
+        .eq('project_id', projectId)
+        .eq('user_id', userId);
+      if (error) throw error;
+    }
+
+    async function updateProjectDetails(projectId, payload) {
+      const fullPayload = {
+        title: payload.title,
+        description: payload.description ?? null,
+        image_url: payload.image_url ?? null
+      };
+      try {
+        const { error } = await supabase
+          .from('projects')
+          .update(fullPayload)
+          .eq('id', projectId);
+        if (error) throw error;
+      } catch (e) {
+        const msg = String((e && (e.message || e.error_description || e.details)) || '');
+        if (!/description|image_url|column|не существует|unknown column|атрибут/i.test(msg)) throw e;
+        const { error } = await supabase
+          .from('projects')
+          .update({ title: payload.title })
+          .eq('id', projectId);
+        if (error) throw error;
+      }
     }
 
     async function cancelInvite(projectId, inviteId) {
@@ -1529,8 +2736,31 @@
         }
 
         const tdActions = document.createElement('td');
-        tdActions.className = 'muted-cell';
-        tdActions.textContent = m.user_id === currentUserId ? 'Это вы' : '—';
+        if (isAdmin && m.user_id !== currentUserId) {
+          const removeBtn = document.createElement('button');
+          removeBtn.type = 'button';
+          removeBtn.className = 'btn btn-ghost btn-sm btn-danger';
+          removeBtn.textContent = 'Исключить';
+          removeBtn.addEventListener('click', async () => {
+            setProjectsMessage('');
+            setLoadingBtn(removeBtn, true, 'Исключаем…');
+            try {
+              await removeMember(projectId, m.user_id);
+              setProjectsMessage('Участник исключён из проекта.', 'info');
+              const user = currentUser || await requireAuthOrRedirect();
+              if (user) await selectProjectById(user, projectId);
+            } catch (e) {
+              console.error(e);
+              setProjectsMessage(e.message || 'Не удалось исключить участника.', 'error');
+            } finally {
+              setLoadingBtn(removeBtn, false, 'Исключить');
+            }
+          });
+          tdActions.appendChild(removeBtn);
+        } else {
+          tdActions.className = 'muted-cell';
+          tdActions.textContent = m.user_id === currentUserId ? 'Это вы' : '—';
+        }
 
         tr.appendChild(tdUser);
         tr.appendChild(tdRole);
@@ -1638,19 +2868,41 @@
     }
 
     async function selectProjectById(user, projectId) {
+      // If user switches to another project while creating, cancel create flow.
+      setProjectCardCreateMode(false);
       const projects = window.__myProjects || [];
-      const project = projects.find((p) => p.id === projectId) || null;
+      const project = projects.find((p) => String(p.id) === String(projectId)) || null;
       const myRole = project ? (project.my_role || 'listener') : null;
       window.__activeProject = project ? { ...project } : null;
       window.__activeProjectRole = myRole;
 
       updateProjectAccessUI({ project, myRole });
+      setLmsCardMode(!!project);
+      window.__activeCourseId = null;
+      syncActiveProjectInTree(project ? project.id : null);
       setProjectsMessage('');
 
       if (!project) {
         if (membersTbody) clearTbody(membersTbody, 'Выберите проект.');
         if (invitesTbody) clearTbody(invitesTbody, 'Выберите проект.');
+        if (coursesContainer) coursesContainer.innerHTML = '';
+        setLmsCardMode(false);
         return;
+      }
+
+      setProjectCardTab('details');
+      try {
+        const fullProject = await fetchProjectDetails(project.id);
+        if (fullProject) {
+          window.__activeProject = { ...project, ...fullProject };
+          if (projectCardTitle) projectCardTitle.textContent = fullProject.title || project.title || 'Без названия';
+          fillProjectDetailsForm(fullProject);
+        } else {
+          fillProjectDetailsForm(project);
+        }
+      } catch (e) {
+        console.warn('Не удалось загрузить реквизиты проекта', e);
+        fillProjectDetailsForm(project);
       }
 
       const canSeeMembers = myRole === 'admin' || myRole === 'methodologist';
@@ -1715,6 +2967,568 @@
       if (error) throw error;
     }
 
+    function getXmlChildrenByLocalName(node, localName) {
+      if (!node || !node.childNodes) return [];
+      const out = [];
+      node.childNodes.forEach((c) => {
+        if (c && c.nodeType === 1 && String(c.localName || '').toLowerCase() === String(localName || '').toLowerCase()) {
+          out.push(c);
+        }
+      });
+      return out;
+    }
+
+    function getFirstXmlChildByLocalName(node, localName) {
+      const arr = getXmlChildrenByLocalName(node, localName);
+      return arr.length ? arr[0] : null;
+    }
+
+    function getFirstXmlTextByLocalName(node, localName) {
+      const el = getFirstXmlChildByLocalName(node, localName);
+      return el && typeof el.textContent === 'string' ? el.textContent.trim() : '';
+    }
+
+    function parseScormManifestXml(xmlText) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(xmlText, 'application/xml');
+      const parserErr = doc.getElementsByTagName('parsererror');
+      if (parserErr && parserErr.length) throw new Error('Не удалось разобрать imsmanifest.xml');
+
+      const manifest = doc.documentElement;
+      const manifestIdentifier = manifest && manifest.getAttribute ? (manifest.getAttribute('identifier') || '') : '';
+      const schemaVersion = getFirstXmlTextByLocalName(getFirstXmlChildByLocalName(manifest, 'metadata'), 'schemaversion') || '1.2';
+
+      const organizationsNode = getFirstXmlChildByLocalName(manifest, 'organizations');
+      const defaultOrgIdentifier = organizationsNode && organizationsNode.getAttribute ? (organizationsNode.getAttribute('default') || '') : '';
+      const organizationNodes = getXmlChildrenByLocalName(organizationsNode, 'organization');
+
+      const organizations = organizationNodes.map((org) => ({
+        identifier: org.getAttribute('identifier') || '',
+        title: getFirstXmlTextByLocalName(org, 'title') || null,
+        is_default: (org.getAttribute('identifier') || '') === defaultOrgIdentifier
+      })).filter((x) => x.identifier);
+
+      const resourcesNode = getFirstXmlChildByLocalName(manifest, 'resources');
+      const resourceNodes = getXmlChildrenByLocalName(resourcesNode, 'resource');
+      const resources = resourceNodes.map((r) => {
+        const attrs = r.attributes || [];
+        let scormType = '';
+        for (let i = 0; i < attrs.length; i++) {
+          const a = attrs[i];
+          const n = String(a.name || '').toLowerCase();
+          if (n.endsWith(':scormtype') || n === 'scormtype') {
+            scormType = a.value || '';
+            break;
+          }
+        }
+        return {
+          identifier: r.getAttribute('identifier') || '',
+          href: r.getAttribute('href') || '',
+          resource_type: r.getAttribute('type') || null,
+          scorm_type: scormType || null
+        };
+      }).filter((x) => x.identifier && x.href);
+
+      const items = [];
+      organizationNodes.forEach((org) => {
+        const orgIdentifier = org.getAttribute('identifier') || '';
+        const queue = [];
+        getXmlChildrenByLocalName(org, 'item').forEach((it) => queue.push(it));
+        while (queue.length) {
+          const it = queue.shift();
+          const itemIdentifier = it.getAttribute('identifier') || '';
+          const resourceIdentifier = it.getAttribute('identifierref') || null;
+          const title = getFirstXmlTextByLocalName(it, 'title') || null;
+          if (itemIdentifier) {
+            items.push({
+              organization_identifier: orgIdentifier,
+              item_identifier: itemIdentifier,
+              title,
+              resource_identifier: resourceIdentifier
+            });
+          }
+          getXmlChildrenByLocalName(it, 'item').forEach((child) => queue.push(child));
+        }
+      });
+
+      let entryHref = 'index.html';
+      if (defaultOrgIdentifier) {
+        const firstItem = items.find((x) => x.organization_identifier === defaultOrgIdentifier && x.resource_identifier);
+        if (firstItem) {
+          const res = resources.find((r) => r.identifier === firstItem.resource_identifier);
+          if (res && res.href) entryHref = res.href;
+        }
+      }
+      if (!entryHref && resources.length) entryHref = resources[0].href || 'index.html';
+
+      const isScorm2004 = /2004/i.test(schemaVersion || '');
+      return {
+        manifest_identifier: manifestIdentifier || null,
+        scorm_spec: isScorm2004 ? 2 : 1,
+        schema_version: schemaVersion || null,
+        manifest_entry_href: entryHref || 'index.html',
+        organizations,
+        resources,
+        items
+      };
+    }
+
+    function decodePercentPath(path) {
+      const src = String(path || '');
+      if (!src.includes('%')) return src;
+      return src
+        .split('/')
+        .map((seg) => {
+          try {
+            // decode only when segment actually has percent-escapes
+            return /%[0-9a-fA-F]{2}/.test(seg) ? decodeURIComponent(seg) : seg;
+          } catch {
+            return seg;
+          }
+        })
+        .join('/');
+    }
+
+    /** Короткий стабильный хеш строки (ASCII hex) для имён файлов в Storage */
+    function scormPathHash(s) {
+      let h = 2166136261;
+      const str = String(s);
+      for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
+      return (h >>> 0).toString(16).padStart(8, '0');
+    }
+
+    /**
+     * Supabase Storage часто отклоняет ключи с не-ASCII / странными символами.
+     * Строим безопасный относительный путь; при необходимости сегмент заменяется на f_<hash>.ext
+     */
+    function safeStorageRelPath(relPath) {
+      const norm = String(relPath || '').replace(/\\/g, '/').replace(/^\/+/, '');
+      const parts = norm.split('/').filter(Boolean);
+      const out = parts.map((seg) => {
+        const asciiOnly = /^[a-zA-Z0-9._-]+$/.test(seg);
+        if (asciiOnly && !/[^\x00-\x7F]/.test(seg)) return seg;
+        const m = seg.match(/^(.+?)(\.[a-zA-Z0-9]{1,8})?$/);
+        const ext = m && m[2] ? m[2] : '';
+        return `f_${scormPathHash(seg)}${ext}`;
+      });
+      return out.join('/');
+    }
+
+    /**
+     * href из манифеста → реальный ключ в Storage (pathMap: исходный путь в ZIP → safeStorageRelPath).
+     * Иначе в БД остаётся index.html, а в bucket лежит f_deadbeef.html — плеер получает Object not found.
+     */
+    function storageRelForManifestHref(manifestHref, pathMap) {
+      const raw = String(manifestHref || '').trim();
+      if (!raw) return 'index.html';
+      const noLead = raw.replace(/^\.?\//, '');
+      if (pathMap.has(raw)) return pathMap.get(raw);
+      if (pathMap.has(noLead)) return pathMap.get(noLead);
+      const lower = noLead.toLowerCase();
+      for (const [k, v] of pathMap.entries()) {
+        if (String(k).toLowerCase() === lower) return v;
+      }
+      return noLead;
+    }
+
+    /**
+     * Content-Type в Supabase Storage влияет на отображение во iframe: text/plain → виден «сырой» HTML и не выполняются скрипты.
+     */
+    function scormStorageContentType(storageRel) {
+      const p = String(storageRel || '').toLowerCase();
+      if (p.endsWith('.html') || p.endsWith('.htm')) return 'text/html; charset=utf-8';
+      if (p.endsWith('.js') || p.endsWith('.mjs')) return 'text/javascript; charset=utf-8';
+      if (p.endsWith('.css')) return 'text/css; charset=utf-8';
+      if (p.endsWith('.json')) return 'application/json; charset=utf-8';
+      if (p.endsWith('.xml')) return 'application/xml; charset=utf-8';
+      if (p.endsWith('.svg')) return 'image/svg+xml; charset=utf-8';
+      if (p.endsWith('.woff2')) return 'font/woff2';
+      if (p.endsWith('.woff')) return 'font/woff';
+      if (p.endsWith('.ttf')) return 'font/ttf';
+      if (p.endsWith('.map')) return 'application/json; charset=utf-8';
+      if (p.endsWith('.png')) return 'image/png';
+      if (p.endsWith('.jpg') || p.endsWith('.jpeg')) return 'image/jpeg';
+      if (p.endsWith('.gif')) return 'image/gif';
+      if (p.endsWith('.webp')) return 'image/webp';
+      if (p.endsWith('.mp3')) return 'audio/mpeg';
+      if (p.endsWith('.mp4')) return 'video/mp4';
+      if (p.endsWith('.webm')) return 'video/webm';
+      if (p.endsWith('.pdf')) return 'application/pdf';
+      if (/\.(txt|md)$/i.test(p)) return 'text/plain; charset=utf-8';
+      return 'application/octet-stream';
+    }
+
+    function isProbablyTextAsset(relPath) {
+      const p = String(relPath || '').toLowerCase();
+      return /\.(html?|js|css|xml|json|svg|txt|md|map)$/i.test(p);
+    }
+
+    /** Переписывает href в manifest (resource + file), чтобы совпадали с ключами в Storage */
+    function rewriteManifestXmlHrefs(xmlText, hrefMap) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(xmlText, 'application/xml');
+      const parserErr = doc.getElementsByTagName('parsererror');
+      if (parserErr && parserErr.length) return xmlText;
+
+      const mapOne = (href) => {
+        if (!href) return href;
+        const t = href.trim();
+        if (hrefMap.has(t)) return hrefMap.get(t);
+        const noLead = t.replace(/^\.?\//, '');
+        if (hrefMap.has(noLead)) return hrefMap.get(noLead);
+        return href;
+      };
+
+      const walk = (node) => {
+        if (!node) return;
+        if (node.nodeType === 1) {
+          const ln = String(node.localName || '').toLowerCase();
+          if ((ln === 'resource' || ln === 'file') && node.getAttribute) {
+            const h = node.getAttribute('href');
+            if (h) node.setAttribute('href', mapOne(h));
+          }
+          if (node.childNodes) node.childNodes.forEach(walk);
+        }
+      };
+      walk(doc.documentElement);
+      try {
+        return new XMLSerializer().serializeToString(doc);
+      } catch {
+        return xmlText;
+      }
+    }
+
+    /** Заменяет в тексте старые относительные пути на новые (длинные сначала) */
+    function rewriteTextAssetPaths(text, pathMap) {
+      let out = text;
+      const pairs = Array.from(pathMap.entries())
+        .filter(([a, b]) => a && b && a !== b)
+        .sort((x, y) => y[0].length - x[0].length);
+      for (const [from, to] of pairs) {
+        const variants = [from, from.replace(/\//g, '\\')];
+        for (const v of variants) {
+          if (v && out.includes(v)) out = out.split(v).join(to);
+        }
+      }
+      return out;
+    }
+
+    async function uploadCourseScormPackage({ courseId, file, userId }) {
+      if (!courseId) throw new Error('Сначала сохраните курс.');
+      if (!file) throw new Error('Выберите ZIP-файл SCORM-пакета.');
+      const name = String(file.name || '').toLowerCase();
+      if (!name.endsWith('.zip')) throw new Error('Поддерживаются только ZIP-файлы.');
+
+      const base = courseId.replace(/[^a-zA-Z0-9_-]/g, '');
+      const stamp = Date.now();
+      const zipPath = `scorm/${base}/${stamp}/package.zip`;
+      const rootPath = `scorm/${base}/${stamp}/`;
+
+      const bucketCandidates = ['course-scorm', 'scorm'];
+      let uploadErr = null;
+      let uploadedBucket = null;
+      for (const bucket of bucketCandidates) {
+        const res = await supabase
+          .storage
+          .from(bucket)
+          .upload(zipPath, file, { upsert: false, contentType: 'application/zip' });
+        if (!res.error) {
+          uploadedBucket = bucket;
+          uploadErr = null;
+          break;
+        }
+        uploadErr = res.error;
+      }
+      if (uploadErr) {
+        throw new Error(
+          'Не удалось загрузить ZIP в Storage. Создайте public bucket `course-scorm` (или `scorm`) и проверьте политики. '
+          + formatErr(uploadErr)
+        );
+      }
+
+      const { data: maxRow, error: maxErr } = await supabase
+        .from('course_scorm_package_versions')
+        .select('version_number')
+        .eq('course_id', courseId)
+        .order('version_number', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (maxErr) throw maxErr;
+
+      const nextVersion = (maxRow && maxRow.version_number ? Number(maxRow.version_number) : 0) + 1;
+      const activeProject = window.__activeProject || null;
+      const projectId = activeProject && activeProject.id ? activeProject.id : null;
+      if (!projectId) throw new Error('Не найден активный проект.');
+
+      const payload = {
+        course_id: courseId,
+        project_id: projectId,
+        version_number: nextVersion,
+        scorm_spec: 1,
+        package_identifier: (file.name || 'package.zip').slice(0, 250),
+        manifest_entry_href: 'index.html',
+        manifest_xml: null,
+        storage_zip_path: `${uploadedBucket}/${zipPath}`,
+        storage_root_path: `${uploadedBucket}/${rootPath}`,
+        metadata: {
+          original_filename: file.name || null,
+          file_size: file.size || null,
+          uploaded_by: userId || null,
+          uploaded_at: new Date().toISOString(),
+          parse_status: 'pending'
+        },
+        is_active: false,
+        created_by: userId || null
+      };
+
+      const { data: inserted, error: insErr } = await supabase
+        .from('course_scorm_package_versions')
+        .insert(payload)
+        .select('id, version_number, storage_root_path')
+        .single();
+      if (insErr) throw insErr;
+
+      // Activate new version safely:
+      // 1) deactivate previous active versions for this course
+      // 2) activate inserted version
+      {
+        const { error: deactivateErr } = await supabase
+          .from('course_scorm_package_versions')
+          .update({ is_active: false })
+          .eq('course_id', courseId)
+          .neq('id', inserted.id)
+          .eq('is_active', true);
+        if (deactivateErr) throw deactivateErr;
+
+        const { error: activateErr } = await supabase
+          .from('course_scorm_package_versions')
+          .update({ is_active: true })
+          .eq('id', inserted.id);
+        if (activateErr) throw activateErr;
+      }
+
+      // 1) Extract ZIP locally and upload extracted files into storage root.
+      // 2) Parse imsmanifest.xml and fill parsed SCORM tables.
+      let uploadedFiles = 0;
+      let parsed = null;
+      let manifestXml = null;
+      try {
+        const zip = await JSZip.loadAsync(file);
+        const entries = Object.values(zip.files || {});
+        const fileEntries = entries.filter((e) => e && !e.dir);
+        const warnings = [];
+        /** @type {Map<string, string>} канонический путь в ZIP -> безопасный ключ в Storage */
+        const pathMap = new Map();
+        let manifestXmlOriginal = null;
+        let imsManifestRelPath = null;
+
+        for (const entry of fileEntries) {
+          const originalRelPath = String(entry.name || '').replace(/\\/g, '/').replace(/^\/+/, '');
+          const relPath = decodePercentPath(originalRelPath);
+          if (!relPath) continue;
+          const storageRel = safeStorageRelPath(relPath);
+          pathMap.set(relPath, storageRel);
+          const objectPath = `${rootPath}${storageRel}`;
+          const content = await entry.async('uint8array');
+          const res = await supabase
+            .storage
+            .from(uploadedBucket)
+            .upload(objectPath, content, { upsert: true, contentType: scormStorageContentType(storageRel) });
+          if (res.error) {
+            const isCritical = /(^|\/)imsmanifest\.xml$/i.test(relPath) || /(^|\/)index\.html$/i.test(relPath);
+            const warn = `${relPath}: ${formatErr(res.error) || 'upload error'}`;
+            if (isCritical) throw new Error('Критический файл не загружен: ' + warn);
+            warnings.push(warn);
+            continue;
+          }
+          uploadedFiles += 1;
+
+          if (relPath.toLowerCase().endsWith('imsmanifest.xml')) {
+            manifestXmlOriginal = await entry.async('string');
+            imsManifestRelPath = relPath;
+          }
+        }
+
+        if (!manifestXmlOriginal) throw new Error('В архиве не найден imsmanifest.xml');
+
+        // Второй проход: переписать ссылки в текстовых файлах под безопасные имена (HTML/JS/CSS и т.д.)
+        for (const entry of fileEntries) {
+          const originalRelPath = String(entry.name || '').replace(/\\/g, '/').replace(/^\/+/, '');
+          const relPath = decodePercentPath(originalRelPath);
+          if (!relPath) continue;
+          if (relPath.toLowerCase().endsWith('imsmanifest.xml')) continue;
+          const storageRel = pathMap.get(relPath) || safeStorageRelPath(relPath);
+          if (!isProbablyTextAsset(storageRel)) continue;
+          try {
+            const raw = await entry.async('uint8array');
+            const text = new TextDecoder('utf-8', { fatal: false }).decode(raw);
+            const next = rewriteTextAssetPaths(text, pathMap);
+            if (next === text) continue;
+            const enc = new TextEncoder().encode(next);
+            const objectPath = `${rootPath}${storageRel}`;
+            const res = await supabase
+              .storage
+              .from(uploadedBucket)
+              .upload(objectPath, enc, { upsert: true, contentType: scormStorageContentType(storageRel) });
+            if (res.error) warnings.push(`${storageRel} rewrite: ${formatErr(res.error)}`);
+          } catch (er) {
+            warnings.push(`${relPath} rewrite: ${formatErr(er)}`);
+          }
+        }
+
+        manifestXml = rewriteManifestXmlHrefs(manifestXmlOriginal, pathMap);
+        parsed = parseScormManifestXml(manifestXml);
+
+        const imsStorageRel = imsManifestRelPath ? pathMap.get(imsManifestRelPath) : 'imsmanifest.xml';
+        if (imsStorageRel) {
+          const encMan = new TextEncoder().encode(manifestXml);
+          const manRes = await supabase
+            .storage
+            .from(uploadedBucket)
+            .upload(`${rootPath}${imsStorageRel}`, encMan, { upsert: true, contentType: 'application/xml' });
+          if (manRes.error) warnings.push(`imsmanifest upload: ${formatErr(manRes.error)}`);
+        }
+
+        const { error: updMainErr } = await supabase
+          .from('course_scorm_package_versions')
+          .update({
+            scorm_spec: parsed.scorm_spec,
+            package_identifier: parsed.manifest_identifier || payload.package_identifier,
+            manifest_entry_href: storageRelForManifestHref(parsed.manifest_entry_href || 'index.html', pathMap),
+            manifest_xml: manifestXml,
+            metadata: {
+              ...payload.metadata,
+              parsed: true,
+              parse_status: warnings.length ? 'parsed_with_warnings' : 'parsed',
+              uploaded_files: uploadedFiles,
+              schema_version: parsed.schema_version || null,
+              path_map_sample: Array.from(pathMap.entries()).slice(0, 40),
+              warnings: warnings.length ? warnings : undefined
+            }
+          })
+          .eq('id', inserted.id);
+        if (updMainErr) throw updMainErr;
+
+        const orgRows = (parsed.organizations || []).map((o) => ({
+          package_version_id: inserted.id,
+          identifier: o.identifier,
+          title: o.title || null,
+          is_default: !!o.is_default
+        }));
+        let insertedOrgs = [];
+        if (orgRows.length) {
+          const { data, error } = await supabase
+            .from('course_scorm_organizations')
+            .upsert(orgRows, { onConflict: 'package_version_id,identifier' })
+            .select('id, identifier');
+          if (error) throw error;
+          insertedOrgs = data || [];
+        }
+        const orgMap = new Map(insertedOrgs.map((o) => [o.identifier, o.id]));
+
+        const resourceRows = (parsed.resources || []).map((r) => ({
+          package_version_id: inserted.id,
+          identifier: r.identifier,
+          href: r.href,
+          resource_type: r.resource_type,
+          scorm_type: r.scorm_type,
+          metadata: {}
+        }));
+        let insertedResources = [];
+        if (resourceRows.length) {
+          const { data, error } = await supabase
+            .from('course_scorm_resources')
+            .upsert(resourceRows, { onConflict: 'package_version_id,identifier' })
+            .select('id, identifier, href, scorm_type');
+          if (error) throw error;
+          insertedResources = data || [];
+        }
+        const resByIdentifier = new Map(insertedResources.map((r) => [r.identifier, r]));
+
+        const itemRows = (parsed.items || [])
+          .map((it) => {
+            const orgId = orgMap.get(it.organization_identifier);
+            if (!orgId) return null;
+            const r = it.resource_identifier ? resByIdentifier.get(it.resource_identifier) : null;
+            return {
+              organization_id: orgId,
+              item_identifier: it.item_identifier,
+              title: it.title || null,
+              resource_identifier: it.resource_identifier || null,
+              resource_id: r ? r.id : null
+            };
+          })
+          .filter(Boolean);
+
+        let insertedItems = [];
+        if (itemRows.length) {
+          const { data, error } = await supabase
+            .from('course_scorm_organization_items')
+            .upsert(itemRows, { onConflict: 'organization_id,item_identifier' })
+            .select('id, item_identifier, resource_id');
+          if (error) throw error;
+          insertedItems = data || [];
+        }
+
+        const scoRows = [];
+        insertedItems.forEach((it, idx) => {
+          if (!it.resource_id) return;
+          const res = insertedResources.find((r) => r.id === it.resource_id);
+          scoRows.push({
+            package_version_id: inserted.id,
+            sco_identifier: it.item_identifier,
+            title: it.item_identifier,
+            organization_item_id: it.id,
+            resource_id: it.resource_id,
+            entry_href: res
+              ? storageRelForManifestHref(res.href, pathMap)
+              : storageRelForManifestHref(parsed.manifest_entry_href, pathMap),
+            sort_order: idx + 1,
+            is_assessable: false
+          });
+        });
+        if (!scoRows.length && insertedResources.length) {
+          insertedResources.forEach((r, idx) => {
+            scoRows.push({
+              package_version_id: inserted.id,
+              sco_identifier: r.identifier,
+              title: r.identifier,
+              organization_item_id: null,
+              resource_id: r.id,
+              entry_href: storageRelForManifestHref(r.href, pathMap),
+              sort_order: idx + 1,
+              is_assessable: false
+            });
+          });
+        }
+        if (scoRows.length) {
+          const { error } = await supabase
+            .from('course_scorm_scos')
+            .upsert(scoRows, { onConflict: 'package_version_id,sco_identifier' });
+          if (error) throw error;
+        }
+      } catch (e) {
+        // Keep uploaded ZIP + package row, but mark parsing failure.
+        const parseErrText = formatErr(e) || 'parse error';
+        await supabase
+          .from('course_scorm_package_versions')
+          .update({
+            metadata: {
+              ...payload.metadata,
+              parse_status: 'error',
+              parse_error: parseErrText
+            }
+          })
+          .eq('id', inserted.id);
+        throw new Error('ZIP загружен, но разбор SCORM не завершён: ' + parseErrText);
+      }
+
+      return inserted;
+    }
+
     // ===== Project courses (drafts for admins/curators only; listeners see only published via RLS) =====
     async function fetchProjectCourses(projectId) {
       const { data, error } = await supabase
@@ -1726,61 +3540,133 @@
       return data || [];
     }
 
+    async function refreshCoursesForActiveProject() {
+      if (!coursesContainer) return;
+      const active = window.__activeProject;
+      const myRole = window.__activeProjectRole || null;
+      const canManage = myRole === 'admin' || myRole === 'methodologist';
+
+      if (!active || !active.id) {
+        coursesContainer.innerHTML = '<p class="muted">Курсы появятся после выбора проекта.</p>';
+        return;
+      }
+
+      coursesContainer.innerHTML = '<p class="muted">Загрузка курсов…</p>';
+      try {
+        const courses = await fetchProjectCourses(active.id);
+        renderProjectCourses(courses, { canManage });
+      } catch (e) {
+        console.error(e);
+        coursesContainer.innerHTML = '<p class="muted">Не удалось загрузить курсы.</p>';
+      }
+    }
+
+    async function refreshProjectsSingleListRight() {
+      if (!currentUser) return;
+      const user = currentUser;
+      try {
+        const myInv = await fetchMyInvites(user.email || '');
+        window.__myInvitesPending = myInv;
+        await loadMyProjects(user);
+        renderProjectsSingleListRight(user, myInv, window.__myProjects || []);
+        // keep left invites (table) in sync too
+        renderInvitesTree(myInv, user);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
     function renderProjectCourses(courses, { canManage }) {
       if (!coursesContainer) return;
       const list = courses || [];
+
       if (!list.length) {
         coursesContainer.innerHTML = '<p class="muted">Курсов пока нет.</p>';
         return;
       }
 
-      const grid = document.createElement('div');
-      grid.className = 'courses-grid';
+      coursesContainer.innerHTML = '';
+      const listEl = document.createElement('div');
+      listEl.style.display = 'flex';
+      listEl.style.flexDirection = 'column';
+      listEl.style.gap = '0.45rem';
 
       list.forEach((c) => {
-        const card = document.createElement('article');
-        card.className = 'course-card';
-        card.style.cursor = 'pointer';
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'tree-row tree-course-row';
+        btn.dataset.courseId = c.id;
+        btn.setAttribute('aria-current', String(window.__activeCourseId && window.__activeCourseId === c.id));
+        btn.style.cursor = 'pointer';
 
-        const title = document.createElement('div');
-        title.className = 'course-title';
-        title.textContent = c.title || 'Без названия';
+        const statusLabel = c.is_published ? 'Опубликован' : 'Черновик';
+        const statusClass = 'pill ' + (c.is_published ? 'status-completed' : 'status-active');
+        const hint = canManage ? 'Карточка' : (c.is_published ? 'Запустить' : 'Не опубликован');
 
-        const desc = document.createElement('div');
-        desc.className = 'course-desc';
-        desc.textContent = c.description || 'Описание курса пока не заполнено.';
+        const safeTitle = String(c.title || 'Без названия')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
 
-        const meta = document.createElement('div');
-        meta.className = 'course-meta';
-        const status = document.createElement('span');
-        status.className = 'pill ' + (c.is_published ? 'status-completed' : 'status-active');
-        status.textContent = c.is_published ? 'Опубликован' : 'Черновик';
-        const hint = document.createElement('span');
-        hint.textContent = canManage ? 'Открыть' : 'Просмотр';
-        meta.appendChild(status);
-        meta.appendChild(hint);
+        const desc = c.description ? String(c.description).trim() : '';
+        const safeDesc = desc
+          ? desc.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          : '';
 
-        card.appendChild(title);
-        card.appendChild(desc);
-        card.appendChild(meta);
+        btn.innerHTML = `
+          <span class="tree-left">
+            <span class="tree-ico" style="background:linear-gradient(135deg,var(--accent),#38bdf8);">📘</span>
+            <span class="tree-title">
+              <strong title="${safeTitle}">${safeTitle}</strong>
+              ${safeDesc ? `<span title="${safeDesc}">${safeDesc}</span>` : `<span>—</span>`}
+            </span>
+          </span>
+          <span style="display:flex;align-items:center;gap:.55rem;flex:0 0 auto;">
+            <span class="${statusClass}">${statusLabel}</span>
+            <span class="nav-right" style="font-size:0.78rem; color:var(--text-muted);">${hint}</span>
+          </span>
+        `;
 
-        card.addEventListener('click', () => openCourseCard(c, { canManage }));
-        grid.appendChild(card);
+        btn.addEventListener('click', () => {
+          window.__activeCourseId = c.id;
+          Array.from(coursesContainer.querySelectorAll('button[data-course-id]')).forEach((el) => {
+            el.setAttribute('aria-current', String(el.dataset.courseId === String(c.id)));
+          });
+          if (!canManage) {
+            if (!c.is_published) {
+              setProjectsMessage('Курс ещё не опубликован.', 'error');
+              return;
+            }
+            setProjectsMessage('');
+            launchScormCourseInNewWindow(c.id);
+            return;
+          }
+          openCourseCard(c, { canManage });
+        });
+
+        listEl.appendChild(btn);
       });
 
-      coursesContainer.innerHTML = '';
-      coursesContainer.appendChild(grid);
+      coursesContainer.appendChild(listEl);
     }
 
     function openCourseCard(course, { canManage }) {
+      const isNew = !course || !course.id;
+      if (!canManage && !isNew && course && course.id) {
+        if (!course.is_published) {
+          setProjectsMessage('Курс ещё не опубликован.', 'error');
+          return;
+        }
+        setProjectsMessage('');
+        launchScormCourseInNewWindow(course.id);
+        return;
+      }
       // lightweight modal
       let modal = document.getElementById('courseModal');
       if (!modal) {
         modal = document.createElement('div');
         modal.id = 'courseModal';
         modal.className = 'modal';
-        modal.style.width = '520px';
-        modal.style.maxWidth = '94%';
         modal.innerHTML = `
           <div class="modal-body">
             <h3 style="margin:0 0 .35rem;">Курс</h3>
@@ -1795,6 +3681,17 @@
             <div class="form-row">
               <div class="profile-label">Картинка (URL)</div>
               <input class="input" id="courseEditImage" placeholder="https://..." />
+            </div>
+            <div class="form-row" style="margin-top:.2rem;">
+              <div class="profile-label">SCORM-пакет (ZIP)</div>
+              <div class="row" style="align-items:center; gap:.45rem;">
+                <input class="input" id="courseScormZipInput" type="file" accept=".zip,application/zip" style="flex:1;min-width:230px;" />
+                <button type="button" class="btn btn-ghost" id="courseScormUploadBtn">Загрузить SCORM</button>
+              </div>
+              <div class="muted" id="courseScormInfo">Загрузите ZIP архив SCORM (например, PeopleGames.zip).</div>
+            </div>
+            <div class="form-row" id="courseLaunchRow" style="margin-top:.35rem;">
+              <button type="button" class="btn" id="courseLaunchScormBtn" style="width:100%;justify-content:center;">▶ Запустить курс (новое окно)</button>
             </div>
             <div class="row" style="align-items:center;justify-content:space-between;margin-top:.5rem;">
               <label class="muted" style="display:flex;align-items:center;gap:.5rem;">
@@ -1817,6 +3714,11 @@
       const imgEl = document.getElementById('courseEditImage');
       const pubEl = document.getElementById('courseEditPublished');
       const saveBtn = document.getElementById('courseSaveBtn');
+      const scormZipInput = document.getElementById('courseScormZipInput');
+      const scormUploadBtn = document.getElementById('courseScormUploadBtn');
+      const scormInfoEl = document.getElementById('courseScormInfo');
+      const launchRow = document.getElementById('courseLaunchRow');
+      const launchScormBtn = document.getElementById('courseLaunchScormBtn');
       const closeBtn = document.getElementById('courseCloseBtn');
       const msgEl = document.getElementById('courseEditMsg');
 
@@ -1826,20 +3728,65 @@
         msgEl.className = 'message-banner' + (isErr ? ' error' : '');
       };
 
-      if (titleEl) titleEl.value = course.title || '';
-      if (descEl) descEl.value = course.description || '';
-      if (imgEl) imgEl.value = course.image_url || '';
-      if (pubEl) pubEl.checked = !!course.is_published;
+      const headerEl = modal.querySelector('h3');
+      if (headerEl) headerEl.textContent = isNew ? 'Создать курс' : 'Курс';
+
+      if (titleEl) titleEl.value = course && course.title ? course.title : '';
+      if (descEl) descEl.value = course && course.description ? course.description : '';
+      if (imgEl) imgEl.value = course && course.image_url ? course.image_url : '';
+      if (pubEl) pubEl.checked = !!(course && course.is_published);
 
       const setDisabled = (disabled) => {
-        [titleEl, descEl, imgEl, pubEl, saveBtn].forEach((x) => { if (x) x.disabled = disabled; });
+        [titleEl, descEl, imgEl, pubEl, saveBtn, scormZipInput, scormUploadBtn].forEach((x) => { if (x) x.disabled = disabled; });
       };
 
       setDisabled(!canManage);
       if (saveBtn) saveBtn.hidden = !canManage;
       if (pubEl) pubEl.disabled = !canManage;
+      if (scormUploadBtn) scormUploadBtn.hidden = !canManage;
+      if (scormZipInput) scormZipInput.hidden = !canManage;
+      if (scormInfoEl) {
+        if (isNew) scormInfoEl.textContent = 'Сначала сохраните курс, затем можно загрузить SCORM ZIP.';
+        else scormInfoEl.textContent = 'Загрузите ZIP архив SCORM (например, PeopleGames.zip).';
+      }
       if (!canManage) setMsg('Только администратор/куратор проекта может редактировать курс.');
       else setMsg('');
+
+      if (launchRow) launchRow.hidden = !canManage || isNew || !course || !course.id;
+      if (launchScormBtn) {
+        launchScormBtn.onclick = () => {
+          if (course && course.id) launchScormCourseInNewWindow(course.id);
+        };
+      }
+
+      if (scormUploadBtn) {
+        scormUploadBtn.onclick = async () => {
+          setMsg('');
+          if (isNew || !course || !course.id) {
+            setMsg('Сначала сохраните курс, затем загружайте SCORM.', true);
+            return;
+          }
+          try {
+            const file = scormZipInput && scormZipInput.files && scormZipInput.files[0] ? scormZipInput.files[0] : null;
+            setLoadingBtn(scormUploadBtn, true, 'Загрузка…');
+            const user = await requireAuthOrRedirect();
+            if (!user) throw new Error('Не удалось определить пользователя.');
+            const inserted = await uploadCourseScormPackage({
+              courseId: course.id,
+              file,
+              userId: user.id
+            });
+            if (scormZipInput) scormZipInput.value = '';
+            if (scormInfoEl) scormInfoEl.textContent = `Загружена версия SCORM v${inserted.version_number}.`;
+            setMsg(`SCORM-пакет загружен (версия v${inserted.version_number}).`);
+          } catch (e) {
+            console.error(e);
+            setMsg(formatErr(e) || 'Не удалось загрузить SCORM-пакет.', true);
+          } finally {
+            setLoadingBtn(scormUploadBtn, false, 'Загрузить SCORM');
+          }
+        };
+      }
 
       const close = () => {
         modal.hidden = true;
@@ -1855,18 +3802,28 @@
           setMsg('');
           setLoadingBtn(saveBtn, true, 'Сохраняем…');
           try {
+            const activePid = window.__activeProject ? window.__activeProject.id : null;
+            if (!activePid && isNew) throw new Error('Сначала выберите проект.');
             const payload = {
               title: (titleEl && titleEl.value ? titleEl.value.trim() : '').slice(0, 200),
               description: descEl ? descEl.value.trim() : null,
               image_url: imgEl ? imgEl.value.trim() : null,
               is_published: pubEl ? !!pubEl.checked : false
             };
-            const { error } = await supabase
-              .from('project_courses')
-              .update(payload)
-              .eq('id', course.id);
+
+            let { error } = { error: null };
+            if (!isNew) {
+              error = (await supabase
+                .from('project_courses')
+                .update(payload)
+                .eq('id', course.id)).error;
+            } else {
+              error = (await supabase
+                .from('project_courses')
+                .insert({ project_id: activePid, ...payload })).error;
+            }
             if (error) throw error;
-            setMsg('Сохранено.');
+            setMsg(isNew ? 'Создано.' : 'Сохранено.');
 
             // refresh list for active project
             const user = await requireAuthOrRedirect();
@@ -1896,7 +3853,8 @@
         setActiveTab(btn.dataset.tab);
         if (btn.dataset.tab === 'lms') {
           // default inner tab
-          setLmsInnerTab('invites');
+          setLmsInnerTab('projects');
+          setLmsCardMode(false);
         }
       });
     });
@@ -2012,10 +3970,47 @@
       setProfileMessage('Изменения сброшены.', 'info');
     });
 
+    // Important: bind immediately (not inside init()), so clicks still work
+    // even if init() fails earlier due to async load errors.
+    createCourseBtn && createCourseBtn.addEventListener('click', async () => {
+      setProjectsMessage('');
+      try {
+        const active = window.__activeProject;
+        const myRole = window.__activeProjectRole;
+        const canManage = myRole === 'admin' || myRole === 'methodologist';
+        if (!active) {
+          setProjectsMessage('Сначала выберите проект.', 'error');
+          return;
+        }
+        if (!canManage) {
+          setProjectsMessage('Недостаточно прав для создания курса.', 'error');
+          return;
+        }
+        openCourseCard(null, { canManage });
+      } catch (e) {
+        console.error(e);
+        setProjectsMessage(e.message || 'Не удалось открыть карточку курса.', 'error');
+      }
+    });
+
     (async function init() {
-      setActiveTab(resolveInitialTab());
+      let initialCollapsed = false;
+      try { initialCollapsed = localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === '1'; } catch {}
+      applySidebarCollapseState(initialCollapsed);
+
+      sidebarCollapseBtn && sidebarCollapseBtn.addEventListener('click', () => {
+        const next = !document.body.classList.contains('sidebar-collapsed');
+        applySidebarCollapseState(next);
+        try { localStorage.setItem(SIDEBAR_COLLAPSED_KEY, next ? '1' : '0'); } catch {}
+      });
+
+      const initialTab = resolveInitialTab();
+      setActiveTab(initialTab);
+      if (initialTab === 'lms') setLmsInnerTab('projects');
+      setLmsCardMode(false);
       const user = await requireAuthOrRedirect();
       if (!user) return;
+      currentUser = user;
       try {
         await bindCookieConsentToUser(user);
       } catch (e) {
@@ -2027,11 +4022,14 @@
       if (projectsSummary) projectsSummary.textContent = 'Загрузка…';
       if (projectsCountPill) projectsCountPill.textContent = '…';
       await loadMyProjects(user);
+      renderProjectsSingleListRight(user, [], window.__myProjects || []);
 
       // Load my pending invites (for any role)
       try {
         const myInv = await fetchMyInvites(user.email || '');
-        renderMyInvites(myInv);
+        renderInvitesTree(myInv, user);
+        window.__myInvitesPending = myInv;
+        renderProjectsSingleListRight(user, myInv, window.__myProjects || []);
       } catch (e) {
         console.error(e);
         if (myInvitesTbody) clearTbody(myInvitesTbody, 'Не удалось загрузить приглашения.');
@@ -2041,65 +4039,6 @@
       updateProjectAccessUI({ project: null, myRole: null });
       if (membersTbody) clearTbody(membersTbody, 'Выберите проект.');
       if (invitesTbody) clearTbody(invitesTbody, 'Выберите проект.');
-
-      projectSelect && projectSelect.addEventListener('change', async () => {
-        const pid = projectSelect.value || '';
-        await selectProjectById(user, pid);
-      });
-
-      createProjectBtn && createProjectBtn.addEventListener('click', async () => {
-        setProjectsMessage('');
-        const title = projectTitleInput ? projectTitleInput.value : '';
-        setLoadingBtn(createProjectBtn, true, 'Создаём…');
-        try {
-          const proj = await createProject(user, title);
-          if (projectTitleInput) projectTitleInput.value = '';
-          await loadMyProjects(user);
-          if (projectSelect) projectSelect.value = proj.id;
-          await selectProjectById(user, proj.id);
-          setProjectsMessage('Проект создан.', 'info');
-        } catch (e) {
-          console.error(e);
-          setProjectsMessage(e.message || 'Не удалось создать проект.', 'error');
-        } finally {
-          setLoadingBtn(createProjectBtn, false, 'Создать');
-        }
-      });
-
-    createCourseBtn && createCourseBtn.addEventListener('click', async () => {
-      setProjectsMessage('');
-      const user = await requireAuthOrRedirect();
-      if (!user) return;
-      const active = window.__activeProject;
-      const myRole = window.__activeProjectRole;
-      const canManage = myRole === 'admin' || myRole === 'methodologist';
-      if (!active) throw new Error('Сначала выберите проект.');
-      if (!canManage) throw new Error('Недостаточно прав для создания курса.');
-
-      const title = courseTitleInput ? courseTitleInput.value : '';
-      const cleanTitle = (title || '').trim().slice(0, 200);
-      if (!cleanTitle) {
-        setProjectsMessage('Введите название курса.', 'error');
-        return;
-      }
-
-      setLoadingBtn(createCourseBtn, true, 'Создаём…');
-      try {
-        const { error } = await supabase
-          .from('project_courses')
-          .insert({ project_id: active.id, title: cleanTitle, is_published: false });
-        if (error) throw error;
-        if (courseTitleInput) courseTitleInput.value = '';
-        setProjectsMessage('Курс создан (черновик). Откройте карточку и опубликуйте.', 'info');
-        const fresh = await fetchProjectCourses(active.id);
-        renderProjectCourses(fresh, { canManage: true });
-      } catch (e) {
-        console.error(e);
-        setProjectsMessage(formatErr(e) || 'Не удалось создать курс.', 'error');
-      } finally {
-        setLoadingBtn(createCourseBtn, false, 'Создать курс');
-      }
-    });
 
       inviteBtn && inviteBtn.addEventListener('click', async () => {
         const active = window.__activeProject;
