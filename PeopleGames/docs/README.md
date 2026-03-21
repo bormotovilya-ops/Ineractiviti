@@ -24,9 +24,8 @@
 
 ## Зависимости из основного проекта
 
-- В шаблоне **нет** серверного API. В оригинале курс обращается к:
-  - **/api/peoplegames/analytics** — аналитика прохождений (опционально; при отсутствии API блок «Аналитика» просто не загрузит данные).
-  - **/cabinet** — ссылка «Выйти в Кабинет». В новом проекте замените `href="/cabinet"` в `index.html` на свой URL выхода или на `#`.
+- **Аналитика в LMS (Интерактивити):** при запуске через `landing/scorm-player.html` плеер подставляет `window.__PEOPLE_GAMES_COURSE_ID__` и пишет в общие таблицы LMS (`course_analytics_*`, RPC `course_analytics_record_run` / `course_analytics_record_choice_event`). Сводка в кабинете — `course_analytics_get`. SQL: `tech/supabase-course-analytics-lms.sql` (одна схема на все курсы).
+- Локальный офлайн-режим по-прежнему копит черновую статистику в `localStorage` (`peoplegames_run_stats`), без записи в БД.
 
 Внешние ресурсы: шрифты Google Fonts, Tailwind и GSAP с CDN — курс работает при наличии интернета.
 

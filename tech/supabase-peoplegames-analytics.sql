@@ -1,0 +1,2 @@
+-- УСТАРЕЛО: единая LMS-схема перенесена в `supabase-course-analytics-lms.sql` (таблицы `course_analytics_*`, RPC `course_analytics_*`).
+-- Если вы уже выполняли этот файл в БД, см. блок миграции в конце `supabase-course-analytics-lms.sql` (закомментирован).

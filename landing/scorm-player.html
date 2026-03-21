@@ -1106,6 +1106,51 @@
           setStatus('Курс загружен.');
         }
       }
+
+      function injectPeopleGamesCourseContext() {
+        try {
+          const w = scoFrame.contentWindow;
+          if (w) {
+            try {
+              w.__PEOPLE_GAMES_COURSE_ID__ = courseId;
+            } catch (_) {}
+          }
+        } catch (_) {}
+      }
+      injectPeopleGamesCourseContext();
+      scoFrame.addEventListener('load', injectPeopleGamesCourseContext);
+
+      window.addEventListener('message', async (ev) => {
+        const d = ev.data;
+        if (!d || typeof d !== 'object') return;
+        if (ev.source !== scoFrame.contentWindow) return;
+        const msgCid = typeof d.courseId === 'string' && d.courseId ? d.courseId : courseId;
+        if (msgCid !== courseId) return;
+        try {
+          if (d.type === 'PEOPLE_GAMES_RUN_SAVE' && d.run) {
+            const r = d.run;
+            const { error } = await supabase.rpc('course_analytics_record_run', {
+              p_course_id: courseId,
+              p_points: typeof r.points === 'number' ? Math.floor(r.points) : 0,
+              p_result: typeof r.result === 'string' ? r.result : '',
+              p_learner_name: typeof r.name === 'string' ? r.name : '',
+              p_metrics: {
+                chapterPoints: r.chapterPoints && typeof r.chapterPoints === 'object' ? r.chapterPoints : {},
+                wrongByChapter: r.wrongByChapter && typeof r.wrongByChapter === 'object' ? r.wrongByChapter : {}
+              }
+            });
+            if (error && scormDebug()) console.warn('[LMS] course_analytics_record_run', error);
+          } else if (d.type === 'PEOPLE_GAMES_WRONG_CHOICE' && d.choiceId) {
+            const { error } = await supabase.rpc('course_analytics_record_choice_event', {
+              p_course_id: courseId,
+              p_choice_id: String(d.choiceId)
+            });
+            if (error && scormDebug()) console.warn('[LMS] course_analytics_record_choice_event', error);
+          }
+        } catch (e) {
+          if (scormDebug()) console.warn('[PeopleGames] message', e);
+        }
+      });
     })().catch((e) => {
       console.error(e);
       showErr(e.message || String(e));

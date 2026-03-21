@@ -833,6 +833,129 @@
       margin-top: 1.15rem;
     }
 
+    /* Модалка курса: один размер для обеих вкладок */
+    .modal .modal-body.course-modal-body {
+      width: min(920px, 96vw);
+      max-width: 96vw;
+      display: flex;
+      flex-direction: column;
+      max-height: min(92vh, 880px);
+      overflow: hidden;
+      padding-bottom: 1rem;
+    }
+    .course-modal-panels-shell {
+      flex: 1 1 auto;
+      min-height: min(52vh, 480px);
+      max-height: min(58vh, 560px);
+      overflow-x: hidden;
+      overflow-y: auto;
+      margin: 0 -0.15rem;
+      padding: 0 0.15rem;
+    }
+    .course-modal-actions-footer {
+      flex-shrink: 0;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem;
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+    }
+    .course-modal-footer-edit {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .course-modal-footer-right {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+      margin-left: auto;
+    }
+    .course-modal-main-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin: 0.5rem 0 0.75rem;
+    }
+    .course-modal-stats {
+      margin-top: 0.35rem;
+    }
+    .course-modal-stats h4 {
+      margin: 0 0 0.5rem;
+      font-size: 0.95rem;
+      font-weight: 650;
+    }
+    .cm-analytics-tabbar {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+      padding: 0.25rem;
+      border-radius: 0.5rem;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: rgba(2, 6, 23, 0.35);
+      margin-bottom: 0.65rem;
+    }
+    .cm-analytics-tab {
+      border: none;
+      border-radius: 0.35rem;
+      padding: 0.28rem 0.55rem;
+      font-size: 0.78rem;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text-muted);
+    }
+    .cm-analytics-tab.cm-analytics-tab--on {
+      background: rgba(56, 189, 248, 0.25);
+      color: var(--text);
+      font-weight: 600;
+    }
+    .cm-analytics-panel { margin-bottom: 0.5rem; }
+    .cm-analytics-panel[hidden] { display: none !important; }
+    .cm-stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.65rem;
+    }
+    @media (max-width: 640px) {
+      .cm-stats-grid { grid-template-columns: 1fr; }
+    }
+    .cm-stats-card {
+      border-radius: 0.75rem;
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      background: rgba(2, 6, 23, 0.35);
+      padding: 0.55rem 0.6rem;
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+    }
+    .cm-stats-card h5 {
+      margin: 0 0 0.4rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .cm-stats-card canvas {
+      width: 100%;
+      flex: 1;
+      min-height: 120px;
+      display: block;
+    }
+    .cm-stats-list {
+      margin: 0;
+      padding-left: 1.1rem;
+      font-size: 0.78rem;
+      line-height: 1.45;
+      color: var(--text);
+      max-height: 240px;
+      overflow-y: auto;
+    }
+    .cm-stats-muted { color: var(--text-muted); font-size: 0.82rem; }
+
     .select {
       border-radius: 0.8rem;
       border: 1px solid rgba(148, 163, 184, 0.28);
@@ -3800,6 +3923,301 @@
       coursesContainer.appendChild(listEl);
     }
 
+    const CM_PG_WRONG_LABELS = {
+      ch1_0: 'Конечно, Артур Борисович. Я всё сделаю, не переживайте.',
+      ch1_1: 'Опять я?! У меня вообще-то личная жизнь есть!',
+      ch2_1_0: 'Не паникуй. Попробуй выгрузить данные через Power BI...',
+      ch2_2_0: 'Тогда просто скопируй прошлый отчёт и подставь цифры вручную.',
+      ch2_2_1: 'Жаль. Похоже, тебе предстоит непростой вечер. Ладно, я пойду?',
+      ch2_3_0: 'Ладно, давай файл, я быстро гляну формулы.',
+      ch2_3_1: 'Хватит ныть, Лена! Просто сядь и сделай, там работы на час!',
+      ch3_1_0: 'Это твоя ответственность — проверить файл перед показом!',
+      ch3_1_1: 'Ладно, я вижу, ты без сил. Давай флешку, я сам подправлю...',
+      ch3_2_0: 'Хорошо, пусть Андрей поможет. Я прослежу.',
+      ch4_parent: 'Алиса, «не перегружать» — про дизайн, а не про вырезание сути.',
+      ch4_rescuer: 'Смело, но рискованно. Давай я выберу три ключевые цифры...',
+      ch4_trap_shame: 'Да, возвращаем. Результат важнее твоего стыда.',
+      ch4_trap_compromise: 'Не хочу, чтобы тебе было стыдно. Давай оставим цифры только на одном слайде?',
+      ch4_trap_guarantee: 'Конечно. Я всегда беру ответственность на себя. Просто сделай.',
+      ch4_trap_weakness: 'Алиса, мы в одной лодке. Зачем эти формальности с фиксацией?',
+      ch4_fail_worker: 'Сочувствую. Иди домой, я сам всё докручу.',
+      ch4_fail_tyrant: 'Утром будет поздно. Выпей таблетку и доделай...'
+    };
+
+    let __cmPgAnalyticsTabsBound = false;
+    function initCmCourseAnalyticsTabsOnce() {
+      const tabs = document.getElementById('cm-analytics-tabs');
+      if (!tabs || __cmPgAnalyticsTabsBound) return;
+      __cmPgAnalyticsTabsBound = true;
+      const scope = tabs.closest('#courseModalPanelStats') || document.getElementById('courseModal') || document;
+      tabs.querySelectorAll('.cm-analytics-tab').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const tab = btn.getAttribute('data-analytics-tab');
+          tabs.querySelectorAll('.cm-analytics-tab').forEach((b) => {
+            b.classList.toggle('cm-analytics-tab--on', b === btn);
+          });
+          scope.querySelectorAll('.cm-analytics-panel').forEach((p) => {
+            p.hidden = p.getAttribute('data-analytics-panel') !== tab;
+          });
+        });
+      });
+    }
+
+    async function loadPeoplegamesAnalyticsForCourse(courseId) {
+      if (!courseId) return { runs: [], wrongChoices: {} };
+      try {
+        const { data, error } = await supabase.rpc('course_analytics_get', { p_course_id: courseId });
+        if (error) {
+          console.warn('course_analytics_get', error);
+          return { runs: [], wrongChoices: {} };
+        }
+        const payload = data && typeof data === 'object' ? data : {};
+        return {
+          runs: Array.isArray(payload.runs) ? payload.runs : [],
+          wrongChoices: payload.wrongChoices && typeof payload.wrongChoices === 'object' ? payload.wrongChoices : {}
+        };
+      } catch (e) {
+        console.warn('course_analytics_get', e);
+        return { runs: [], wrongChoices: {} };
+      }
+    }
+
+    function renderCourseModalPeoplegamesAnalytics(courseId) {
+      const totalEl = document.getElementById('cm-stats-total-runs');
+      if (totalEl) totalEl.textContent = 'Загрузка…';
+      const tabBar = document.getElementById('cm-analytics-tabs');
+      if (tabBar) {
+        tabBar.querySelectorAll('.cm-analytics-tab').forEach((b) => {
+          const on = b.getAttribute('data-analytics-tab') === 'runs';
+          b.classList.toggle('cm-analytics-tab--on', on);
+        });
+      }
+      const statsScope = document.getElementById('courseModalPanelStats');
+      if (statsScope) {
+        statsScope.querySelectorAll('.cm-analytics-panel').forEach((p) => {
+          p.hidden = p.getAttribute('data-analytics-panel') !== 'runs';
+        });
+      }
+      loadPeoplegamesAnalyticsForCourse(courseId).then((data) => {
+        const stats = data.runs;
+        const wrongChoicesData = data.wrongChoices;
+        const emptyEl = document.getElementById('cm-stats-empty');
+        const daysCanvas = document.getElementById('cm-stats-by-day-canvas');
+        const ratingCanvas = document.getElementById('cm-stats-rating-canvas');
+        const distCanvas = document.getElementById('cm-stats-points-dist-canvas');
+        const progressCanvas = document.getElementById('cm-stats-progress-canvas');
+        const chaptersPie = document.getElementById('cm-stats-chapters-pie');
+        const chaptersDiff = document.getElementById('cm-stats-chapters-difficulty');
+        const outcomesPie = document.getElementById('cm-stats-outcomes-pie');
+        const wrongList = document.getElementById('cm-stats-wrong-choices-list');
+
+        if (!totalEl || !emptyEl) return;
+
+        if (!stats.length) {
+          totalEl.textContent = 'Пока ни одного завершённого прохождения.';
+          emptyEl.hidden = false;
+        } else {
+          emptyEl.hidden = true;
+          totalEl.textContent = `Всего завершённых прохождений: ${stats.length}`;
+        }
+
+        const countsByDate = {};
+        stats.forEach((s) => {
+          const d = s.date || new Date(s.ts || Date.now()).toISOString().slice(0, 10);
+          countsByDate[d] = (countsByDate[d] || 0) + 1;
+        });
+        const dayLabels = Object.keys(countsByDate).sort();
+        const dayValues = dayLabels.map((d) => countsByDate[d]);
+
+        const sortedByPoints = stats.slice().sort((a, b) => (b.points || 0) - (a.points || 0));
+        const ratingLabels = sortedByPoints.map((s, idx) => {
+          const baseName = (s.name && s.name.trim()) ? s.name.trim() : 'Коллега';
+          return `${idx + 1}. ${baseName}`;
+        });
+        const ratingValues = sortedByPoints.map((s) => s.points || 0);
+
+        const progressLabels = stats.map((_, i) => String(i + 1));
+        const progressValues = stats.map((s) => s.points || 0);
+
+        const countsByPoints = {};
+        stats.forEach((s) => {
+          const p = typeof s.points === 'number' ? s.points : 0;
+          countsByPoints[p] = (countsByPoints[p] || 0) + 1;
+        });
+        const distPointLabels = Object.keys(countsByPoints).map((k) => parseInt(k, 10)).sort((a, b) => b - a);
+        const distLabels = distPointLabels.map((p) => String(p));
+        const distValues = distPointLabels.map((p) => countsByPoints[p]);
+
+        const chLabels = ['Гл.1', 'Гл.2', 'Гл.3', 'Гл.4', 'Гл.5'];
+        const chKeys = ['ch1', 'ch2', 'ch3', 'ch4', 'ch5'];
+        const chPieValues = [0, 0, 0, 0, 0];
+        stats.forEach((s) => {
+          const cp = s.chapterPoints || {};
+          chKeys.forEach((k, i) => { chPieValues[i] += Math.max(0, cp[k] || 0); });
+        });
+        const chPieTotal = chPieValues.reduce((a, b) => a + b, 0);
+        if (chPieTotal === 0) chPieValues.fill(0);
+
+        const wrongByCh = [0, 0, 0, 0, 0];
+        stats.forEach((s) => {
+          const wb = s.wrongByChapter || {};
+          chKeys.forEach((k, i) => { wrongByCh[i] += wb[k] || 0; });
+        });
+        const wrongChLabels = chLabels.map((l, i) => `${l} (${wrongByCh[i]})`);
+
+        const outcomeCounts = { fired: 0, rewarded: 0, promoted: 0 };
+        stats.forEach((s) => {
+          const r = (s.result || '').toLowerCase();
+          if (r === 'fired') outcomeCounts.fired++;
+          else if (r === 'rewarded') outcomeCounts.rewarded++;
+          else if (r === 'promoted') outcomeCounts.promoted++;
+        });
+        const outcomeLabels = ['Уволен', 'Наградили коллег', 'Повышен'];
+        const outcomeValues = [outcomeCounts.fired, outcomeCounts.rewarded, outcomeCounts.promoted];
+
+        function drawPieChart(canvas, labels, values, colors) {
+          if (!canvas) return;
+          const ctx = canvas.getContext('2d');
+          const w = canvas.width = canvas.clientWidth || 280;
+          const h = canvas.height = canvas.clientHeight || 200;
+          ctx.clearRect(0, 0, w, h);
+          const sum = values.reduce((a, b) => a + b, 0);
+          if (sum === 0) return;
+          const cols = colors || ['#60a5fa', '#facc15', '#22c55e', '#a5b4fc', '#f472b6'];
+          const legH = Math.min(50, labels.length * 14);
+          const pieH = h - legH - 10;
+          const rad = Math.min(w, pieH) / 2 - 12;
+          const cx = w / 2;
+          const cy = (pieH / 2) + 5;
+          let start = -Math.PI / 2;
+          values.forEach((v, i) => {
+            const sweep = (v / sum) * 2 * Math.PI;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.arc(cx, cy, rad, start, start + sweep);
+            ctx.closePath();
+            ctx.fillStyle = cols[i % cols.length];
+            ctx.fill();
+            start += sweep;
+          });
+          ctx.font = '10px system-ui, sans-serif';
+          const legY = h - legH + 8;
+          labels.forEach((l, i) => {
+            ctx.fillStyle = cols[i % cols.length];
+            ctx.fillRect(8, legY - 6 + i * 14, 10, 8);
+            ctx.fillStyle = 'rgba(226,232,240,0.95)';
+            ctx.fillText((values[i] > 0 ? `${l}: ${values[i]}` : l), 22, legY + i * 14);
+          });
+        }
+
+        function drawLineChart(canvas, labels, values, color) {
+          const ctx = canvas.getContext('2d');
+          const w = canvas.width = canvas.clientWidth || 320;
+          const h = canvas.height = canvas.clientHeight || 180;
+          ctx.clearRect(0, 0, w, h);
+          if (!labels.length) return;
+          let maxVal = Math.max.apply(null, values);
+          if (maxVal === 0) maxVal = 1;
+          const paddingLeft = 30;
+          const paddingRight = 10;
+          const paddingTop = 10;
+          const paddingBottom = 25;
+          const innerW = w - paddingLeft - paddingRight;
+          const innerH = h - paddingTop - paddingBottom;
+          ctx.strokeStyle = 'rgba(148,163,184,0.4)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(paddingLeft, paddingTop);
+          ctx.lineTo(paddingLeft, h - paddingBottom);
+          ctx.lineTo(w - paddingRight, h - paddingBottom);
+          ctx.stroke();
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          labels.forEach((_, i) => {
+            const x = paddingLeft + (labels.length === 1 ? innerW / 2 : innerW * (i / (labels.length - 1)));
+            const y = paddingTop + innerH * (1 - values[i] / maxVal);
+            if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+          });
+          ctx.stroke();
+          ctx.fillStyle = 'rgba(148,163,184,0.9)';
+          ctx.font = '10px system-ui, -apple-system, BlinkMacSystemFont, sans-serif';
+          ctx.fillText('0', 4, h - paddingBottom + 3);
+          ctx.fillText(String(maxVal), 4, paddingTop + 4);
+          labels.forEach((label, i) => {
+            const x = paddingLeft + (labels.length === 1 ? innerW / 2 : innerW * (i / (labels.length - 1)));
+            const axisY = h - paddingBottom + 10;
+            ctx.save();
+            ctx.translate(x, axisY);
+            ctx.rotate(-Math.PI / 4);
+            ctx.fillText(label, 0, 0);
+            ctx.restore();
+            const y = paddingTop + innerH * (1 - values[i] / maxVal) - 6;
+            ctx.fillText(String(values[i]), x - 4, y);
+          });
+        }
+
+        function drawBarChart(canvas, labels, values, color) {
+          const ctx = canvas.getContext('2d');
+          const w = canvas.width = canvas.clientWidth || 320;
+          const h = canvas.height = canvas.clientHeight || 180;
+          ctx.clearRect(0, 0, w, h);
+          if (!labels.length) return;
+          let maxVal = Math.max.apply(null, values);
+          if (maxVal === 0) maxVal = 1;
+          const paddingLeft = 30;
+          const paddingRight = 10;
+          const paddingTop = 10;
+          const paddingBottom = 10;
+          const innerW = w - paddingLeft - paddingRight;
+          const innerH = h - paddingTop - paddingBottom;
+          const barH = (innerH / labels.length) * 0.6;
+          ctx.font = '10px system-ui, -apple-system, BlinkMacSystemFont, sans-serif';
+          values.forEach((val, i) => {
+            const yCenter = paddingTop + (innerH * (i + 0.5)) / labels.length;
+            const barWidth = innerW * (val / maxVal);
+            const y = yCenter - barH / 2;
+            ctx.fillStyle = color;
+            ctx.fillRect(paddingLeft, y, barWidth, barH);
+            ctx.fillStyle = 'rgba(148,163,184,0.9)';
+            ctx.fillText(labels[i], 4, yCenter + 3);
+            ctx.fillStyle = 'rgba(15,23,42,0.95)';
+            let textX = paddingLeft + Math.min(barWidth - 16, innerW - 20);
+            if (barWidth < 24) {
+              textX = paddingLeft + barWidth + 4;
+              ctx.fillStyle = 'rgba(226,232,240,0.95)';
+            }
+            ctx.fillText(String(val), textX, yCenter + 3);
+          });
+        }
+
+        requestAnimationFrame(() => {
+          drawLineChart(daysCanvas, dayLabels, dayValues, '#60a5fa');
+          drawBarChart(ratingCanvas, ratingLabels, ratingValues, '#facc15');
+          drawLineChart(progressCanvas, progressLabels, progressValues, '#a5b4fc');
+          drawPieChart(chaptersPie, chLabels, chPieValues, ['#60a5fa', '#facc15', '#22c55e', '#a5b4fc', '#f472b6']);
+          drawBarChart(chaptersDiff, wrongChLabels, wrongByCh, '#ef4444');
+          drawPieChart(outcomesPie, outcomeLabels, outcomeValues, ['#ef4444', '#f59e0b', '#22c55e']);
+          drawBarChart(distCanvas, distLabels, distValues, '#22c55e');
+        });
+
+        if (wrongList) {
+          const wrongData = wrongChoicesData;
+          const sorted = Object.keys(wrongData).map((k) => ({ id: k, count: wrongData[k] })).sort((a, b) => b.count - a.count);
+          wrongList.innerHTML = '';
+          sorted.forEach((item) => {
+            const li = document.createElement('li');
+            const label = CM_PG_WRONG_LABELS[item.id] || (`Гл.5, в. ${(item.id.split('_')[1] || '?')} — неверный ответ`);
+            li.textContent = `${label.length > 55 ? `${label.slice(0, 52)}...` : label} — ${item.count}`;
+            wrongList.appendChild(li);
+          });
+          if (!sorted.length) {
+            wrongList.innerHTML = '<li class="cm-stats-muted">Данных пока нет</li>';
+          }
+        }
+      });
+    }
+
     function openCourseCard(course, { canManage }) {
       let workingCourse = (course && typeof course === 'object') ? { ...course } : {};
       if (!canManage && workingCourse.id) {
@@ -3813,13 +4231,23 @@
       }
       // lightweight modal
       let modal = document.getElementById('courseModal');
+      if (modal && !document.getElementById('courseModalFooterEditBlock')) {
+        try { modal.remove(); } catch (_) {}
+        modal = null;
+      }
       if (!modal) {
         modal = document.createElement('div');
         modal.id = 'courseModal';
         modal.className = 'modal';
         modal.innerHTML = `
-          <div class="modal-body">
+          <div class="modal-body course-modal-body" id="courseModalBodyRoot">
             <h3 style="margin:0 0 .35rem;">Курс</h3>
+            <div class="course-modal-main-tabs auth-tabs" role="tablist" aria-label="Разделы курса">
+              <button type="button" class="auth-tab auth-tab-active" id="courseModalTabEdit" data-cmodal-tab="edit" aria-selected="true">Настройки</button>
+              <button type="button" class="auth-tab" id="courseModalTabStats" data-cmodal-tab="stats" aria-selected="false">Статистика</button>
+            </div>
+            <div class="course-modal-panels-shell">
+            <div id="courseModalPanelEdit">
             <div class="form-row">
               <div class="profile-label">Название</div>
               <input class="input" id="courseEditTitle" />
@@ -3844,17 +4272,83 @@
             <div class="form-row" id="courseLaunchRow" style="margin-top:.35rem;">
               <button type="button" class="btn" id="courseLaunchScormBtn" style="width:100%;justify-content:center;">▶ Запустить курс (новое окно)</button>
             </div>
-            <div class="row" style="align-items:center;justify-content:space-between;margin-top:.5rem;">
-              <label class="muted" style="display:flex;align-items:center;gap:.5rem;">
-                <input type="checkbox" id="courseEditPublished" />
-                Опубликован
-              </label>
-              <div style="display:flex;gap:.5rem;">
+            </div>
+            <div id="courseModalPanelStats" class="course-modal-stats" hidden>
+              <p id="courseModalStatsNeedSave" class="cm-stats-muted" hidden>Сохраните курс в базе, чтобы видеть статистику прохождений.</p>
+              <div id="courseModalStatsInner" hidden>
+                <h4>Аналитика курса</h4>
+                <div class="cm-analytics-tabbar" id="cm-analytics-tabs" role="tablist">
+                  <button type="button" class="cm-analytics-tab cm-analytics-tab--on" data-analytics-tab="runs">Прохождения</button>
+                  <button type="button" class="cm-analytics-tab" data-analytics-tab="chapters">Главы</button>
+                  <button type="button" class="cm-analytics-tab" data-analytics-tab="outcomes">Исходы</button>
+                  <button type="button" class="cm-analytics-tab" data-analytics-tab="traps">Ловушки</button>
+                </div>
+                <p id="cm-stats-total-runs" style="margin:0 0 .25rem;font-size:.82rem;"></p>
+                <p id="cm-stats-empty" class="cm-stats-muted" hidden>Данных пока нет — завершите хотя бы одно прохождение.</p>
+                <div class="cm-analytics-panel" data-analytics-panel="runs" id="cm-panel-runs">
+                  <div class="cm-stats-grid">
+                    <div class="cm-stats-card">
+                      <h5>Прохождения по дням</h5>
+                      <canvas id="cm-stats-by-day-canvas"></canvas>
+                    </div>
+                    <div class="cm-stats-card">
+                      <h5>Рейтинг по баллам</h5>
+                      <canvas id="cm-stats-rating-canvas"></canvas>
+                    </div>
+                  </div>
+                  <div class="cm-stats-card" style="margin-top:.65rem;">
+                    <h5>Прогресс по попыткам</h5>
+                    <canvas id="cm-stats-progress-canvas"></canvas>
+                  </div>
+                </div>
+                <div class="cm-analytics-panel" data-analytics-panel="chapters" id="cm-panel-chapters" hidden>
+                  <div class="cm-stats-grid">
+                    <div class="cm-stats-card">
+                      <h5>Вклад глав в баллы</h5>
+                      <canvas id="cm-stats-chapters-pie"></canvas>
+                    </div>
+                    <div class="cm-stats-card">
+                      <h5>Сложность глав (ошибки)</h5>
+                      <canvas id="cm-stats-chapters-difficulty"></canvas>
+                    </div>
+                  </div>
+                </div>
+                <div class="cm-analytics-panel" data-analytics-panel="outcomes" id="cm-panel-outcomes" hidden>
+                  <div class="cm-stats-grid">
+                    <div class="cm-stats-card">
+                      <h5>Исходы курса</h5>
+                      <canvas id="cm-stats-outcomes-pie"></canvas>
+                    </div>
+                    <div class="cm-stats-card">
+                      <h5>Распределение по баллам</h5>
+                      <canvas id="cm-stats-points-dist-canvas"></canvas>
+                    </div>
+                  </div>
+                </div>
+                <div class="cm-analytics-panel" data-analytics-panel="traps" id="cm-panel-traps" hidden>
+                  <div class="cm-stats-card">
+                    <h5>Варианты, где ошибались чаще всего</h5>
+                    <ol id="cm-stats-wrong-choices-list" class="cm-stats-list"></ol>
+                  </div>
+                </div>
+                <p class="cm-stats-muted" style="margin-top:.5rem;">Переключайте вкладки сверху</p>
+              </div>
+            </div>
+            </div>
+            <div class="message-banner" id="courseEditMsg" style="margin-top:.5rem;"></div>
+            <div class="course-modal-actions-footer">
+              <div id="courseModalFooterEditBlock" class="course-modal-footer-edit">
+                <label class="muted" style="display:flex;align-items:center;gap:.5rem;">
+                  <input type="checkbox" id="courseEditPublished" />
+                  Опубликован
+                </label>
                 <button type="button" class="btn" id="courseSaveBtn">Сохранить</button>
+              </div>
+              <div class="course-modal-footer-right">
+                <button type="button" class="btn btn-ghost btn-danger" id="courseDeleteBtn" hidden>Удалить курс</button>
                 <button type="button" class="btn btn-ghost" id="courseCloseBtn">Закрыть</button>
               </div>
             </div>
-            <div class="message-banner" id="courseEditMsg" style="margin-top:.5rem;"></div>
             <div class="course-modal-overlay" id="courseSaveBeforeScormOverlay" hidden>
               <div class="course-modal-sheet" role="dialog" aria-modal="true" aria-labelledby="courseSaveBeforeScormTitle">
                 <div class="course-modal-sheet-icon" aria-hidden="true">💾</div>
@@ -3900,6 +4394,8 @@
       const launchRow = document.getElementById('courseLaunchRow');
       const launchScormBtn = document.getElementById('courseLaunchScormBtn');
       const closeBtn = document.getElementById('courseCloseBtn');
+      const deleteBtn = document.getElementById('courseDeleteBtn');
+      const footerEditBlock = document.getElementById('courseModalFooterEditBlock');
       const msgEl = document.getElementById('courseEditMsg');
       const courseModalBody = modal.querySelector('.modal-body');
       if (courseModalBody && !document.getElementById('courseSaveBeforeScormOverlay')) {
@@ -4046,6 +4542,16 @@
             if (workingCourse.id) launchScormCourseInNewWindow(workingCourse.id);
           };
         }
+        const statsNeedSaveEl = document.getElementById('courseModalStatsNeedSave');
+        const statsInnerEl = document.getElementById('courseModalStatsInner');
+        if (statsNeedSaveEl && statsInnerEl) {
+          statsNeedSaveEl.hidden = !!workingCourse.id;
+          statsInnerEl.hidden = !workingCourse.id;
+        }
+        if (deleteBtn) {
+          deleteBtn.hidden = !canManage || !workingCourse.id;
+          deleteBtn.disabled = false;
+        }
       };
 
       if (titleEl) titleEl.value = workingCourse.title ? workingCourse.title : '';
@@ -4053,7 +4559,7 @@
       if (pubEl) pubEl.checked = !!workingCourse.is_published;
 
       const setDisabled = (disabled) => {
-        [titleEl, descEl, pubEl, saveBtn, scormZipInput, scormUploadBtn].forEach((x) => { if (x) x.disabled = disabled; });
+        [titleEl, descEl, pubEl, saveBtn, scormZipInput, scormUploadBtn, deleteBtn].forEach((x) => { if (x) x.disabled = disabled; });
       };
 
       setDisabled(!canManage);
@@ -4147,6 +4653,77 @@
         resetScormProgressState();
       };
       closeBtn && (closeBtn.onclick = close);
+      if (deleteBtn) {
+        deleteBtn.onclick = async () => {
+          if (!workingCourse.id || !canManage || deleteBtn.disabled) return;
+          const t = (titleEl && titleEl.value ? titleEl.value.trim() : '') || workingCourse.title || '';
+          if (!confirm(`Удалить курс «${t || 'без названия'}»? Это действие нельзя отменить.`)) return;
+          setMsg('');
+          setLoadingBtn(deleteBtn, true, 'Удаление…');
+          setDisabled(true);
+          try {
+            const { error } = await supabase.from('project_courses').delete().eq('id', workingCourse.id);
+            if (error) throw error;
+            close();
+            await refreshCoursesListUi();
+            setProjectsMessage('Курс удалён.');
+          } catch (e) {
+            console.error(e);
+            setMsg(formatErr(e) || 'Не удалось удалить курс.', true);
+          } finally {
+            setLoadingBtn(deleteBtn, false, 'Удалить курс');
+            setDisabled(!canManage);
+          }
+        };
+      }
+
+      const courseModalBodyEl = document.getElementById('courseModalBodyRoot') || courseModalBody;
+      const tabEdit = document.getElementById('courseModalTabEdit');
+      const tabStats = document.getElementById('courseModalTabStats');
+      const panelEdit = document.getElementById('courseModalPanelEdit');
+      const panelStats = document.getElementById('courseModalPanelStats');
+      const statsNeedSave = document.getElementById('courseModalStatsNeedSave');
+      const statsInner = document.getElementById('courseModalStatsInner');
+
+      const setCourseModalMainTab = (which) => {
+        const ed = which === 'edit';
+        if (tabEdit) {
+          tabEdit.classList.toggle('auth-tab-active', ed);
+          tabEdit.setAttribute('aria-selected', ed);
+        }
+        if (tabStats) {
+          tabStats.classList.toggle('auth-tab-active', !ed);
+          tabStats.setAttribute('aria-selected', !ed);
+        }
+        if (panelEdit) panelEdit.hidden = !ed;
+        if (panelStats) panelStats.hidden = ed;
+        if (footerEditBlock) footerEditBlock.hidden = !ed;
+        if (!ed) {
+          if (!workingCourse.id) {
+            if (statsNeedSave) statsNeedSave.hidden = false;
+            if (statsInner) statsInner.hidden = true;
+          } else {
+            if (statsNeedSave) statsNeedSave.hidden = true;
+            if (statsInner) statsInner.hidden = false;
+            initCmCourseAnalyticsTabsOnce();
+            requestAnimationFrame(() => renderCourseModalPeoplegamesAnalytics(workingCourse.id));
+          }
+        }
+      };
+
+      if (tabEdit) tabEdit.onclick = () => setCourseModalMainTab('edit');
+      if (tabStats) tabStats.onclick = () => setCourseModalMainTab('stats');
+
+      if (statsNeedSave && statsInner) {
+        if (!workingCourse.id) {
+          statsNeedSave.hidden = false;
+          statsInner.hidden = true;
+        } else {
+          statsNeedSave.hidden = true;
+          statsInner.hidden = false;
+        }
+      }
+      setCourseModalMainTab('edit');
 
       modal.hidden = false;
       modal.setAttribute('aria-hidden', 'false');
@@ -4161,6 +4738,10 @@
             setMsg(created ? 'Создано.' : 'Сохранено.');
             syncCourseModalAfterPersist();
             await refreshCoursesListUi();
+            const onStats = tabStats && tabStats.classList.contains('auth-tab-active');
+            if (onStats && workingCourse.id) {
+              requestAnimationFrame(() => renderCourseModalPeoplegamesAnalytics(workingCourse.id));
+            }
           } catch (e) {
             console.error(e);
             setMsg(formatErr(e) || 'Не удалось сохранить.', true);

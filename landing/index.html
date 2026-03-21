@@ -324,9 +324,16 @@
       :root {
         --header-height: 56px;
         --mobile-ui-clearance: calc(4.75rem + env(safe-area-inset-bottom));
+        /* Единый размер заголовков слайдов (h2), кроме первого экрана */
+        --landing-slide-heading-size: clamp(1.02rem, 4.4vmin, 1.28rem);
       }
       section.landing-slide {
         padding: 0.85rem 0.8rem calc(0.5rem + var(--mobile-ui-clearance));
+      }
+      /* FAQ: не центрировать карточку по вертикали — иначе блок «прыгает» вверх относительно остальных слайдов */
+      #faq.landing-slide {
+        justify-content: flex-start;
+        align-items: stretch;
       }
       .slide-card {
         border-radius: 20px;
@@ -2111,8 +2118,8 @@
       width: 100%;
       max-width: none;
       margin: 0 !important;
-      min-height: 100%;
-      align-content: center;
+      min-height: 0;
+      align-content: start;
     }
     @media (max-width: 900px) {
       #faq .flip-cards.col-3 {
@@ -2214,7 +2221,7 @@
       .role-slide .role-slide-inner h2 {
         display: block !important;
         margin-bottom: 0.22rem;
-        font-size: clamp(0.92rem, 3.6vmin, 1.2rem);
+        font-size: var(--landing-slide-heading-size);
         line-height: 1.15;
       }
       .role-slide .role-slide-inner > p {
@@ -2358,8 +2365,8 @@
       }
       .for-you-slide .for-you-header .font-display,
       #forYouTitle {
-        font-size: clamp(0.92rem, 3.6vmin, 1.18rem) !important;
-        line-height: 1.18;
+        font-size: var(--landing-slide-heading-size) !important;
+        line-height: 1.15;
       }
       .for-you-slide ul.for-you-list {
         margin: 0 auto 0.5rem;
@@ -2379,7 +2386,7 @@
       }
 
       /* Демо: один курс на мобиле, описание помещается */
-      #demo .demo-courses > article.demo-course:nth-child(n+2) {
+      #demo .demo-courses > .demo-course:nth-child(n+2) {
         display: none !important;
       }
       #demo .demo-courses {
@@ -2403,16 +2410,16 @@
 
       /* «Кому не подходит» — мельче текст на обороте */
       #not-for-you .not-for-you-cards .flip-card-back p {
-        font-size: 0.64rem;
-        line-height: 1.28;
+        font-size: 0.52rem;
+        line-height: 1.22;
       }
 
-      /* FAQ: 2×3, текст на обороте ещё мельче */
+      /* FAQ: 2×3, строки по контенту — без «растягивания» сетки вверх экрана */
       #faq .flip-cards.col-3 {
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-        grid-template-rows: repeat(3, minmax(0, 1fr));
+        grid-auto-rows: auto;
         gap: 0.36rem;
-        align-content: stretch;
+        align-content: start;
         min-height: 0;
       }
       #faq .flip-cards.col-3 .flip-card {
@@ -3107,6 +3114,16 @@
       margin-bottom: 0.35rem !important;
       line-height: 1.15;
     }
+
+    @media (max-width: 768px) {
+      /* Один размер заголовка на всех слайдах с h2 (поверх точечных правил) */
+      section.landing-slide:not(.intro-slide) h2.font-display,
+      .landing-slide:not(.intro-slide) .slide-card-header h2.font-display,
+      .landing-slide:not(.intro-slide) .auth-top h2.font-display {
+        font-size: var(--landing-slide-heading-size) !important;
+        line-height: 1.15;
+      }
+    }
   </style>
 </head>
 <body>
@@ -3494,16 +3511,14 @@
         <p>Пример формата, который мы адаптируем под задачи вашей компании: отрасли, регламенты, роли и тон коммуникации.</p>
         <p style="margin-top:0.35rem;font-size:0.88rem;color:var(--text-muted);">Запустите демо и почувствуйте тренажёр «изнутри» — так же проходят ваши сотрудники.</p>
         <div class="demo-courses">
-          <article class="demo-course">
-            <a href="demo/peoplegames/index.html" class="demo-course demo-course-one-click" target="_blank" rel="noopener">
-              <img class="demo-course-img" src="demo/peoplegames/assets/images/First.png" alt="Офисные игры: обложка демо-курса" />
-              <div class="demo-course-body">
-                <h3>Офисные игры: эволюция из пешки в гроссмейстера</h3>
-                <p>Интерактивная новелла по Берну: как не стать пешкой в корпоративных играх и выстроить свою стратегию.</p>
-                <span class="demo-course-link">Пройти курс →</span>
-              </div>
-            </a>
-          </article>
+          <a href="demo/peoplegames/index.html" class="demo-course demo-course-one-click" target="_blank" rel="noopener">
+            <img class="demo-course-img" src="demo/peoplegames/assets/images/First.png" alt="Офисные игры: обложка демо-курса" />
+            <div class="demo-course-body">
+              <h3>Офисные игры: эволюция из пешки в гроссмейстера</h3>
+              <p>Интерактивная новелла по Берну: как не стать пешкой в корпоративных играх и выстроить свою стратегию.</p>
+              <span class="demo-course-link">Пройти курс →</span>
+            </div>
+          </a>
           <article class="demo-course">
             <div class="demo-course-placeholder">Скоро</div>
             <div class="demo-course-body">
