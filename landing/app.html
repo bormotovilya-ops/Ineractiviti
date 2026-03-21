@@ -876,6 +876,18 @@
       gap: 0.5rem;
       margin-left: auto;
     }
+    .course-launch-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      width: 100%;
+      align-items: stretch;
+    }
+    .course-launch-actions .btn {
+      flex: 1 1 12rem;
+      justify-content: center;
+    }
+
     .course-modal-main-tabs {
       display: flex;
       flex-wrap: wrap;
@@ -1377,6 +1389,71 @@
         return `${SUPABASE_URL}/storage/v1/object/public/${SCORM_PLAYER_BUCKET}/${SCORM_PLAYER_FILENAME}?${q}`;
       }
       return new URL(`scorm-player.html?${q}`, window.location.href).href;
+    }
+
+    /** Короткий slug из названия курса для «красивой» ссылки (латиница, без пробелов). */
+    function slugifyCourseTitleForUrl(raw) {
+      const CYR_TO_LAT = {
+        а: 'a', б: 'b', в: 'v', г: 'g', д: 'd', е: 'e', ё: 'e', ж: 'zh', з: 'z', и: 'i', й: 'y',
+        к: 'k', л: 'l', м: 'm', н: 'n', о: 'o', п: 'p', р: 'r', с: 's', т: 't', у: 'u', ф: 'f',
+        х: 'h', ц: 'ts', ч: 'ch', ш: 'sh', щ: 'sch', ы: 'y', э: 'e', ю: 'yu', я: 'ya', ъ: '', ь: ''
+      };
+      let s = String(raw || '').trim().toLowerCase();
+      if (!s) return '';
+      let out = '';
+      for (let i = 0; i < s.length; i++) {
+        const ch = s[i];
+        if (/[a-z0-9]/.test(ch)) {
+          out += ch;
+          continue;
+        }
+        const lat = CYR_TO_LAT[ch];
+        if (lat !== undefined) {
+          out += lat;
+          continue;
+        }
+        if (ch === ' ' || ch === '-' || ch === '_' || ch === '.') {
+          if (out && !out.endsWith('-')) out += '-';
+        }
+      }
+      out = out.replace(/-+/g, '-').replace(/^-|-$/g, '');
+      return out.slice(0, 48);
+    }
+
+    /**
+     * Ссылка для «Поделиться»: короткие параметры c=uuid и t=slug названия; без длинного cabinet (плеер подставит konstr.html#form).
+     */
+    function getScormPlayerShareUrl(courseId, title) {
+      const q = new URLSearchParams();
+      q.set('c', String(courseId));
+      const slug = slugifyCourseTitleForUrl(title);
+      if (slug) q.set('t', slug);
+      if (SCORM_PLAYER_USE_SUPABASE_STORAGE) {
+        return `${SUPABASE_URL}/storage/v1/object/public/${SCORM_PLAYER_BUCKET}/${SCORM_PLAYER_FILENAME}?${q}`;
+      }
+      return new URL(`scorm-player.html?${q}`, window.location.href).href;
+    }
+
+    async function copyTextToClipboard(text) {
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(text);
+          return true;
+        }
+      } catch (_) {}
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        return ok;
+      } catch (_) {}
+      return false;
     }
 
     function launchScormCourseInNewWindow(courseId) {
@@ -4270,7 +4347,10 @@
               </div>
             </div>
             <div class="form-row" id="courseLaunchRow" style="margin-top:.35rem;">
-              <button type="button" class="btn" id="courseLaunchScormBtn" style="width:100%;justify-content:center;">▶ Запустить курс (новое окно)</button>
+              <div class="course-launch-actions">
+                <button type="button" class="btn" id="courseLaunchScormBtn">▶ Запустить курс (новое окно)</button>
+                <button type="button" class="btn btn-ghost" id="courseShareBtn" hidden>Поделиться курсом</button>
+              </div>
             </div>
             </div>
             <div id="courseModalPanelStats" class="course-modal-stats" hidden>
@@ -4393,6 +4473,7 @@
       const scormProgressDetail = document.getElementById('courseScormProgressDetail');
       const launchRow = document.getElementById('courseLaunchRow');
       const launchScormBtn = document.getElementById('courseLaunchScormBtn');
+      const shareBtn = document.getElementById('courseShareBtn');
       const closeBtn = document.getElementById('courseCloseBtn');
       const deleteBtn = document.getElementById('courseDeleteBtn');
       const footerEditBlock = document.getElementById('courseModalFooterEditBlock');
@@ -4542,6 +4623,17 @@
             if (workingCourse.id) launchScormCourseInNewWindow(workingCourse.id);
           };
         }
+        if (shareBtn) {
+          shareBtn.onclick = async () => {
+            if (!workingCourse.id || shareBtn.disabled) return;
+            const title = (titleEl && titleEl.value ? titleEl.value.trim() : '') || workingCourse.title || '';
+            const url = getScormPlayerShareUrl(workingCourse.id, title);
+            setMsg('');
+            const ok = await copyTextToClipboard(url);
+            if (ok) setMsg('Ссылка на прохождение курса скопирована в буфер обмена.');
+            else setMsg('Не удалось скопировать ссылку. Разрешите доступ к буферу обмена или скопируйте вручную.', true);
+          };
+        }
         const statsNeedSaveEl = document.getElementById('courseModalStatsNeedSave');
         const statsInnerEl = document.getElementById('courseModalStatsInner');
         if (statsNeedSaveEl && statsInnerEl) {
@@ -4552,6 +4644,10 @@
           deleteBtn.hidden = !canManage || !workingCourse.id;
           deleteBtn.disabled = false;
         }
+        if (shareBtn) {
+          shareBtn.hidden = !workingCourse.id;
+          shareBtn.disabled = false;
+        }
       };
 
       if (titleEl) titleEl.value = workingCourse.title ? workingCourse.title : '';
@@ -4559,7 +4655,7 @@
       if (pubEl) pubEl.checked = !!workingCourse.is_published;
 
       const setDisabled = (disabled) => {
-        [titleEl, descEl, pubEl, saveBtn, scormZipInput, scormUploadBtn, deleteBtn].forEach((x) => { if (x) x.disabled = disabled; });
+        [titleEl, descEl, pubEl, saveBtn, scormZipInput, scormUploadBtn, deleteBtn, shareBtn].forEach((x) => { if (x) x.disabled = disabled; });
       };
 
       setDisabled(!canManage);

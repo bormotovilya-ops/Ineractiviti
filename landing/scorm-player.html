@@ -791,9 +791,11 @@
     function parseQuery() {
       const q = new URLSearchParams(window.location.search);
       return {
-        courseId: (q.get('courseId') || q.get('course') || '').trim(),
+        courseId: (q.get('courseId') || q.get('course') || q.get('c') || '').trim(),
         scoIdentifier: (q.get('sco') || '').trim() || null,
-        cabinetLoginUrl: (q.get('cabinet') || '').trim() || null
+        cabinetLoginUrl: (q.get('cabinet') || '').trim() || null,
+        /** Человекочитаемый slug из ссылки «Поделиться» (не обязателен для работы). */
+        titleSlug: (q.get('t') || '').trim() || null
       };
     }
 
@@ -958,7 +960,7 @@
     (async function main() {
       const { courseId, scoIdentifier, cabinetLoginUrl } = parseQuery();
       if (!courseId) {
-        showErr('Не указан courseId в URL (?courseId=…)');
+        showErr('Не указан courseId в URL (?courseId=… или коротко ?c=…)');
         return;
       }
 
@@ -975,6 +977,10 @@
         showErr('Курс не найден или нет доступа.');
         return;
       }
+
+      try {
+        document.title = course.title ? `${course.title} · курс` : 'Курс';
+      } catch (_) {}
 
       const { data: mem, error: mErr } = await supabase
         .from('project_members')
