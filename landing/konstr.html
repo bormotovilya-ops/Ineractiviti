@@ -169,6 +169,11 @@
       position: relative;
       overflow: hidden;
     }
+    .intro-slide .intro-slide-hero picture {
+      display: block;
+      width: 100%;
+      line-height: 0;
+    }
     .intro-slide .intro-slide-hero img {
       display: block;
       width: 100%;
@@ -2607,7 +2612,10 @@
   <section class="intro-slide graph-node-section landing-slide active" id="intro" data-slide="0">
     <div class="slide-card">
       <div class="intro-slide-hero">
-        <img src="img/Fon1.png" alt="Кабинет методолога-продюсера: рабочий стол с ноутбуком и визуальным редактором сценариев, уютный закат за окнами" />
+        <picture>
+          <source media="(max-width: 768px)" srcset="img/Fon_mob.png" />
+          <img src="img/Fon1.png" alt="Кабинет методолога-продюсера: рабочий стол с ноутбуком и визуальным редактором сценариев, уютный закат за окнами" />
+        </picture>
       </div>
       <div class="slide-card-body">
         <div class="intro-slide-inner">

@@ -184,6 +184,11 @@
       position: relative;
       overflow: hidden;
     }
+    .intro-slide .intro-slide-hero picture {
+      display: block;
+      width: 100%;
+      line-height: 0;
+    }
     .intro-slide .intro-slide-hero img {
       display: block;
       width: 100%;
@@ -2114,11 +2119,6 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
-    @media (max-width: 520px) {
-      #faq .flip-cards.col-3 {
-        grid-template-columns: 1fr;
-      }
-    }
     #faq .flip-cards.col-3 .flip-card {
       min-height: clamp(127px, 17.2vh, 264px);
       height: auto;
@@ -2214,7 +2214,7 @@
       .role-slide .role-slide-inner h2 {
         display: block !important;
         margin-bottom: 0.22rem;
-        font-size: var(--landing-slide-heading-size);
+        font-size: clamp(0.92rem, 3.6vmin, 1.2rem);
         line-height: 1.15;
       }
       .role-slide .role-slide-inner > p {
@@ -2334,26 +2334,102 @@
         flex-direction: column;
         height: 100%;
       }
+      /* На мобиле блок «Почему это работает» не показываем — только карточки проблемы */
       .section-problem .product-layout-text {
-        order: -1;
-        padding: 0;
-        gap: 0.15rem;
-        background: transparent;
-        border: none;
-        border-radius: 0;
-        overflow: visible;
-        display: flex;
-        flex-direction: column;
-        justify-content: center; /* вертикальное выравнивание содержимого по центру карточки */
-        flex: 0 0 22%;   /* немного меньше 1/4 высоты */
-        min-height: 0;
-      }
-      .section-problem .product-layout-text .product-intro {
-        overflow: visible;
-        flex: initial;
+        display: none !important;
       }
       .section-problem .product-layout-cards {
-        flex: 0 0 78%;   /* оставшиеся ~3/4 высоты */
+        flex: 1 1 auto;
+        min-height: 0;
+      }
+
+      /* Слайд «Преимущества роли» — компактнее типографика под экран */
+      .for-you-slide .slide-card-body {
+        padding: 0.55rem 0.65rem calc(0.55rem + var(--mobile-ui-clearance)) !important;
+        overflow: hidden;
+      }
+      .for-you-slide .for-you-header {
+        margin-bottom: 0.45rem;
+        gap: 0.4rem;
+      }
+      .for-you-slide .for-you-role-icon {
+        width: 40px;
+        height: 40px;
+      }
+      .for-you-slide .for-you-header .font-display,
+      #forYouTitle {
+        font-size: clamp(0.92rem, 3.6vmin, 1.18rem) !important;
+        line-height: 1.18;
+      }
+      .for-you-slide ul.for-you-list {
+        margin: 0 auto 0.5rem;
+        max-width: 100%;
+      }
+      .for-you-slide ul.for-you-list li {
+        font-size: 0.72rem;
+        padding: 0.28rem 0;
+        margin-bottom: 0.08rem;
+        line-height: 1.3;
+      }
+      .for-you-slide ul.for-you-list li .benefit-emoji {
+        font-size: 0.85rem;
+      }
+      .for-you-slide .for-you-more-link {
+        font-size: 0.76rem;
+      }
+
+      /* Демо: один курс на мобиле, описание помещается */
+      #demo .demo-courses > article.demo-course:nth-child(n+2) {
+        display: none !important;
+      }
+      #demo .demo-courses {
+        grid-template-columns: 1fr !important;
+        max-width: min(420px, 100%);
+        gap: 0.5rem;
+      }
+      #demo.demo-section .slide-card-body > p {
+        font-size: 0.8rem;
+        margin-bottom: 0.4rem;
+        line-height: 1.4;
+      }
+      #demo .demo-course-body h3 {
+        font-size: 0.86rem;
+      }
+      #demo .demo-course-body p {
+        font-size: 0.72rem;
+        line-height: 1.36;
+        margin-bottom: 0.3rem;
+      }
+
+      /* «Кому не подходит» — мельче текст на обороте */
+      #not-for-you .not-for-you-cards .flip-card-back p {
+        font-size: 0.64rem;
+        line-height: 1.28;
+      }
+
+      /* FAQ: 2×3, текст на обороте ещё мельче */
+      #faq .flip-cards.col-3 {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        grid-template-rows: repeat(3, minmax(0, 1fr));
+        gap: 0.36rem;
+        align-content: stretch;
+        min-height: 0;
+      }
+      #faq .flip-cards.col-3 .flip-card {
+        min-height: 0;
+      }
+      #faq .flip-cards.col-3 .flip-card-inner {
+        min-height: 0;
+      }
+      #faq .flip-cards.col-3 .flip-card-back p {
+        font-size: 0.58rem;
+        line-height: 1.22;
+      }
+      #faq .flip-cards.col-3 .flip-card-front h4 {
+        font-size: 0.68rem;
+        line-height: 1.16;
+      }
+      #faq .faq-cards-scroll {
         min-height: 0;
       }
     }
@@ -3106,7 +3182,10 @@
   <section class="intro-slide intro-compact graph-node-section landing-slide active" id="intro" data-slide="0">
     <div class="slide-card">
       <div class="intro-slide-hero">
-        <img src="img/Fon1.png" alt="Кабинет методолога: рабочий стол с ноутбуком и визуальным редактором сценариев, уютный закат за окнами" />
+        <picture>
+          <source media="(max-width: 768px)" srcset="img/Fon_mob.png" />
+          <img src="img/Fon1.png" alt="Кабинет методолога: рабочий стол с ноутбуком и визуальным редактором сценариев, уютный закат за окнами" />
+        </picture>
       </div>
       <div class="slide-card-body">
         <div class="intro-slide-inner">
@@ -3191,8 +3270,8 @@
     <div class="slide-card">
       <div class="slide-card-body">
         <div class="role-slide-inner">
-          <h2 class="font-display">С кем мы говорим в компании</h2>
-          <p style="margin-bottom: 0.75rem;">Выберите роль — покажем, что важно именно вам в проекте «под ключ».</p>
+          <h2 class="font-display">Какая ваша роль?</h2>
+          <p style="margin-bottom: 0.75rem;">Покажем, чем мы можем быть полезны именно вам.</p>
           <div class="role-choices">
             <button type="button" class="role-choice" data-role="manager">
               <img class="role-choice-icon" src="img/Roles/Role5.png" alt="Руководитель корпоративного обучения" />
@@ -3741,9 +3820,6 @@
             to { opacity: 1; transform: translateY(0); }
           }
           @media (max-width: 720px) {
-            #contacts .card-wrap > .card-title:first-of-type {
-              display: none;
-            }
             .contacts-card { flex-direction: column; align-items: stretch; padding: .75rem; }
             .contacts-card .contacts-icon { align-self: center; }
             .contacts-row strong { width: 90px; flex: 0 0 90px; }
