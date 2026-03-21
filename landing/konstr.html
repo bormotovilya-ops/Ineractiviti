@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Разработка интерактивных корпоративных курсов и тренажёров с симуляцией рабочих ситуаций. Внедрение в LMS, SCORM, проекты от 100 000 ₽." />
-  <title>Интерактивити — интерактивные тренажёры и курсы под ключ для бизнеса</title>
+  <title>Интерактивити — конструктор интерактивных сценариев (вход и редактор)</title>
   <link rel="icon" type="image/png" href="img/logo_mini.png" />
   <link rel="apple-touch-icon" href="img/logo_mini.png" />
   <script src="supabase-runtime.js"></script>
@@ -37,24 +36,10 @@
       --accent: #6366f1;
       --accent-soft: rgba(99, 102, 241, 0.2);
       --border: rgba(255,255,255,0.08);
-      /* Иллюстрации на лендинге — в тон акценту (индиго / холодные нейтрали) */
-      --illus-indigo-deep: #4338ca;
-      --illus-indigo-strong: #4f46e5;
-      --illus-indigo: #6366f1;
-      --illus-indigo-mid: #818cf8;
-      --illus-indigo-soft: #a5b4fc;
-      --illus-indigo-pale: #c7d2fe;
-      --illus-surface: #eef2ff;
       --node-size: 56px;
       --hero-height: 100vh;
       --header-height: 48px;
       --mobile-ui-clearance: 0px;
-      /* Единый размер основных заголовков на всех слайдах (h2 и h1 на интро) */
-      --landing-slide-heading-size: clamp(1.75rem, 3vw, 2.25rem);
-      /* Вертикальное положение заголовка (шапка карточки или первый h2 в теле) — кроме intro / role / for-you */
-      --landing-slide-head-pad-top: clamp(0.5rem, 1.15vh, 0.85rem);
-      --landing-slide-head-pad-bottom: clamp(0.25rem, 0.65vh, 0.42rem);
-      --landing-slide-body-title-pad-top: clamp(0.5rem, 1.15vh, 0.85rem);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; height: 100%; overflow: hidden; }
@@ -95,7 +80,7 @@
       height: 360px;
       right: -130px;
       top: 360px;
-      background: radial-gradient(circle, rgba(99, 102, 241, 0.2), transparent 68%);
+      background: radial-gradient(circle, rgba(34,197,94,0.22), transparent 68%);
       animation-duration: 20s;
     }
     @keyframes ambientShiftLanding {
@@ -263,57 +248,10 @@
       width: 100%;
     }
     .intro-slide .slide-card-body .intro-slide-inner h1 {
-      font-size: var(--landing-slide-heading-size);
+      font-size: clamp(0.95rem, 3.2vh, 2.25rem);
       letter-spacing: 0.02em;
       text-shadow: 0 1px 2px rgba(0,0,0,0.4), 0 0 20px rgba(0,0,0,0.3);
       margin-bottom: 0;
-    }
-    /* Первый экран: hero + текст внизу карточки, верх картинки остаётся открытым */
-    .intro-slide.intro-compact .intro-slide-hero::after {
-      background: linear-gradient(
-        to bottom,
-        transparent 0%,
-        transparent 52%,
-        rgba(10, 10, 15, 0.08) 62%,
-        rgba(10, 10, 15, 0.35) 78%,
-        rgba(10, 10, 15, 0.72) 90%,
-        rgba(10, 10, 15, 0.95) 100%
-      );
-    }
-    .intro-slide.intro-compact .slide-card-body {
-      position: absolute;
-      top: auto;
-      bottom: 10%;
-      left: 0;
-      right: 0;
-      transform: none;
-      z-index: 2;
-      overflow: hidden;
-      padding: 0.35rem 1.25rem 0.5rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-end;
-    }
-    .intro-slide.intro-compact .slide-card-body .intro-slide-inner h1 {
-      text-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 0 18px rgba(0,0,0,0.35);
-      font-size: var(--landing-slide-heading-size);
-      letter-spacing: 0.1em;
-      margin-bottom: 0.35rem;
-    }
-    .intro-slide.intro-compact .intro-lead {
-      font-size: clamp(0.95rem, 2vh, 1.2rem);
-      font-weight: 600;
-      color: var(--text);
-      max-width: 22rem;
-      margin-left: auto;
-      margin-right: auto;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-    }
-    .intro-slide.intro-compact .intro-sublead {
-      max-width: 26rem;
-      margin-top: 0.35rem;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.45);
     }
     @media (max-width: 768px) {
       :root {
@@ -388,23 +326,11 @@
         width: 100% !important;
         max-width: 1100px !important;
       }
-      .intro-slide:not(.intro-compact) .slide-card-body {
+      .intro-slide .slide-card-body {
         top: 58%;
       }
-      .intro-slide.intro-compact .slide-card-body {
-        bottom: 11%;
-        padding-bottom: 0.35rem;
-      }
-      .intro-slide.intro-compact .intro-slide-hero::after {
-        background: linear-gradient(
-          to bottom,
-          transparent 0%,
-          transparent 48%,
-          rgba(10, 10, 15, 0.12) 58%,
-          rgba(10, 10, 15, 0.42) 76%,
-          rgba(10, 10, 15, 0.78) 88%,
-          rgba(10, 10, 15, 0.96) 100%
-        );
+      .intro-slide .slide-card-body .intro-slide-inner h1 {
+        font-size: clamp(1.15rem, 4.4vh, 2.8rem);
       }
     }
     .intro-slide .intro-lead {
@@ -439,80 +365,6 @@
       line-height: 1.7;
       color: var(--text-muted);
       max-width: 40rem;
-    }
-    .intro-brand-kicker {
-      font-size: clamp(0.68rem, 1.35vh, 0.8rem);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: clamp(0.15rem, 0.6vh, 0.35rem);
-    }
-    .intro-highlights {
-      list-style: none;
-      margin: clamp(0.3rem, 1vh, 0.65rem) auto 0;
-      padding: 0;
-      max-width: 26rem;
-      font-size: clamp(0.78rem, 1.45vh, 0.9rem);
-      color: var(--text-muted);
-      line-height: 1.45;
-      text-align: left;
-    }
-    .intro-highlights li {
-      position: relative;
-      padding-left: 1rem;
-      margin: 0.22rem 0;
-    }
-    .intro-highlights li::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0.5em;
-      width: 0.32rem;
-      height: 0.32rem;
-      border-radius: 50%;
-      background: var(--accent);
-    }
-    .intro-cta-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      justify-content: center;
-      align-items: center;
-      margin-top: clamp(0.45rem, 1.4vh, 1rem);
-    }
-    .intro-cta-row .intro-cta {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0.52rem 1.05rem;
-      border-radius: 999px;
-      font-size: clamp(0.8rem, 1.45vh, 0.93rem);
-      font-weight: 600;
-      text-decoration: none;
-      border: none;
-      cursor: pointer;
-      font-family: inherit;
-      transition: filter 0.2s, border-color 0.2s, color 0.2s;
-    }
-    .intro-cta-row .intro-cta-primary {
-      background: var(--accent);
-      color: #fff;
-    }
-    .intro-cta-row .intro-cta-primary:hover { filter: brightness(1.08); }
-    .intro-cta-row .intro-cta-secondary {
-      background: transparent;
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-    .intro-cta-row .intro-cta-secondary:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-    .intro-price-hint {
-      margin-top: clamp(0.2rem, 0.75vh, 0.45rem);
-      font-size: clamp(0.7rem, 1.25vh, 0.8rem);
-      color: var(--accent);
-      font-weight: 600;
     }
     .intro-docs-link {
       color: var(--text-muted);
@@ -690,55 +542,6 @@
     .features-request-form .shake {
       animation: features-field-shake 0.24s ease;
     }
-    /* Заявка на проект (#form): label и поле в одной строке */
-    #projectRequestForm.project-request-form {
-      gap: 0.5rem;
-    }
-    #projectRequestForm .project-form-row {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 0.65rem;
-      width: 100%;
-    }
-    #projectRequestForm .project-form-row-textarea {
-      align-items: flex-start;
-    }
-    #projectRequestForm .project-form-row-textarea label {
-      padding-top: 0.45rem;
-    }
-    #projectRequestForm .project-form-row label {
-      flex: 0 0 6.85rem;
-      text-align: right;
-      margin: 0;
-      line-height: 1.25;
-      font-size: 0.82rem;
-    }
-    #projectRequestForm.project-request-form .project-form-row input[type="text"],
-    #projectRequestForm.project-request-form .project-form-row textarea {
-      flex: 1;
-      min-width: 0;
-      width: auto;
-    }
-    #projectRequestForm .project-form-row.shake {
-      animation: features-field-shake 0.24s ease;
-    }
-    @media (max-width: 440px) {
-      #projectRequestForm .project-form-row {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.25rem;
-      }
-      #projectRequestForm .project-form-row label {
-        flex: none;
-        text-align: left;
-        padding-top: 0;
-      }
-      #projectRequestForm.project-request-form .project-form-row input[type="text"],
-      #projectRequestForm.project-request-form .project-form-row textarea {
-        width: 100%;
-      }
-    }
     .auth-actions {
       display: flex;
       flex-wrap: wrap;
@@ -855,15 +658,8 @@
     }
     .flip-cards.col-4 .flip-card-emoji {
       font-size: 1.75rem;
-      margin: 0;
+      margin-bottom: 0;
       flex-shrink: 0;
-      width: 2.5rem;
-      min-width: 2.5rem;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      line-height: 1;
-      text-align: center;
     }
     .flip-cards.col-4 .flip-card-front h3,
     .flip-cards.col-4 .flip-card-front h4 {
@@ -882,11 +678,10 @@
     }
     .slide-card-body:has(.flip-cards.col-4) {
       justify-content: flex-start;
+      padding-top: 0.5rem;
     }
+    .slide-card-body:has(.flip-cards.col-4) > h2 { margin-bottom: 0.25rem; }
     .slide-card-body:has(.flip-cards.col-4) > p { margin-bottom: 0.5rem; }
-    #how .flip-cards.col-4.how-five {
-      grid-template-rows: repeat(5, minmax(0, 1fr));
-    }
 
     /* Увеличенные карточки тарифов, чтобы описание свободно помещалось */
     #pricing .flip-cards.col-3 .flip-card-inner {
@@ -933,9 +728,6 @@
     #how .flip-cards.col-4 .flip-card-back {
       padding-left: 1.25rem;
       padding-right: 1.25rem;
-    }
-    #how .flip-cards.col-4 .flip-card:nth-child(4) .flip-card-front {
-      overflow: visible;
     }
     @media (max-width: 640px) {
       .flip-cards:not(.col-4) { grid-template-columns: 1fr; }
@@ -1286,6 +1078,38 @@
     }
     .hero-back:hover { color: var(--text); }
 
+    /* Анимация появления текста только на заголовке первой карточки «Как это работает».
+       Буквы «проявляются» слева направо за 3 секунды, размер карточки не меняется. */
+    #how .how-step-scenes .how-scenes-title {
+      display: inline-block;
+      position: relative;
+      /* цвет текста для currentColor */
+      color: var(--text);
+      /* прячем заливку букв, оставляем только градиент внутри контура */
+      -webkit-text-fill-color: transparent;
+      background-image: linear-gradient(
+        to right,
+        currentColor 0,
+        currentColor 100%
+      );
+      background-repeat: no-repeat;
+      background-size: 0% 100%;
+      background-position: 0 0;
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+    #how.active .how-step-scenes .how-scenes-title {
+      animation: how-scenes-title-reveal 3s ease-out forwards;
+    }
+    @keyframes how-scenes-title-reveal {
+      0% {
+        background-size: 0% 100%;
+      }
+      100% {
+        background-size: 100% 100%;
+      }
+    }
+
     /* Хаотичное движение букв на заголовке второй карточки «Как это работает».
        Алгоритм как в «Карьерный рывок»: буквы разлетаются и собираются в ровную строку. */
     #how .how-step-choices .how-choices-title {
@@ -1309,358 +1133,111 @@
       100% { transform: translate(-6px, -10px) rotate(5deg); }
     }
 
-    /* Слайд #how: карточки col-4 / how-five */
-    #how .flip-cards.col-4 .flip-card:nth-child(2) .how-choices-title {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.12em;
-      max-width: calc(100% - 3.25rem);
-      line-height: 1.28;
+    /* Ракета на третьей карточке «Как это работает»: прилёт без изменения размера карточки. */
+    #how .how-step-rocket .how-launch-rocket {
+      display: inline-block;
+      transform-origin: center center;
+      opacity: 0; /* по умолчанию ракета скрыта до старта анимации */
     }
-    #how .flip-cards.col-4 .flip-card:nth-child(2) .how-choices-row {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: baseline;
-      gap: 0.32em;
+
+    /* Анимация столбиков на карточке «4. Отчёты».
+       Заменяем эмодзи на мини-график, чтобы размер карточки оставался как у остальных. */
+    #how .how-step-report .how-report-bars {
+      display: inline-flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 1.2em;
     }
-    /* п.2: граф — появляются рёбра и вершины */
-    #how .flip-cards.col-4 .flip-card:nth-child(2) .how-graph-svg {
-      overflow: visible;
+    #how .how-step-report .how-report-bar {
+      width: 0.18em;
+      height: 100%;
+      border-radius: 999px 999px 0 0;
+      background: #38bdf8;
+      animation: how-report-bars-pulse 3s ease-in-out infinite;
+      transform-origin: bottom center;
     }
-    #how .flip-cards.col-4 .flip-card:nth-child(2) .how-graph-edge {
-      stroke: var(--illus-indigo-soft);
-      stroke-width: 1.35;
-      fill: none;
-      stroke-linecap: round;
-      stroke-dasharray: 100;
-      stroke-dashoffset: 100;
-      pathLength: 100;
-      opacity: 0;
-    }
-    #how .flip-cards.col-4 .flip-card:nth-child(2) .how-graph-node {
-      transform-box: fill-box;
-      transform-origin: center;
-    }
-    #how .flip-cards.col-4 .flip-card:nth-child(2) .how-graph-node circle {
-      fill: rgba(199, 210, 254, 0.45);
-      fill: color-mix(in srgb, var(--illus-indigo-pale) 45%, transparent);
-      stroke: var(--illus-surface);
-      stroke-width: 1.15;
-    }
-    @keyframes how-graph-edge-cycle {
-      0%, 3% { opacity: 0; stroke-dashoffset: 100; }
-      5% { opacity: 1; }
-      22% { stroke-dashoffset: 0; }
-      24%, 78% { opacity: 1; stroke-dashoffset: 0; }
-      88%, 100% { opacity: 0; stroke-dashoffset: 100; }
-    }
-    @keyframes how-graph-node-cycle {
-      0%, 2% { transform: scale(0); opacity: 0; }
-      5% { transform: scale(1.15); opacity: 1; }
-      9%, 78% { transform: scale(1); opacity: 1; }
-      88%, 100% { transform: scale(0); opacity: 0; }
-    }
-    #how.active .flip-cards.col-4 .flip-card:nth-child(2) .how-graph-e1 {
-      animation: how-graph-edge-cycle 5.6s ease-out infinite;
-      animation-delay: 0.22s;
-    }
-    #how.active .flip-cards.col-4 .flip-card:nth-child(2) .how-graph-e2 {
-      animation: how-graph-edge-cycle 5.6s ease-out infinite;
-      animation-delay: 0.72s;
-    }
-    #how.active .flip-cards.col-4 .flip-card:nth-child(2) .how-graph-e3 {
-      animation: how-graph-edge-cycle 5.6s ease-out infinite;
-      animation-delay: 1.22s;
-    }
-    #how.active .flip-cards.col-4 .flip-card:nth-child(2) .how-graph-n1 {
-      animation: how-graph-node-cycle 5.6s ease-out infinite;
+    #how .how-step-report .how-report-bar.bar-1 {
+      background: #38bdf8;
       animation-delay: 0s;
     }
-    #how.active .flip-cards.col-4 .flip-card:nth-child(2) .how-graph-n2 {
-      animation: how-graph-node-cycle 5.6s ease-out infinite;
-      animation-delay: 0.58s;
+    #how .how-step-report .how-report-bar.bar-2 {
+      background: #22c55e;
+      animation-delay: 0.2s;
     }
-    #how.active .flip-cards.col-4 .flip-card:nth-child(2) .how-graph-n3 {
-      animation: how-graph-node-cycle 5.6s ease-out infinite;
-      animation-delay: 1.08s;
+    #how .how-step-report .how-report-bar.bar-3 {
+      background: #f97316;
+      animation-delay: 0.4s;
     }
-    #how.active .flip-cards.col-4 .flip-card:nth-child(2) .how-graph-n4 {
-      animation: how-graph-node-cycle 5.6s ease-out infinite;
-      animation-delay: 1.62s;
-    }
-    #how:not(.active) .flip-cards.col-4 .flip-card:nth-child(2) .how-graph-edge {
-      animation: none;
-      opacity: 0.92;
-      stroke-dashoffset: 0;
-    }
-    #how:not(.active) .flip-cards.col-4 .flip-card:nth-child(2) .how-graph-node {
-      animation: none;
-      opacity: 1;
-      transform: scale(1);
-    }
-    #how:not(.active) .flip-cards.col-4 .flip-card:nth-child(3) .how-puzzle-a,
-    #how:not(.active) .flip-cards.col-4 .flip-card:nth-child(3) .how-puzzle-b {
-      animation: none;
-      transform: translateX(0);
-    }
-    /* Единый набор иконок #how: светлее, «воздушнее» */
-    #how .how-step-icon {
-      width: 2.5rem;
-      min-width: 2.5rem;
-      height: 2.15rem;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-    #how .how-step-icon-svg {
-      width: 100%;
-      height: 100%;
-      max-height: 2.05rem;
-      display: block;
-      color: #c6c6dc;
-      color: color-mix(in srgb, var(--illus-indigo-soft) 42%, #a1a1aa 58%);
-    }
-    #how .how-icon-panel {
-      fill: rgba(165, 180, 252, 0.2);
-      stroke: rgba(255, 255, 255, 0.32);
-      stroke-width: 1;
-    }
-    #how .how-icon-line {
-      stroke: currentColor;
-      stroke-width: 1.35;
-      stroke-linecap: round;
-      fill: none;
-    }
-    #how .how-icon-accent {
-      stroke: var(--illus-indigo-soft);
-      fill: none;
-      stroke-width: 1.35;
-      stroke-linecap: round;
-      stroke-linejoin: round;
+    @keyframes how-report-bars-pulse {
+      0%   { transform: scaleY(0.3); }
+      25%  { transform: scaleY(0.9); }
+      50%  { transform: scaleY(0.5); }
+      75%  { transform: scaleY(1); }
+      100% { transform: scaleY(0.3); }
     }
 
-    /* Карточка 1 «Бриф»: лист с появляющимися галочками (тон акцента) */
-    #how .flip-cards.col-4 .flip-card:nth-child(1) .how-brief-checklist {
-      width: 2.5rem;
-      min-width: 2.5rem;
-      height: 2.15rem;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-    #how .flip-cards.col-4 .flip-card:nth-child(1) .how-brief-svg {
-      width: 100%;
-      height: 100%;
-      max-height: 2.05rem;
-      display: block;
-      color: #8b92b0;
-    }
-    #how .flip-cards.col-4 .flip-card:nth-child(1) .how-brief-sheet {
-      fill: rgba(248, 250, 255, 0.96);
-      stroke: rgba(199, 210, 254, 0.55);
-      stroke-width: 1;
-      filter: drop-shadow(0 1px 3px rgba(15, 23, 42, 0.12));
-    }
-    #how .flip-cards.col-4 .flip-card:nth-child(1) .how-brief-line {
-      stroke: currentColor;
-      stroke-width: 1.25;
-      stroke-linecap: round;
-      opacity: 0.88;
-    }
-    #how .flip-cards.col-4 .flip-card:nth-child(1) .how-brief-check path {
-      stroke: var(--illus-indigo-strong);
-      stroke-width: 2.15;
-      paint-order: stroke fill;
-      filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.75)) drop-shadow(0 0.5px 1.2px rgba(79, 70, 229, 0.45));
-    }
-    #how .flip-cards.col-4 .flip-card:nth-child(1) .how-brief-check {
-      opacity: 0;
-      transform-origin: center;
-      transform-box: fill-box;
-    }
-    @keyframes how-brief-check-in {
-      0% { opacity: 0; transform: scale(0.32) translateY(4px); }
-      6% { opacity: 0; transform: scale(0.32) translateY(4px); }
-      22% { opacity: 1; transform: scale(1.1) translateY(0); }
-      30% { opacity: 1; transform: scale(1) translateY(0); }
-      76% { opacity: 1; transform: scale(1) translateY(0); }
-      86% { opacity: 0; transform: scale(0.48) translateY(3px); }
-      100% { opacity: 0; transform: scale(0.32) translateY(4px); }
-    }
-    #how.active .flip-cards.col-4 .flip-card:nth-child(1) .how-brief-check-1 {
-      animation: how-brief-check-in 6.2s ease-out infinite;
-    }
-    #how.active .flip-cards.col-4 .flip-card:nth-child(1) .how-brief-check-2 {
-      animation: how-brief-check-in 6.2s ease-out infinite;
-      animation-delay: 0.7s;
-    }
-    #how.active .flip-cards.col-4 .flip-card:nth-child(1) .how-brief-check-3 {
-      animation: how-brief-check-in 6.2s ease-out infinite;
-      animation-delay: 1.4s;
-    }
-
-    /* Карточка 3: два пазла смыкаются */
-    #how .flip-cards.col-4 .flip-card:nth-child(3) .how-build-puzzle-wrap {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 2.5rem;
-      width: 2.5rem;
-      height: 2.15rem;
-    }
-    #how .flip-cards.col-4 .flip-card:nth-child(3) .how-puzzle-svg {
-      width: 100%;
-      height: 100%;
-      max-height: 2.05rem;
-      display: block;
-      overflow: visible;
-    }
-    #how .flip-cards.col-4 .flip-card:nth-child(3) .how-puzzle-piece-left,
-    #how .flip-cards.col-4 .flip-card:nth-child(3) .how-puzzle-piece-right {
-      stroke-linejoin: round;
-    }
-    #how .flip-cards.col-4 .flip-card:nth-child(3) .how-puzzle-joint-glow {
-      opacity: 0;
-      pointer-events: none;
-      transform-origin: center;
-      transform-box: fill-box;
-    }
-    #how .flip-cards.col-4 .flip-card:nth-child(3) .how-puzzle-a {
-      transform-box: fill-box;
-      transform-origin: 42% 50%;
-      animation: how-puzzle-slide-a 4s cubic-bezier(0.45, 0, 0.2, 1) infinite;
-    }
-    #how .flip-cards.col-4 .flip-card:nth-child(3) .how-puzzle-b {
-      transform-box: fill-box;
-      transform-origin: 58% 50%;
-      animation: how-puzzle-slide-b 4s cubic-bezier(0.45, 0, 0.2, 1) infinite;
-    }
-    #how.active .flip-cards.col-4 .flip-card:nth-child(3) .how-puzzle-joint-glow {
-      animation: how-puzzle-joint-pop 4s ease-out infinite;
-    }
-    @keyframes how-puzzle-slide-a {
-      0%, 8% { transform: translateX(-6px) rotate(-3deg); }
-      22% { transform: translateX(-1px) rotate(-0.5deg); }
-      28% { transform: translateX(0.5px) scale(1.06); }
-      32% { transform: translateX(0) scale(1); }
-      38%, 78% { transform: translateX(0) scale(1); }
-      90%, 100% { transform: translateX(-6px) rotate(-3deg); }
-    }
-    @keyframes how-puzzle-slide-b {
-      0%, 8% { transform: translateX(6px) rotate(3deg); }
-      22% { transform: translateX(1px) rotate(0.5deg); }
-      28% { transform: translateX(-0.5px) scale(1.06); }
-      32% { transform: translateX(0) scale(1); }
-      38%, 78% { transform: translateX(0) scale(1); }
-      90%, 100% { transform: translateX(6px) rotate(3deg); }
-    }
-    @keyframes how-puzzle-joint-pop {
-      0%, 24% { opacity: 0; transform: scale(0.6); }
-      28% { opacity: 0.95; transform: scale(1.35); }
-      34% { opacity: 0.35; transform: scale(1); }
-      40%, 100% { opacity: 0; transform: scale(0.8); }
-    }
-    #how .flip-cards.col-4 .flip-card:nth-child(3) .how-build-title {
-      margin: 0;
-      text-align: left;
-      line-height: 1.3;
-      font-size: inherit;
-    }
-    #how .flip-cards.col-4 .flip-card:nth-child(3) .how-build-num {
-      margin-right: 0.2em;
-    }
-    #how .flip-cards.col-4 .flip-card:nth-child(3) .how-build-word {
+    /* Восстановление анимаций для исходной разметки «Как это работает» (4 карточки col-4) */
+    #how .flip-cards.col-4 .flip-card:nth-child(1) .how-scenes-title {
       display: inline-block;
-      margin-right: 0.26em;
+      position: relative;
+      color: var(--text);
+      -webkit-text-fill-color: transparent;
+      background-image: linear-gradient(to right, currentColor 0, currentColor 100%);
+      background-repeat: no-repeat;
+      background-size: 0% 100%;
+      background-position: 0 0;
+      -webkit-background-clip: text;
+      background-clip: text;
     }
-    #how .flip-cards.col-4 .flip-card:nth-child(3) .how-build-word:last-of-type {
-      margin-right: 0;
+    #how.active .flip-cards.col-4 .flip-card:nth-child(1) .how-scenes-title {
+      animation: how-scenes-title-reveal 3s ease-out forwards;
     }
 
-    /* Карточка 4: только ракета (влетает на место иконки) */
-    #how .flip-cards.col-4 .flip-card:nth-child(4) .how-step4-rocket-slot {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 2.5rem;
-      width: 2.5rem;
-      height: 2.15rem;
-      overflow: visible;
+    #how .flip-cards.col-4 .flip-card:nth-child(2) .how-choices-title {
+      position: relative;
+      display: inline-block;
     }
-    #how .flip-cards.col-4 .flip-card:nth-child(4) .how-launch-rocket {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      height: 100%;
+    #how .flip-cards.col-4 .flip-card:nth-child(2) .how-choices-letter {
+      position: absolute;
+      display: inline-block;
+      will-change: transform, left, top;
+      white-space: pre;
+    }
+    #how .flip-cards.col-4 .flip-card:nth-child(2) .how-choices-letter.scattered {
+      animation: how-choices-float 0.8s ease-in-out infinite alternate;
+    }
+
+    #how .flip-cards.col-4 .flip-card:nth-child(3) .how-launch-rocket {
+      display: inline-block;
       transform-origin: center center;
       opacity: 0;
     }
-    #how .flip-cards.col-4 .flip-card:nth-child(4) .how-rocket-svg {
-      width: 100%;
-      height: 100%;
-      max-height: 2.15rem;
-      display: block;
-      overflow: visible;
-    }
-    #how.active .flip-cards.col-4 .flip-card:nth-child(4) .how-rocket-flame {
-      animation: how-rocket-flame 0.55s ease-in-out infinite alternate;
-      transform-origin: 16px 21.5px;
-      transform-box: fill-box;
-    }
-    @keyframes how-rocket-flame {
-      0% { opacity: 0.82; transform: scaleY(0.97); }
-      100% { opacity: 1; transform: scaleY(1.04); }
-    }
 
-    /* Карточка 5: гарнитура поддержки */
-    #how .flip-cards.col-4 .flip-card:nth-child(5) .how-support-visual {
+    #how .flip-cards.col-4 .flip-card:nth-child(4) .how-report-bars {
       display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 2.5rem;
-      width: 2.5rem;
-      height: 2.15rem;
+      align-items: flex-end;
+      gap: 2px;
+      height: 1.2em;
     }
-    #how .flip-cards.col-4 .flip-card:nth-child(5) .how-support-headset-svg {
-      width: 100%;
+    #how .flip-cards.col-4 .flip-card:nth-child(4) .how-report-bar {
+      width: 0.18em;
       height: 100%;
-      max-height: 2.12rem;
-      display: block;
-      overflow: visible;
+      border-radius: 999px 999px 0 0;
+      background: #38bdf8;
+      animation: how-report-bars-pulse 3s ease-in-out infinite;
+      transform-origin: bottom center;
     }
-    #how .flip-cards.col-4 .flip-card:nth-child(5) .how-support-headset-float {
-      animation: how-support-agent-bob 2.8s ease-in-out infinite;
-      transform-origin: 50% 58%;
+    #how .flip-cards.col-4 .flip-card:nth-child(4) .how-report-bar.bar-1 {
+      background: #38bdf8;
+      animation-delay: 0s;
     }
-    @keyframes how-support-agent-bob {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-2px); }
+    #how .flip-cards.col-4 .flip-card:nth-child(4) .how-report-bar.bar-2 {
+      background: #22c55e;
+      animation-delay: 0.2s;
     }
-    #how .flip-cards.col-4 .flip-card:nth-child(5) .how-support-mic-tip {
-      animation: how-support-mic-pulse 1.5s ease-in-out infinite;
-      transform-origin: center;
-    }
-    @keyframes how-support-mic-pulse {
-      0%, 100% { opacity: 0.45; }
-      50% { opacity: 1; }
-    }
-    #how .flip-cards.col-4 .flip-card:nth-child(5) .how-support-sound {
-      animation: how-support-sound-fade 2s ease-in-out infinite;
-    }
-    #how .flip-cards.col-4 .flip-card:nth-child(5) .how-support-sound-2 {
-      animation-delay: 0.35s;
-    }
-    @keyframes how-support-sound-fade {
-      0%, 100% { opacity: 0.2; }
-      50% { opacity: 0.75; }
-    }
-    #how .flip-cards.col-4 .flip-card:nth-child(5) .how-support-title {
-      margin: 0;
-    }
-    #how .flip-cards.col-4 .flip-card:nth-child(5) .how-support-chunk {
-      display: inline-block;
+    #how .flip-cards.col-4 .flip-card:nth-child(4) .how-report-bar.bar-3 {
+      background: #f97316;
+      animation-delay: 0.4s;
     }
 
     /* Слайд «Как это работает»: 6 карточек в сетке 2x3 */
@@ -1738,12 +1315,7 @@
       margin-top: 1.5rem;
     }
     @media (min-width: 600px) {
-      .role-choices {
-        grid-template-columns: repeat(2, 1fr);
-        max-width: 560px;
-        margin-left: auto;
-        margin-right: auto;
-      }
+      .role-choices { grid-template-columns: repeat(3, 1fr); }
     }
     .role-choice {
       padding: 1rem 1rem 1.1rem;
@@ -1846,7 +1418,7 @@
     }
     section h2 {
       font-family: 'Unbounded', sans-serif;
-      font-size: var(--landing-slide-heading-size);
+      font-size: clamp(1.75rem, 3vw, 2.25rem);
       font-weight: 600;
       margin-bottom: 1rem;
     }
@@ -1875,7 +1447,21 @@
       margin: 0;
     }
     .product-intro p + p { margin-top: 0.75rem; }
-    /* Слайд «Задача» / продукт: как #not-for-you — flex + min-height:0 + вертикальный скролл внутри карточки */
+    #problemDefIS,
+    #problemDefKIS {
+      display: none;
+    }
+    @media (max-width: 768px) {
+      #problemDefIS {
+        display: block;
+      }
+    }
+    @media (min-width: 769px) {
+      #problemDefKIS {
+        display: block;
+      }
+    }
+    /* Слайд задачи/продукта: как #not-for-you — скролл внутри .slide-card-body */
     .product-slide {
       padding: clamp(0.8rem, 1.8vh, 2rem);
     }
@@ -1897,7 +1483,7 @@
       flex-wrap: wrap;
       margin-bottom: clamp(1.6rem, 3vh, 3rem);
       flex-shrink: 0;
-      font-size: var(--landing-slide-heading-size);
+      font-size: clamp(1.1rem, 2.8vmin, 1.85rem);
     }
     .product-title-spacer {
       height: clamp(1.6rem, 3vh, 3rem);
@@ -1943,64 +1529,8 @@
     .product-slide .product-layout-cards .flip-card-back p {
       font-size: clamp(0.9rem, 1.9vh, 1.1rem);
     }
-    .product-slide .product-layout-cards .flip-cards.col-4 .flip-card-emoji {
+    .product-slide .product-layout-cards .flip-card-emoji {
       font-size: clamp(1.3rem, 2.2vh, 2.1rem);
-      width: 2.5rem;
-      min-width: 2.5rem;
-      margin: 0;
-    }
-    .product-slide .product-layout-cards .flip-card-front .problem-card-sub {
-      font-size: clamp(0.78rem, 1.5vh, 0.9rem);
-      color: var(--text-muted);
-      margin: 0.35rem 0 0;
-      line-height: 1.35;
-      font-weight: 500;
-    }
-    .product-layout-text .problem-why-title {
-      font-size: clamp(1.05rem, 1.85vh, 1.28rem);
-      margin: 0 0 clamp(0.45rem, 1vh, 0.65rem);
-      line-height: 1.25;
-      text-align: left;
-    }
-    .product-layout-text .problem-why-block p {
-      text-align: left;
-    }
-    .flip-card-demo.problem-cta-card .flip-card-back {
-      display: none;
-    }
-    /* CTA «Посмотреть демо» — явно отличается от карточек с проблемами */
-    .section-problem .product-layout-cards .flip-card-demo.problem-cta-card {
-      position: relative;
-      z-index: 1;
-    }
-    .section-problem .product-layout-cards .flip-card-demo.problem-cta-card .flip-card-front {
-      border: 2px solid rgba(129, 140, 248, 0.85);
-      background:
-        radial-gradient(120% 80% at 50% 0%, rgba(99, 102, 241, 0.35), transparent 52%),
-        linear-gradient(165deg, rgba(99, 102, 241, 0.18) 0%, var(--bg-elevated) 55%);
-      box-shadow:
-        0 0 0 1px rgba(99, 102, 241, 0.25),
-        0 10px 36px rgba(99, 102, 241, 0.22),
-        0 4px 14px rgba(0, 0, 0, 0.4);
-    }
-    .section-problem .product-layout-cards .flip-card-demo.problem-cta-card .flip-card-front h4 {
-      color: #f4f4ff;
-      font-weight: 700;
-      letter-spacing: 0.01em;
-    }
-    .section-problem .product-layout-cards .flip-card-demo.problem-cta-card .flip-card-emoji {
-      filter: drop-shadow(0 0 10px rgba(129, 140, 248, 0.55));
-    }
-    .section-problem .product-layout-cards .flip-card-demo.problem-cta-card:hover .flip-card-front,
-    .section-problem .product-layout-cards .flip-card-demo.problem-cta-card:focus-visible .flip-card-front {
-      border-color: #c7d2fe;
-      background:
-        radial-gradient(120% 80% at 50% 0%, rgba(129, 140, 248, 0.42), transparent 50%),
-        linear-gradient(165deg, rgba(99, 102, 241, 0.28) 0%, var(--bg-elevated) 50%);
-      box-shadow:
-        0 0 0 2px rgba(99, 102, 241, 0.4),
-        0 14px 44px rgba(99, 102, 241, 0.32),
-        0 6px 20px rgba(0, 0, 0, 0.45);
     }
     .section-problem .problem-intro-toggle {
       display: none;
@@ -2041,7 +1571,7 @@
       padding-top: clamp(0.3rem, 0.7vh, 0.9rem);
       padding-bottom: clamp(0.3rem, 0.7vh, 0.9rem);
     }
-    .product-layout-text .problem-why-block h3 + p {
+    .product-layout-text .product-intro p:first-child {
       margin-top: 0.1rem;
     }
     /* Правая текстовая карточка — делаем текст чуть компактнее */
@@ -2064,140 +1594,76 @@
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
       display: block;
     }
-
-    /* ----- Слайд #faq: те же отступы секции и карточка как у остальных слайдов; скролл — внутри .faq-cards-scroll ----- */
-    #faq .slide-card {
-      min-height: 0;
-    }
-    #faq .slide-card-body {
-      flex: 1 1 0;
-      min-height: 0;
-      width: 100%;
-      max-width: none;
-      align-items: stretch;
-      justify-content: flex-start;
-      overflow: hidden;
-      /* top/sides как у .slide-card .slide-card-body, снизу 0 — отступ даёт .faq-slide-footer */
-      padding: 0.75rem 1.25rem 0;
-      gap: clamp(0.2rem, 0.65vh, 0.45rem);
-    }
-    /* Прокрутка только списка карточек — футер прижат к низу слайда и не перекрывается сеткой */
-    #faq .faq-cards-scroll {
-      flex: 1 1 0;
-      min-height: 0;
-      width: 100%;
-      overflow-x: hidden;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      overscroll-behavior: contain;
-    }
-    #faq .slide-card-body > p {
-      flex-shrink: 0;
-      margin: 0 0 0.15rem;
-      text-align: center;
-      font-size: clamp(0.74rem, 2.05vmin, 0.92rem);
-      line-height: 1.35;
-      color: var(--text-muted);
-    }
-    #faq .flip-cards.col-3 {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: clamp(0.3rem, 0.9vh, 1rem);
-      width: 100%;
-      max-width: none;
-      margin: 0 !important;
-      min-height: 100%;
-      align-content: center;
-    }
-    @media (max-width: 900px) {
-      #faq .flip-cards.col-3 {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
-    @media (max-width: 520px) {
-      #faq .flip-cards.col-3 {
-        grid-template-columns: 1fr;
-      }
-    }
-    #faq .flip-cards.col-3 .flip-card {
-      min-height: clamp(127px, 17.2vh, 264px);
-      height: auto;
-    }
-    #faq .flip-cards.col-3 .flip-card-inner {
-      min-height: clamp(127px, 17.2vh, 264px);
-      height: 100%;
-    }
-    #faq .flip-cards.col-3 .flip-card-front,
-    #faq .flip-cards.col-3 .flip-card-back {
-      padding: clamp(0.45rem, 1.1vh, 1.25rem) clamp(0.5rem, 1.2vw, 1.2rem);
-      border-radius: clamp(10px, 1.6vh, 18px);
-    }
-    #faq .flip-cards.col-3 .flip-card-front h4 {
-      font-size: clamp(0.82rem, 2.1vmin, 1.08rem);
-      line-height: 1.22;
-    }
-    #faq .flip-cards.col-3 .flip-card-back p {
-      font-size: clamp(0.76rem, 1.9vmin, 0.9rem);
-      line-height: 1.4;
-    }
-    #faq .flip-cards.col-3 .flip-card-emoji {
-      font-size: clamp(1.25rem, 3.2vmin, 2.1rem);
-      margin-bottom: clamp(0.2rem, 0.5vh, 0.65rem);
-    }
-    #faq .faq-slide-outro {
-      flex-shrink: 0;
-      text-align: center;
-      margin: 0;
-      padding: 0 clamp(0.5rem, 2vw, 1rem);
-      font-size: clamp(0.78rem, 2vmin, 0.92rem);
-      line-height: 1.45;
-      color: var(--text-muted);
-    }
-    #faq .faq-slide-outro .landing-hash-link {
-      color: var(--accent);
-      font-weight: 600;
-      text-decoration: none;
-    }
-    #faq .faq-slide-outro .landing-hash-link:hover {
-      text-decoration: underline;
-    }
-    #faq .faq-slide-footer {
-      flex-shrink: 0;
-      padding-top: clamp(0.4rem, 1vh, 0.7rem);
-      padding-bottom: calc(4.35rem + env(safe-area-inset-bottom));
-      border-top: 1px solid var(--border);
-      text-align: center;
-      color: var(--text-muted);
-      font-size: clamp(0.72rem, 1.9vmin, 0.85rem);
-      background: var(--bg);
-      box-shadow: 0 -10px 28px rgba(0, 0, 0, 0.4);
-      position: relative;
-      z-index: 2;
-    }
-    #faq .faq-slide-footer p {
-      margin: 0.15rem 0 0;
-      font-size: inherit;
-      line-height: 1.35;
-    }
-    #faq .faq-slide-footer-links {
-      margin-top: 0.2rem;
-    }
-    #faq .faq-slide-footer a {
-      color: inherit;
-      text-decoration: none;
-    }
-    #faq .faq-slide-footer a:hover {
-      color: var(--text);
-      text-decoration: underline;
-    }
-
     @media (max-width: 768px) {
-      /* #faq — те же поля секции, что и у section.landing-slide; тело карточки — как у .slide-card .slide-card-body по горизонтали/верху */
-      #faq .slide-card-body {
-        padding: 0.7rem 0.9rem 0;
+      /* Слайд "Частые вопросы": уплотняем, чтобы карточки влезали без скролла */
+      #faq .slide-card-header {
+        padding: 0.55rem 0 !important;
       }
-      #faq .faq-slide-footer {
-        padding-bottom: calc(0.2rem + var(--mobile-ui-clearance));
+      #faq.faq {
+        max-width: none;
+        width: 100%;
+      }
+      #faq.landing-slide {
+        padding: 1.1rem 0.9rem calc(0.55rem + var(--mobile-ui-clearance)) !important;
+      }
+      #faq .slide-card {
+        width: 100% !important;
+        max-width: none !important;
+        align-items: stretch;
+      }
+      #faq .slide-card-body {
+        width: 100%;
+        align-items: stretch;
+        justify-content: flex-start;
+        overflow: hidden;
+        padding: 0.8rem 0.95rem calc(0.55rem + var(--mobile-ui-clearance));
+        gap: 0.3rem;
+      }
+      #faq .slide-card-body > p {
+        margin-bottom: 0.2rem;
+        font-size: 0.72rem;
+        line-height: 1.2;
+      }
+      #faq .flip-cards.col-3 {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        flex: 1 1 auto;
+        min-height: 0;
+        margin: 0 !important;
+        gap: 0.5rem;
+        width: 100%;
+        max-width: none;
+      }
+      #faq .flip-cards.col-3 .flip-card,
+      #faq .flip-cards.col-3 .flip-card-inner {
+        min-height: 172px !important;
+      }
+      #faq .flip-cards.col-3 .flip-card {
+        flex: 0 0 auto;
+        position: relative;
+      }
+      #faq .flip-cards.col-3 .flip-card-inner {
+        height: 172px !important;
+      }
+      #faq .flip-cards.col-3 .flip-card-front,
+      #faq .flip-cards.col-3 .flip-card-back {
+        padding: 0.7rem 0.85rem;
+      }
+      #faq .flip-cards.col-3 .flip-card-front h4 {
+        font-size: 0.9rem;
+        line-height: 1.25;
+      }
+      #faq .flip-cards.col-3 .flip-card-back p {
+        font-size: 0.82rem;
+        line-height: 1.35;
+      }
+      #faq .flip-cards.col-3 .flip-card-emoji {
+        font-size: 1.55rem;
+        margin-bottom: 0.36rem;
+      }
+      #faq .slide-card-body > footer {
+        display: none;
       }
 
       /* Слайд «Кто вы?» на мобиле: заголовок + ровная сетка 2x3 */
@@ -2214,8 +1680,8 @@
       .role-slide .role-slide-inner h2 {
         display: block !important;
         margin-bottom: 0.22rem;
-        font-size: var(--landing-slide-heading-size);
-        line-height: 1.15;
+        font-size: clamp(1rem, 2.05vh, 1.28rem);
+        line-height: 1.18;
       }
       .role-slide .role-slide-inner > p {
         margin-bottom: 0.42rem !important;
@@ -2284,9 +1750,6 @@
       }
       .product-slide .product-layout-cards .flip-cards.col-4 .flip-card-emoji {
         font-size: clamp(0.95rem, 1.6vh, 1.35rem);
-        width: 1.85rem;
-        min-width: 1.85rem;
-        margin: 0;
       }
       .product-slide .product-layout-cards .flip-cards.col-4 .flip-card-front h4 {
         font-size: clamp(0.72rem, 1.25vh, 0.86rem);
@@ -2324,6 +1787,7 @@
       }
       .section-problem .slide-card-body > h2 {
         margin-bottom: 0.2rem;
+        font-size: clamp(1.05rem, 2.25vh, 1.45rem);
       }
       .section-problem .product-title-spacer {
         display: none;
@@ -2356,6 +1820,9 @@
         flex: 0 0 78%;   /* оставшиеся ~3/4 высоты */
         min-height: 0;
       }
+      .section-problem .product-layout-text .product-diagram-wrap {
+        display: none;
+      }
     }
     .section-problem .problem-content { margin-bottom: 1.5rem; }
     .section-problem .problem-content,
@@ -2364,17 +1831,6 @@
     .section-problem .problem-content h2,
     .section-problem .problem-content p { text-align: center; }
     .section-problem .problem-content h2 { margin-bottom: 1rem; }
-    /* Каскад появления на слайде «Задача»: стартовое состояние до GSAP */
-    .section-problem .problem-cascade-item {
-      opacity: 0;
-      transform: translateY(18px);
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .section-problem .problem-cascade-item {
-        opacity: 1;
-        transform: none;
-      }
-    }
     .problem-list {
       list-style: none;
     }
@@ -2498,6 +1954,99 @@
       .demo-section .demo-course-body { padding: 0.5rem 0.75rem; }
       .demo-section .demo-course-body h3 { font-size: 0.95rem; }
       .demo-section .demo-course-body p { font-size: 0.8rem; margin-bottom: 0.35rem; }
+      /* Слайд «Возможности»: уменьшаем превью, чтобы картинка и описание
+         полностью помещались в карточку на мобильных экранах */
+      #features .demo-course-img {
+        width: 100%;
+        height: 56px !important;
+        max-height: 56px !important;
+        min-height: 56px !important;
+        aspect-ratio: auto;
+        object-fit: contain;
+        object-position: center;
+        padding: 0.1rem 0.25rem 0;
+        border-radius: 12px 12px 0 0;
+      }
+      #features .demo-course-body {
+        padding: 0.45rem 0.65rem;
+        gap: 0.28rem;
+      }
+      #features .demo-course-body h3 {
+        font-size: 0.84rem;
+        margin-bottom: 0.15rem;
+        line-height: 1.2;
+      }
+      #features .demo-course-body p {
+        font-size: 0.72rem;
+        line-height: 1.3;
+        margin-bottom: 0.2rem;
+      }
+      /* На слайде «Возможности» убираем второй подзаголовок и
+         перераспределяем высоту в пользу карточек */
+      #features .slide-card-body > p {
+        display: none;
+      }
+      #features .slide-card-body {
+        padding: 0.7rem 0.75rem calc(0.7rem + var(--mobile-ui-clearance));
+      }
+      #features .demo-courses {
+        gap: 0.55rem;
+      }
+      #features .demo-course {
+        min-height: 0;
+      }
+      #features .demo-course-body {
+        padding: 0.42rem 0.6rem 0.5rem;
+      }
+      #features .demo-course-body h3 {
+        font-size: 0.8rem;
+        margin-bottom: 0.1rem;
+      }
+      #features .demo-course-body p {
+        font-size: 0.68rem;
+        line-height: 1.25;
+        margin-bottom: 0.16rem;
+      }
+      #features .features-course-btn {
+        min-width: 0;
+        width: 100%;
+        min-height: 36px !important;
+        height: 36px !important;
+        max-height: 36px !important;
+        padding: 0 0.6rem !important;
+        font-size: 0.74rem !important;
+        line-height: 1 !important;
+        white-space: nowrap !important;
+        border-radius: 8px;
+        box-sizing: border-box;
+      }
+      /* Мобильный режим заявки:
+         показываем только карточку "Курс под ключ" и увеличиваем её по высоте */
+      #features .demo-courses.request-mode {
+        grid-template-columns: 1fr;
+        grid-auto-rows: auto;
+        align-content: stretch;
+      }
+      #features .demo-courses.request-mode > .demo-course:not(#featuresCourseKey) {
+        display: none;
+      }
+      #features .demo-courses.request-mode #featuresCourseKey {
+        min-height: clamp(420px, 66vh, 620px);
+      }
+      #features .demo-courses.request-mode #featuresCourseKey .features-course-inner {
+        min-height: 100%;
+      }
+      #features .demo-courses.request-mode #featuresCourseKey .features-course-back .demo-course-body {
+        height: 100%;
+        overflow-y: auto;
+        padding: 0.55rem 0.7rem 0.65rem;
+      }
+      #features .demo-courses.request-mode .features-request-form {
+        gap: 0.35rem;
+      }
+      #features .demo-courses.request-mode .features-request-form textarea {
+        min-height: 2.6rem;
+      }
     }
     .demo-section .demo-course {
       min-height: 0;
@@ -2527,134 +2076,89 @@
     }
     .demo-section .demo-course-body h3 { font-size: 1rem; margin-bottom: 0.25rem; }
     .demo-section .demo-course-body p { font-size: 0.85rem; margin-bottom: 0.5rem; }
-
-    /* Слайд «Кому это не подходит» — вертикальный столбец flip-карточек (как .flip-cards.col-4 на #problem) */
-    #not-for-you .slide-card-body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    /* Для слайда «Возможности» показываем квадратные иконки целиком,
+       поэтому меняем форму карточек и не обрезаем изображения. */
+    #features .demo-course-img {
+      aspect-ratio: 1 / 1;
+      max-height: 180px;
+      object-fit: contain;
+      background: radial-gradient(circle at 10% 0%, rgba(148, 163, 184, 0.2), transparent 60%);
+      border-radius: 18px 18px 0 0;
+    }
+    #features .demo-course {
+      border-radius: 18px;
+      overflow: hidden;
+    }
+    #features .features-course-btn {
+      margin-top: auto;
+      align-self: center;
+      min-width: 120px;
+      min-height: 36px !important;
+      height: 36px !important;
+      max-height: 36px !important;
       text-align: center;
-      max-width: min(52rem, 100%);
-      margin: 0 auto;
-      width: 100%;
-      flex: 1;
-      min-height: 0;
-      overflow-x: hidden;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      padding-bottom: calc(2.6rem + env(safe-area-inset-bottom));
-      box-sizing: border-box;
-    }
-    #not-for-you .slide-card-body > h2 {
-      line-height: 1.15;
-      flex-shrink: 0;
-    }
-    #not-for-you.demo-section .slide-card-body .not-for-you-lead {
-      color: var(--text-muted);
-      margin: 0 auto 0.4rem;
-      font-size: clamp(0.84rem, 2.35vmin, 1.05rem);
-      line-height: 1.45;
-      max-width: 42rem;
-      flex-shrink: 0;
-    }
-    #not-for-you.demo-section .slide-card-body .not-for-you-hint {
-      margin: 0 auto 0.32rem;
-      font-size: clamp(0.75rem, 2.05vmin, 0.9rem);
-      color: var(--text-muted);
-      opacity: 0.85;
-      flex-shrink: 0;
-    }
-    #not-for-you .not-for-you-cards {
-      flex: 1 1 0;
-      min-height: 0;
-      width: 100%;
-      max-width: min(42rem, 100%);
-      margin: 0 auto;
-      grid-template-columns: 1fr;
-      grid-template-rows: repeat(4, minmax(0, 1fr));
-      gap: clamp(0.35rem, 0.85vh, 0.75rem);
-    }
-    #not-for-you .not-for-you-cards .flip-card {
-      min-height: 0;
-      height: 100%;
-    }
-    #not-for-you .not-for-you-cards .flip-card-inner {
-      min-height: 0;
-      height: 100%;
-    }
-    #not-for-you .not-for-you-cards .flip-card-front,
-    #not-for-you .not-for-you-cards .flip-card-back {
-      border-radius: clamp(10px, 1.8vh, 18px);
-      padding: clamp(0.4rem, 0.8vh, 0.85rem) clamp(0.5rem, 1vw, 1.25rem);
-    }
-    #not-for-you .not-for-you-cards .flip-card-front {
-      flex-direction: row;
-      align-items: center;
-      justify-content: flex-start;
-      gap: clamp(0.55rem, 1.2vw, 1rem);
-    }
-    #not-for-you .not-for-you-cards .flip-card-back {
-      justify-content: center;
-      overflow-y: auto;
-      text-align: left;
-    }
-    #not-for-you .not-for-you-front-col {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      justify-content: center;
-      gap: 0.2rem;
-      min-width: 0;
-      text-align: left;
-    }
-    #not-for-you .not-for-you-cards .flip-card-emoji {
-      font-size: clamp(1.55rem, 2.85vh, 2.35rem);
-      width: 2.85rem;
-      min-width: 2.85rem;
-      margin: 0;
-      flex-shrink: 0;
+      cursor: pointer;
+      /* make features buttons look like primary buttons by default */
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      line-height: 1;
-      text-align: center;
-    }
-    #not-for-you .not-for-you-cards .flip-card-front h4 {
-      font-size: clamp(0.92rem, 2.05vh, 1.12rem);
+      gap: .4rem;
+      padding: 0 0.6rem !important;
+      line-height: 1 !important;
+      white-space: nowrap !important;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      box-shadow: 0 6px 18px rgba(99, 102, 241, 0.12);
+      font-size: 0.74rem !important;
       font-weight: 600;
-      text-align: left;
-      margin: 0;
-      line-height: 1.3;
+      box-sizing: border-box;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease, color 0.12s ease;
     }
-    #not-for-you .not-for-you-teaser {
-      font-size: clamp(0.8rem, 1.75vh, 0.95rem);
-      color: var(--text-muted);
-      margin: 0;
-      line-height: 1.38;
-      text-align: left;
-      font-weight: 500;
+    #features .features-course-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(99, 102, 241, 0.18);
     }
-    #not-for-you .not-for-you-cards .flip-card-back p {
-      font-size: clamp(0.8rem, 1.7vh, 0.98rem);
-      line-height: 1.45;
-      margin: 0;
+    #features .features-course-btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
     }
-    #not-for-you.demo-section .slide-card-body .not-for-you-outro {
-      margin: 0.65rem auto 0;
-      padding-bottom: 0.35rem;
-      font-size: clamp(0.78rem, 2.1vmin, 0.95rem);
-      color: var(--text-muted);
-      line-height: 1.45;
-      flex-shrink: 0;
-      max-width: 40rem;
+    /* Явное дублирование для класса "Попробовать", чтобы исключить расхождения */
+    #features .features-lms-btn {
+      min-height: 36px !important;
+      height: 36px !important;
+      max-height: 36px !important;
+      padding: 0 0.6rem !important;
+      font-size: 0.74rem !important;
+      line-height: 1 !important;
+      white-space: nowrap !important;
+      box-sizing: border-box;
     }
-    #not-for-you .not-for-you-outro a {
-      color: var(--accent);
-      font-weight: 600;
-      text-decoration: none;
+    /* keep smaller variant for auth-tab styling if present */
+    
+    /* Флип-эффект только для первой карточки «Курс под ключ» на слайде «Возможности» */
+    #features .features-course {
+      perspective: 1600px;
     }
-    #not-for-you .not-for-you-outro a:hover {
-      text-decoration: underline;
+    #features .features-course-inner {
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.5s ease;
+      min-height: 100%;
+    }
+    #features .features-course-front,
+    #features .features-course-back {
+      position: relative;
+      backface-visibility: hidden;
+    }
+    #features .features-course-back {
+      position: absolute;
+      inset: 0;
+      transform: rotateY(180deg);
+    }
+    #features .features-course.is-flipped .features-course-inner {
+      transform: rotateY(180deg);
     }
     .demo-courses {
       display: grid;
@@ -2809,8 +2313,7 @@
     }
     .form-section button[type="submit"]:hover { filter: brightness(1.1); }
 
-    /* Узкая колонка для блоков FAQ на обычных страницах; не слайд лендинга (#faq.landing-slide) */
-    .faq:not(.landing-slide) {
+    .faq {
       max-width: 640px;
       margin: 0 auto;
     }
@@ -2982,6 +2485,27 @@
       }
     }
 
+    /* FINAL OVERRIDE: фиксируем единый размер кнопок на слайде "Возможности"
+       (включая "Попробовать"), чтобы никакие другие стили не меняли высоту */
+    #features button.features-course-btn,
+    #features .features-course-btn.auth-tab,
+    #features .features-course-btn.auth-tab.auth-tab-active,
+    #features .features-lms-btn {
+      box-sizing: border-box !important;
+      min-height: 36px !important;
+      height: 36px !important;
+      max-height: 36px !important;
+      padding: 0 0.6rem !important;
+      margin-top: auto;
+      line-height: 1 !important;
+      font-size: 0.74rem !important;
+      white-space: nowrap !important;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+
     /* Убираем специальные width/отступы для #how,
        чтобы слайд выглядел так же, как остальные. */
 
@@ -2989,7 +2513,7 @@
        Some browsers/extensions can report/introduce per-element zoom/scale;
        we force both CSS transform and zoom back to defaults. */
     #form,
-    #not-for-you,
+    #features,
     #demo,
     #how {
       zoom: 1 !important;
@@ -2998,38 +2522,15 @@
 
     /* Also normalize the main slide containers where scaling might be applied */
     #form .slide-card,
-    #not-for-you .slide-card,
+    #features .slide-card,
     #demo .slide-card,
     #how .slide-card,
     #form .slide-card-body,
-    #not-for-you .slide-card-body,
+    #features .slide-card-body,
     #demo .slide-card-body,
     #how .slide-card-body {
       zoom: 1 !important;
       transform: none !important;
-    }
-
-    /* Единое положение заголовка (после всех отступов .slide-card-body / .demo-section): кроме intro, role, for-you */
-    .landing-slide:not(.intro-slide):not(.role-slide):not(.for-you-slide) .slide-card-header,
-    .landing-slide:not(.intro-slide):not(.role-slide):not(.for-you-slide) .auth-top {
-      width: 100%;
-      text-align: center;
-      flex-shrink: 0;
-      padding: var(--landing-slide-head-pad-top) clamp(0.75rem, 2vw, 1.25rem) var(--landing-slide-head-pad-bottom) !important;
-      box-sizing: border-box;
-    }
-    .landing-slide:not(.intro-slide):not(.role-slide):not(.for-you-slide) .slide-card-header h2,
-    .landing-slide:not(.intro-slide):not(.role-slide):not(.for-you-slide) .auth-top h2 {
-      margin: 0 !important;
-      line-height: 1.15;
-    }
-    .landing-slide:not(.intro-slide):not(.role-slide):not(.for-you-slide) .slide-card-body:has(> h2.font-display:first-child) {
-      padding-top: var(--landing-slide-body-title-pad-top);
-    }
-    .landing-slide:not(.intro-slide):not(.role-slide):not(.for-you-slide) .slide-card-body:has(> h2.font-display:first-child) > h2.font-display {
-      margin-top: 0 !important;
-      margin-bottom: 0.35rem !important;
-      line-height: 1.15;
     }
   </style>
 </head>
@@ -3041,11 +2542,11 @@
         <span>ИНТЕРАКТИВИТИ</span>
       </a>
       <nav class="site-nav" id="siteNav">
-        <a href="#problem">Задача</a>
-        <a href="#how">Проект</a>
+        <a href="#problem">О продукте</a>
         <a href="#demo">Демо</a>
+        <a href="#pricing">Возможности</a>
         <a href="#contacts">Контакты</a>
-        <a href="#form" class="cta">Заявка</a>
+        <a href="#form" class="cta">Войти</a>
       </nav>
       <button type="button" class="site-header-burger" id="siteBurger" aria-label="Меню" aria-expanded="false" onclick="(function(btn){var nav=document.getElementById('siteNav');if(!nav)return;var isOpen=nav.classList.toggle('open');btn.setAttribute('aria-expanded',isOpen?'true':'false');})(this)">
         <span></span>
@@ -3103,15 +2604,16 @@
   </script>
 
   <div class="landing-slides" id="landingSlides">
-  <section class="intro-slide intro-compact graph-node-section landing-slide active" id="intro" data-slide="0">
+  <section class="intro-slide graph-node-section landing-slide active" id="intro" data-slide="0">
     <div class="slide-card">
       <div class="intro-slide-hero">
-        <img src="img/Fon1.png" alt="Кабинет методолога: рабочий стол с ноутбуком и визуальным редактором сценариев, уютный закат за окнами" />
+        <img src="img/Fon1.png" alt="Кабинет методолога-продюсера: рабочий стол с ноутбуком и визуальным редактором сценариев, уютный закат за окнами" />
       </div>
       <div class="slide-card-body">
         <div class="intro-slide-inner">
-          <h1 class="font-display">ИНТЕРАКТИВИТИ</h1>
-          <p class="intro-lead">Интерактивные тренажёры для обучения и бизнеса</p>          
+          <h1 class="font-display">Интерактивити</h1>
+          <p class="intro-lead">Конструктор интерактивных сценариев для учёбы и бизнеса.</p>
+          <p class="intro-sublead">Собирайте сцены, выборы и исходы без кода — в одной LMS платформе.</p>
         </div>
       </div>
       <footer class="intro-slide-footer">
@@ -3123,63 +2625,65 @@
   <section class="section-problem product-slide graph-node-section landing-slide" id="problem" data-slide="1">
       <div class="slide-card">
       <div class="slide-card-body">
-        <h2 class="font-display">Обучение прошло. Поведение не изменилось?</h2>
-        <p class="text-muted" style="margin-top: 0; margin-bottom: 0.75rem;">Типичная проблема корпоративных курсов: сотрудники знают «как правильно», но в работе продолжают действовать по-старому</p>
+        <h2 class="font-display">Конструктор интерактивных сценариев</h2>
+        <p class="text-muted" style="margin-top: 0; margin-bottom: 0.75rem;">Что это и зачем?</p>
         <div class="product-title-spacer" aria-hidden="true"></div>
         <div class="product-layout">
           <div class="product-layout-cards">
             <div class="flip-cards col-4">
-              <div class="flip-card problem-cascade-item" tabindex="0" title="Нажмите на карточку — подробности внутри">
+              <div class="flip-card" tabindex="0" title="Нажмите на карточку — подробности внутри">
                 <div class="flip-card-inner">
                   <div class="flip-card-front">
-                    <span class="flip-card-emoji">🔄</span>
-                    <h4>Сотрудники прошли курс, но в работе всё по-старому?</h4>
+                    <span class="flip-card-emoji">🎓</span>
+                    <h4>Вы замечаете, что старые форматы онлайн‑обучения теряют эффективность для нового поколения?</h4>
                   </div>
                   <div class="flip-card-back">
-                    <p>Знание не становится навыком без практики — нужен формат, где человек принимает решения и видит последствия</p>
+                    <p>Классический формат «лекция + тест» быстро утомляет — интерес к учёбе падает, особенно у нового поколения. В Интерактивити курс — это интерактивная история с выбором и последствиями, где хочется дойти до конца и попробовать себя в разных ролях.</p>
                   </div>
                 </div>
               </div>
-              <div class="flip-card problem-cascade-item" tabindex="0" title="Нажмите на карточку — подробности внутри">
+              <div class="flip-card" tabindex="0" title="Нажмите на карточку — подробности внутри">
                 <div class="flip-card-inner">
                   <div class="flip-card-front">
-                    <span class="flip-card-emoji">❓</span>
-                    <h4>Тесты сдают, а в реальной ситуации теряются?</h4>
+                    <span class="flip-card-emoji">📚</span>
+                    <h4>Хотите увеличить показатели вовлечения, доходиости и применения знаний на практике?</h4>
                   </div>
                   <div class="flip-card-back">
-                    <p>Тест проверяет память, но не поведение — навык появляется через выбор и проживание ситуации</p>
+                    <p>Со временем доходимость классических курсов падает, а связь между выученным и реальной работой слабая. В Интерактивити вы строите ветвящиеся кейсы‑тренажёры: знания тут же применяются в ситуациях «как в жизни», а навыки переносятся в реальные решения.</p>
                   </div>
                 </div>
               </div>
-              <div class="flip-card problem-cascade-item" tabindex="0" title="Нажмите на карточку — подробности внутри">
+              <div class="flip-card" tabindex="0" title="Нажмите на карточку — подробности внутри">
                 <div class="flip-card-inner">
                   <div class="flip-card-front">
-                    <span class="flip-card-emoji">🎯</span>
-                    <h4>Сотрудники проходят обучение «для галочки»?</h4>
+                    <span class="flip-card-emoji">📊</span>
+                    <h4>Ищите новый формат для учебы или привлечения клиентов в бизнесе?</h4>
                   </div>
                   <div class="flip-card-back">
-                    <p>Когда нет вовлечения, материал не проживается — формат должен включать человека в процесс, а не просто показывать контент</p>
+                    <p>Обычно вы видите только факт прохождения курса или клика по квизу. В Интерактивити каждый выбор — это сегментация и данные: кто как действует, где отваливается, какие сценарии ведут к результату. Можно масштабировать курсы и продукт на основе аналитики.</p>
                   </div>
                 </div>
               </div>
-              <div class="flip-card flip-card-demo problem-cta-card problem-cascade-item" tabindex="0" title="Посмотреть демо">
+              <div class="flip-card flip-card-demo" tabindex="0" title="Посмотреть демо курс">
                 <div class="flip-card-inner">
                   <div class="flip-card-front">
-                    <span class="flip-card-emoji" aria-hidden="true">▶️</span>
-                    <h4>Есть решение! Посмотреть демо.</h4>
+                    <span class="flip-card-emoji">▶️</span>
+                    <h4>Есть решение! Запустите демо!</h4>
                   </div>
-                  <div class="flip-card-back" aria-hidden="true"></div>
+                  <div class="flip-card-back">
+                    <p>Откройте готовый интерактивный курс <strong>PeopleGames</strong> и пройдите сценарий как ваш ученик. Увидите, как работает конструктор на живом примере.</p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-          <div class="product-layout-text problem-cascade-item" id="problemTopArea">
-            <div class="product-intro problem-why-block" id="problemDefinitions">
-              <h3 class="font-display problem-why-title">Почему это работает</h3>
-              <p>Классический курс даёт знание. Но навык формируется только через действие.</p>
-              <p>Интерактивные сценарии добавляют недостающее звено: сотрудник попадает в рабочую ситуацию, принимает решения и сразу видит последствия.</p>
-              <p>Это не заменяет практику, но позволяет безопасно «прожить» опыт до реальной работы и быстрее перенести знания в поведение.</p>
-              <p>Мы разрабатываем такие сценарии под задачи компании — от идеи до запуска в LMS.</p>
+          <div class="product-layout-text" id="problemTopArea">
+            <div class="product-intro" id="problemDefinitions">
+              <p id="problemDefIS">Интерактивный сценарий (ИС) — это история или кейс, в котором пользователь делает выборы, от которых зависят дальнейшие ветки и исходы.</p>
+              <p id="problemDefKIS">Конструктор интерактивных сценариев «Интерактивити» — это визуальный редактор сцен, выборов и исходов со встроенной учебной платформой.</p>
+            </div>
+            <div class="product-diagram-wrap">
+              <img class="product-diagram" src="img/Product.png" alt="Схема: интерактивный сценарий — узлы и ветвления" />
             </div>
           </div>
         </div>
@@ -3191,18 +2695,38 @@
     <div class="slide-card">
       <div class="slide-card-body">
         <div class="role-slide-inner">
-          <h2 class="font-display">С кем мы говорим в компании</h2>
-          <p style="margin-bottom: 0.75rem;">Выберите роль — покажем, что важно именно вам в проекте «под ключ».</p>
+          <h2 class="font-display">Кто вы?</h2>
+          <p style="margin-bottom: 0.75rem;">Выберите роль — покажем, чем Интерактивити полезен лично вам.</p>
           <div class="role-choices">
             <button type="button" class="role-choice" data-role="manager">
               <img class="role-choice-icon" src="img/Roles/Role5.png" alt="Руководитель корпоративного обучения" />
-              <span class="role-choice-title">Руководитель обучения</span>
-              <span class="role-choice-caption">Сроки, бюджет, внедрение в команду и измеримый эффект для бизнеса.</span>
+              <span class="role-choice-title">Руководитель корпоративного обучения</span>
+              <span class="role-choice-caption">Обучаете команду в безопасных сценариях и видите результаты.</span>
             </button>
             <button type="button" class="role-choice" data-role="methodist">
-              <img class="role-choice-icon" src="img/Roles/Role2.png" alt="Методолог" />
-              <span class="role-choice-title">Методолог</span>
-              <span class="role-choice-caption">Смысл, ветки сценария, дидактика и связка с рабочими ситуациями.</span>
+              <img class="role-choice-icon" src="img/Roles/Role2.png" alt="Методист" />
+              <span class="role-choice-title">Методист</span>
+              <span class="role-choice-caption">Собираете кейсы и тренажёры без программиста.</span>
+            </button>
+            <button type="button" class="role-choice" data-role="teacher">
+              <img class="role-choice-icon" src="img/Roles/Role1.png" alt="Преподаватель" />
+              <span class="role-choice-title">Преподаватель</span>
+              <span class="role-choice-caption">Живые сценарии вместо сухих лекций.</span>
+            </button>
+            <button type="button" class="role-choice" data-role="producer">
+              <img class="role-choice-icon" src="img/Roles/Role3.png" alt="Продюсер" />
+              <span class="role-choice-title">Продюсер</span>
+              <span class="role-choice-caption">Масштабируете продукт интерактивными курсами.</span>
+            </button>
+            <button type="button" class="role-choice" data-role="marketer">
+              <img class="role-choice-icon" src="img/Roles/Role4.png" alt="Маркетолог" />
+              <span class="role-choice-title">Маркетолог</span>
+              <span class="role-choice-caption">Строите сценарии, которые прогревают и сегментируют.</span>
+            </button>
+            <button type="button" class="role-choice" data-role="other">
+              <img class="role-choice-icon" src="img/Roles/Role6.png" alt="Другая роль" />
+              <span class="role-choice-title">Другая роль</span>
+              <span class="role-choice-caption">Подберём сценарии под вашу задачу.</span>
             </button>
           </div>
         </div>
@@ -3215,8 +2739,8 @@
       <div class="slide-card-body">
         <div class="for-you-slide-inner">
           <div class="for-you-header">
-            <img id="forYouRoleIcon" class="for-you-role-icon" src="img/Roles/Role5.png" alt="" />
-            <h2 class="font-display" id="forYouTitle">Для руководителя обучения</h2>
+            <img id="forYouRoleIcon" class="for-you-role-icon" src="img/Roles/Role6.png" alt="" />
+            <h2 class="font-display" id="forYouTitle">Для вас</h2>
           </div>
           <ul id="forYouList" class="text-left for-you-list"></ul>
           <a id="forYouMethodistLink" class="for-you-more-link" href="methodologist-partner.html" hidden>Подробнее тут</a>
@@ -3229,177 +2753,60 @@
   <section class="graph-node-section landing-slide" id="how" data-slide="4">
     <div class="slide-card">
       <div class="slide-card-body">
-        <h2 class="font-display">Как мы ведём проект</h2>
-        <p>Нажмите на карточку — детали шага внутри.</p>
-        <div class="flip-cards col-4 how-five">
+        <h2 class="font-display">Как это работает</h2>
+        <p>Нажмите на карточку — шаги внутри.</p>
+        <div class="flip-cards col-4">
           <div class="flip-card" tabindex="0">
             <div class="flip-card-inner">
               <div class="flip-card-front">
-                <span class="flip-card-emoji how-brief-checklist how-step-icon" aria-hidden="true">
-                  <svg class="how-brief-svg how-step-icon-svg" viewBox="0 0 36 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <rect class="how-brief-sheet" x="5" y="3" width="26" height="36" rx="2.5"/>
-                    <line class="how-brief-line" x1="14" y1="12" x2="28" y2="12"/>
-                    <line class="how-brief-line" x1="14" y1="20" x2="28" y2="20"/>
-                    <line class="how-brief-line" x1="14" y1="28" x2="26" y2="28"/>
-                    <g class="how-brief-check how-brief-check-1">
-                      <path d="M7.5 12.5l2.2 2.4 4.6-5.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                    </g>
-                    <g class="how-brief-check how-brief-check-2">
-                      <path d="M7.5 20.5l2.2 2.4 4.6-5.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                    </g>
-                    <g class="how-brief-check how-brief-check-3">
-                      <path d="M7.5 28.5l2.2 2.4 4.6-5.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                    </g>
-                  </svg>
-                </span>
-                <h4>1. Бриф и цель обучения</h4>
+                <span class="flip-card-emoji">📄</span>
+                <h4 class="how-scenes-title">1. Сцены и контент</h4>
               </div>
               <div class="flip-card-back">
-                <p>Фиксируем бизнес‑задачу, аудиторию, ограничения и критерии успеха вместе с заказчиком и методологом.</p>
+                <p>Добавляйте экраны с текстом, изображениями и медиа. Собирайте сценарий из сцен.</p>
               </div>
             </div>
           </div>
           <div class="flip-card" tabindex="0">
             <div class="flip-card-inner">
               <div class="flip-card-front">
-                <span class="flip-card-emoji how-step-icon" aria-hidden="true">
-                  <svg class="how-step-icon-svg how-graph-svg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <line class="how-graph-edge how-graph-e1" x1="16" y1="21.5" x2="8" y2="11.5" pathLength="100"/>
-                    <line class="how-graph-edge how-graph-e2" x1="16" y1="21.5" x2="24" y2="10.5" pathLength="100"/>
-                    <line class="how-graph-edge how-graph-e3" x1="24" y1="10.5" x2="27" y2="19" pathLength="100"/>
-                    <g class="how-graph-node how-graph-n1"><circle cx="16" cy="21.5" r="2.25"/></g>
-                    <g class="how-graph-node how-graph-n2"><circle cx="8" cy="11.5" r="2.25"/></g>
-                    <g class="how-graph-node how-graph-n3"><circle cx="24" cy="10.5" r="2.25"/></g>
-                    <g class="how-graph-node how-graph-n4"><circle cx="27" cy="19" r="2.25"/></g>
-                  </svg>
-                </span>
+                <span class="flip-card-emoji">🔀</span>
                 <h4 class="how-choices-title">
-                  <span class="how-choices-row">2. Проектирование сценария</span>
-                  <span class="how-choices-row">(с методологом)</span>
+                  <span>2</span><span>.</span><span>&nbsp;</span>
+                  <span>В</span><span>ы</span><span>б</span><span>о</span><span>р</span><span>ы</span>
+                  <span>&nbsp;</span>
+                  <span>и</span><br>
+                  <span>в</span><span>е</span><span>т</span><span>в</span><span>л</span><span>е</span><span>н</span><span>и</span><span>я</span>
                 </h4>
               </div>
               <div class="flip-card-back">
-                <p>Прописываем ситуации, ветки, типовые ошибки и обратную связь — чтобы симуляция совпадала с вашей реальностью.</p>
+                <p>Настраивайте варианты ответов и переходы к следующим сценам. Ветвящаяся логика без кода.</p>
               </div>
             </div>
           </div>
           <div class="flip-card" tabindex="0">
             <div class="flip-card-inner">
               <div class="flip-card-front">
-                <span class="flip-card-emoji how-build-puzzle-wrap how-step-icon" aria-hidden="true">
-                  <svg class="how-puzzle-svg how-step-icon-svg" viewBox="0 0 42 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <defs>
-                      <radialGradient id="howPuzzleGlow" cx="50%" cy="50%" r="50%">
-                        <stop offset="0%" stop-color="#e0e7ff" stop-opacity="0.9"/>
-                        <stop offset="45%" stop-color="#c7d2fe" stop-opacity="0.4"/>
-                        <stop offset="100%" stop-color="#6366f1" stop-opacity="0"/>
-                      </radialGradient>
-                      <linearGradient id="howPuzzleLeftGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#f8fafc"/>
-                        <stop offset="55%" stop-color="#c7d2fe"/>
-                        <stop offset="100%" stop-color="#818cf8"/>
-                      </linearGradient>
-                      <linearGradient id="howPuzzleRightGrad" x1="100%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stop-color="#eef2ff"/>
-                        <stop offset="50%" stop-color="#c7d2fe"/>
-                        <stop offset="100%" stop-color="#6366f1"/>
-                      </linearGradient>
-                    </defs>
-                    <circle class="how-puzzle-joint-glow" cx="14.2" cy="11.85" r="6" fill="url(#howPuzzleGlow)"/>
-                    <g class="how-puzzle-a">
-                      <path class="how-puzzle-piece-left" fill="url(#howPuzzleLeftGrad)" stroke="rgba(255,255,255,0.6)" stroke-width="1.1" stroke-linejoin="round"
-                        d="M2 4.85h11.35V8.05C17.4 8.05 17.4 15.65 13.35 15.65V18.9H2V4.85z"/>
-                      <path fill="none" stroke="rgba(255,255,255,0.42)" stroke-width="0.75" stroke-linecap="round" d="M5.4 8.15h4.2M5.4 11.85h3.2M5.4 15.55h4.3"/>
-                    </g>
-                    <g class="how-puzzle-b">
-                      <path class="how-puzzle-piece-right" fill="url(#howPuzzleRightGrad)" stroke="rgba(255,255,255,0.6)" stroke-width="1.1" stroke-linejoin="round"
-                        d="M40 4.85H15.2V8.05C11.15 8.05 11.15 15.65 15.2 15.65V18.9H40V4.85z"/>
-                      <path fill="none" stroke="rgba(255,255,255,0.42)" stroke-width="0.75" stroke-linecap="round" d="M22.6 8.15h6.4M23.1 11.85h6M22.6 15.55h6.4"/>
-                    </g>
-                  </svg>
-                </span>
-                <h4 class="how-build-title">
-                  <span class="how-build-num">3.</span>
-                  <span class="how-build-word">Сборка</span>
-                  <span class="how-build-word">интерактивного</span>
-                  <span class="how-build-word">тренажёра</span>
-                </h4>
+                <span class="flip-card-emoji how-launch-rocket">🚀</span>
+                <h4>3. Назначение и запуск</h4>
               </div>
               <div class="flip-card-back">
-                <p>Собираем курс на платформе Интерактивити: экраны, переходы, медиа, трекинг и интеграции под ваш стек.</p>
+                <p>Назначайте курсы сотрудникам или ученикам в одной платформе. Запуск в один клик.</p>
               </div>
             </div>
           </div>
           <div class="flip-card" tabindex="0">
             <div class="flip-card-inner">
               <div class="flip-card-front">
-                <span class="flip-card-emoji how-step4-rocket-slot how-step-icon" aria-hidden="true">
-                  <span class="how-launch-rocket">
-                    <svg class="how-rocket-svg" viewBox="0 0 32 34" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                      <defs>
-                        <linearGradient id="howRocketMetal" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" stop-color="#f8fafc"/>
-                          <stop offset="45%" stop-color="#c7d2fe"/>
-                          <stop offset="100%" stop-color="#818cf8"/>
-                        </linearGradient>
-                        <linearGradient id="howRocketGlass" x1="30%" y1="0%" x2="70%" y2="100%">
-                          <stop offset="0%" stop-color="#a5b4fc"/>
-                          <stop offset="100%" stop-color="#4f46e5"/>
-                        </linearGradient>
-                      </defs>
-                      <path fill="url(#howRocketMetal)" stroke="rgba(255,255,255,0.55)" stroke-width="1.05" stroke-linejoin="round"
-                        d="M11.25 18.9C10.6 16.75 10.9 11.9 16 5.25C21.1 11.9 21.4 16.75 20.75 18.9H11.25z"/>
-                      <path fill="#eef2ff" stroke="rgba(255,255,255,0.48)" stroke-width="0.88" stroke-linejoin="round" d="M16 4.2l2.4 3.95h-4.8L16 4.2z"/>
-                      <circle cx="16" cy="11.55" r="2.42" fill="url(#howRocketGlass)" stroke="rgba(255,255,255,0.68)" stroke-width="0.82"/>
-                      <ellipse cx="14.9" cy="10.6" rx="0.62" ry="0.42" fill="rgba(255,255,255,0.78)" transform="rotate(-22 14.9 10.6)"/>
-                      <path fill="#4f46e5" stroke="rgba(255,255,255,0.42)" stroke-width="0.82" stroke-linejoin="round" d="M11.35 18.05L6.85 26.35l5.15-2.1 1.38-3.55-2.03-2.65z"/>
-                      <path fill="#4f46e5" stroke="rgba(255,255,255,0.42)" stroke-width="0.82" stroke-linejoin="round" d="M20.65 18.05l4.5 8.3-5.15-2.1-1.38-3.55 2.03-2.65z"/>
-                      <ellipse cx="16" cy="20.3" rx="3.55" ry="1.22" fill="#4338ca" stroke="rgba(255,255,255,0.38)" stroke-width="0.72"/>
-                      <g class="how-rocket-flame">
-                        <path fill="#818cf8" opacity="0.92" d="M13.2 21.35Q16 30.5 18.8 21.35Q16 24.9 13.2 21.35z"/>
-                        <path fill="#6366f1" opacity="0.9" d="M14.5 21.38Q16 27.2 17.5 21.38Q16 23.6 14.5 21.38z"/>
-                        <path fill="#c7d2fe" opacity="0.88" d="M15.35 21.4Q16 25.2 16.65 21.4z"/>
-                      </g>
-                    </svg>
-                  </span>
+                <span class="flip-card-emoji how-report-bars" aria-hidden="true">
+                  <span class="how-report-bar bar-1"></span>
+                  <span class="how-report-bar bar-2"></span>
+                  <span class="how-report-bar bar-3"></span>
                 </span>
-                <h4>4. Тестирование и запуск</h4>
+                <h4>4. Отчёты</h4>
               </div>
               <div class="flip-card-back">
-                <p>Пилот с фокус‑группой, правки формулировок и сцен, затем выпуск в LMS или отчётность по согласованию.</p>
-              </div>
-            </div>
-          </div>
-          <div class="flip-card" tabindex="0">
-            <div class="flip-card-inner">
-              <div class="flip-card-front">
-                <span class="flip-card-emoji how-support-visual how-step-icon" aria-hidden="true" title="Поддержка на связи">
-                  <svg class="how-support-headset-svg how-step-icon-svg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <defs>
-                      <linearGradient id="howHeadsetPad" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stop-color="#c7d2fe"/>
-                        <stop offset="100%" stop-color="#6366f1"/>
-                      </linearGradient>
-                      <linearGradient id="howHeadsetBand" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stop-color="#a5b4fc"/>
-                        <stop offset="100%" stop-color="#818cf8"/>
-                      </linearGradient>
-                    </defs>
-                    <g class="how-support-headset-float">
-                      <rect x="3.85" y="12" width="7.25" height="8.6" rx="2.6" fill="url(#howHeadsetPad)" stroke="rgba(255,255,255,0.48)" stroke-width="0.88"/>
-                      <rect x="20.9" y="12" width="7.25" height="8.6" rx="2.6" fill="url(#howHeadsetPad)" stroke="rgba(255,255,255,0.48)" stroke-width="0.88"/>
-                      <path fill="none" stroke="url(#howHeadsetBand)" stroke-width="1.35" stroke-linecap="round" d="M6 14.35Q16 5.35 26 14.35"/>
-                      <path fill="none" stroke="rgba(255,255,255,0.52)" stroke-width="0.82" stroke-linecap="round" d="M5.2 18.6c-1.35 2.65 0.15 5.45 2.95 6.55"/>
-                      <circle class="how-support-mic-tip" cx="9.35" cy="25.35" r="1.38" fill="#6366f1" stroke="rgba(255,255,255,0.45)" stroke-width="0.4"/>
-                      <path class="how-support-sound" stroke="#a5b4fc" stroke-width="1.05" stroke-linecap="round" d="M26.2 13.6c2.1 1.15 3.45 3.35 3.45 5.75" opacity="0.45"/>
-                      <path class="how-support-sound how-support-sound-2" stroke="#a5b4fc" stroke-width="0.95" stroke-linecap="round" d="M27.2 11.85c2.4 1.35 3.9 3.95 3.9 6.95" opacity="0.35"/>
-                    </g>
-                  </svg>
-                </span>
-                <h4 class="how-support-title"><span class="how-support-chunk">5.</span> <span class="how-support-chunk">Поддержка</span></h4>
-              </div>
-              <div class="flip-card-back">
-                <p>После запуска остаёмся на связи: правки, сезонные обновления, новые ветки и линейка тренажёров под смежные роли.</p>
+                <p>Смотрите прогресс, результаты и время прохождения по каждому ученику или курсу.</p>
               </div>
             </div>
           </div>
@@ -3412,12 +2819,11 @@
     <div class="slide-card">
       <div class="slide-card-body">
         <h2 class="font-display">Попробуйте демо</h2>
-        <p>Пример формата, который мы адаптируем под задачи вашей компании: отрасли, регламенты, роли и тон коммуникации.</p>
-        <p style="margin-top:0.35rem;font-size:0.88rem;color:var(--text-muted);">Запустите демо и почувствуйте тренажёр «изнутри» — так же проходят ваши сотрудники.</p>
+        <p>Примеры курсов, собранных в Интерактивити. Запустите и почувствуйте формат «изнутри».</p>
         <div class="demo-courses">
           <article class="demo-course">
             <a href="demo/peoplegames/index.html" class="demo-course demo-course-one-click" target="_blank" rel="noopener">
-              <img class="demo-course-img" src="demo/peoplegames/assets/images/First.png" alt="Офисные игры: обложка демо-курса" />
+              <img class="demo-course-img" src="demo/peoplegames/assets/images/First.png" alt="Офисные игры" />
               <div class="demo-course-body">
                 <h3>Офисные игры: эволюция из пешки в гроссмейстера</h3>
                 <p>Интерактивная новелла по Берну: как не стать пешкой в корпоративных играх и выстроить свою стратегию.</p>
@@ -3446,106 +2852,369 @@
     </div>
   </section>
 
-  <section class="not-for-you-slide demo-section graph-node-section landing-slide" id="not-for-you" data-slide="6">
+  <section class="demo-section graph-node-section landing-slide" id="features" data-slide="6">
     <div class="slide-card">
       <div class="slide-card-body">
-        <h2 class="font-display">Кому это не подходит</h2>
-        <p class="not-for-you-lead">Честнее сразу назвать несовпадение ожиданий. Ниже — типичные ситуации, когда наш формат разработки интерактивных тренажёров под ключ скорее не про вас.</p>
-        <p class="not-for-you-hint" aria-hidden="true">Нажмите на карточку — подробности на обороте</p>
-        <div class="flip-cards col-4 not-for-you-cards" role="list">
-          <div class="flip-card not-for-you-card" tabindex="0" role="listitem" title="Нажмите — подробнее">
-            <div class="flip-card-inner">
-              <div class="flip-card-front">
-                <span class="flip-card-emoji" aria-hidden="true">📈</span>
-                <div class="not-for-you-front-col">
-                  <h4>Уже всё хорошо</h4>
-                  <p class="not-for-you-teaser">Метрики обучения в норме, усиливать перенос в работу не планируете</p>
+        <h2 class="font-display">Возможности</h2>
+        <p>Три формата работы: курс под ключ, доступ к LMS и конструктор (скоро).</p>
+        <div class="demo-courses">
+          <article class="demo-course features-course" id="featuresCourseKey">
+            <div class="features-course-inner">
+              <div class="features-course-front">
+                <img class="demo-course-img" src="img/key.png" alt="Курс под ключ на платформе Интерактивити" />
+                <div class="demo-course-body">
+                  <h3>Курс под ключ</h3>
+                  <p>Разработка технической части сценарного курса на нашей платформе: логика, переходы, трекинг и интеграции.</p>
+                  <button type="button" class="auth-tab auth-tab-active features-course-btn" data-action="request-course">
+                    Оставить заявку
+                  </button>
                 </div>
               </div>
-              <div class="flip-card-back">
-                <p>У вас и так отличные показатели по обучению сотрудников и нет задачи что‑то менять или усиливать перенос знаний в работу. Наши тренажёры заточены под ситуацию, когда нужно сдвинуть поведение после обучения — если этой «боли» нет, ценность формата для вас ниже.</p>
-              </div>
-            </div>
-          </div>
-          <div class="flip-card not-for-you-card" tabindex="0" role="listitem" title="Нажмите — подробнее">
-            <div class="flip-card-inner">
-              <div class="flip-card-front">
-                <span class="flip-card-emoji" aria-hidden="true">📋</span>
-                <div class="not-for-you-front-col">
-                  <h4>«Курс для галочки»</h4>
-                  <p class="not-for-you-teaser">Нужен отчёт о прохождении, без симуляций и вовлечения</p>
+              <div class="features-course-back">
+                <div class="demo-course-body">
+                  <h3>Оставить заявку</h3>
+                  <form class="auth-form features-request-form" action="#" method="get">
+                    <label for="featuresName">Имя</label>
+                    <input type="text" id="featuresName" name="name" placeholder="Как к вам обращаться?" />
+
+                    <label for="featuresContact">Контакт (email/телефон/др.)</label>
+                    <input type="text" id="featuresContact" name="contact" placeholder="you@company.ru, +7..." />
+
+                    <label for="featuresMessage">Сообщение</label>
+                    <textarea id="featuresMessage" name="message" rows="3">Здравствуйте! Хотим заказать у вас курс. Напишите нам!</textarea>
+
+                    <button type="button" class="auth-tab auth-tab-active features-course-btn features-send-btn">
+                      Отправить
+                    </button>
+                  </form>
                 </div>
               </div>
-              <div class="flip-card-back">
-                <p>Нужен «просто курс для галочки» — без вовлечения, симуляций и ориентира на поведение после обучения. Мы делаем интерактивные сценарии с выбором и последствиями; если достаточно статичного контента и отметки в журнале, наш подход избыточен.</p>
-              </div>
             </div>
-          </div>
-          <div class="flip-card not-for-you-card" tabindex="0" role="listitem" title="Нажмите — подробнее">
-            <div class="flip-card-inner">
-              <div class="flip-card-front">
-                <span class="flip-card-emoji" aria-hidden="true">🛠️</span>
-                <div class="not-for-you-front-col">
-                  <h4>Свой стек и команда</h4>
-                  <p class="not-for-you-teaser">Платформа, сценарий и разработка полностью закрыты внутри компании</p>
-                </div>
-              </div>
-              <div class="flip-card-back">
-                <p>У вас уже есть своя платформа и команда технических специалистов, которая полностью закрывает сценарий, сборку и сопровождение — и внешний подрядчик на весь цикл не требуется. Мы подключаемся как партнёр на полный цикл «под ключ»; если вы самодостаточны, внешний продакшн может не понадобиться.</p>
-              </div>
+          </article>
+          <article class="demo-course">
+            <img class="demo-course-img" src="img/lms.png" alt="Учебная платформа Интерактивити" />
+            <div class="demo-course-body">
+              <h3>Учебная платформа</h3>
+              <p>Назначение курсов, учёт прохождения и встроенная система управления обучением в одном месте.</p>
+              <button type="button" class="auth-tab auth-tab-active features-course-btn features-lms-btn">
+                Попробовать
+              </button>
             </div>
-          </div>
-          <div class="flip-card not-for-you-card" tabindex="0" role="listitem" title="Нажмите — подробнее">
-            <div class="flip-card-inner">
-              <div class="flip-card-front">
-                <span class="flip-card-emoji" aria-hidden="true">💰</span>
-                <div class="not-for-you-front-col">
-                  <h4>Бюджет и сроки</h4>
-                  <p class="not-for-you-teaser">Не сходятся с кастомной разработкой тренажёра под задачу</p>
-                </div>
-              </div>
-              <div class="flip-card-back">
-                <p>Бюджет или сроки не сопоставимы с проектной разработкой (ориентир — от 100&nbsp;000&nbsp;₽ на типовой корпоративный тренажёр): возможно, вам ближе шаблонные курсы без кастомного сценария. Такой отсев экономит время с обеих сторон.</p>
-              </div>
+          </article>
+          <article class="demo-course">
+            <img class="demo-course-img" src="img/kon.png" alt="Конструктор Интерактивити" />
+            <div class="demo-course-body">
+              <h3>Конструктор</h3>
+              <p>Самостоятельная работа в визуальном конструкторе интерактивных сценариев. Скоро доступен.</p>
             </div>
-          </div>
+          </article>
         </div>
-        <p class="not-for-you-outro">Если ни один пункт не про вас — <a href="#form" class="landing-hash-link">опишите задачу в заявке</a>, предложим формат и следующий шаг.</p>
       </div>
     </div>
   </section>
 
   <section id="form" class="form-section graph-node-section landing-slide" data-slide="7" style="display:flex;align-items:center;justify-content:center;flex-direction:column;">
     <div class="slide-card">
-      <div class="auth-top">
-        <h2 class="font-display">Заявка на проект</h2>
-        <p style="margin:0.35rem 0 0;max-width:36rem;margin-left:auto;margin-right:auto;color:var(--text-muted);font-size:0.92rem;line-height:1.5;">Опишите задачу — предложим формат, сроки и состав работ. Работаем с корпоративным сегментом и с методологами на стороне заказчика.</p>
+      <!-- Top: header (full-width, independent) -->
+      <div class="auth-top" style="width:100%;text-align:center;padding:1rem 0;">
+        <h2 class="font-display">Интерактивити</h2>
+        <p style="margin:0.25rem 0 0;">Войдите или зарегистрируйтесь, чтобы получить доступ к платформе.</p>
       </div>
+      <!-- Bottom: form area (independent width / centered) -->
       <div class="auth-bottom" style="width:100%;display:flex;justify-content:center;">
-        <div class="slide-card-body" style="width:100%;max-width:560px;padding:0.5rem 1rem 1.25rem;">
-          <form id="projectRequestForm" class="auth-form features-request-form project-request-form" action="#" method="post" novalidate>
-            <div class="project-form-row">
-              <label for="projectName">Имя</label>
-              <input type="text" id="projectName" name="name" autocomplete="name" required placeholder="Как к вам обращаться?" />
-            </div>
-            <div class="project-form-row">
-              <label for="projectCompany">Компания</label>
-              <input type="text" id="projectCompany" name="company" autocomplete="organization" required placeholder="Название организации" />
-            </div>
-            <div class="project-form-row">
-              <label for="projectContact">Контакт</label>
-              <input type="text" id="projectContact" name="contact" autocomplete="email" inputmode="email" required placeholder="Телефон, email или удобный мессенджер" />
-            </div>
-            <div class="project-form-row project-form-row-textarea">
-              <label for="projectTask">Задача</label>
-              <textarea id="projectTask" name="task" rows="4" required placeholder="Кого учим, тема, желаемые сроки, LMS при наличии"></textarea>
-            </div>
+        <div class="slide-card-body" style="width:100%;max-width:920px;">
+          <style>
+            /* Compact layout for auth slide to avoid vertical scrollbar */
+            .slide-card { width: 100%; }
+            .slide-card .slide-card-body { padding: 1rem 1rem; }
+            /* Stack tabs above the form and center everything */
+            .slide-card .auth-layout { display: flex; flex-direction: column; gap: .75rem; align-items: center; justify-content: center; width: 100%; }
+            .slide-card .auth-tabs { display:flex; gap:.5rem; align-items:center; justify-content:center; }
+            /* Narrow auth container so fields fit comfortably */
+            .slide-card .auth-forms {
+              width: min(320px, calc(100vw - 56px)) !important;
+              max-width: min(320px, calc(100vw - 56px)) !important;
+              margin: 0 auto !important;
+            }
+            /* Ensure authorization title stays reasonably sized */
+            .slide-card h2, .slide-card .slide-card-body > h2 { font-size: clamp(1.25rem, 2.2vw, 1.75rem); margin-bottom: .5rem; }
+            .slide-card .auth-forms {
+              flex: 0 1 min(320px, calc(100vw - 56px));
+              min-width: 0;
+              max-width: min(320px, calc(100vw - 56px));
+              width: min(320px, calc(100vw - 56px)) !important;
+            }
+            .slide-card .auth-social { width: 100%; flex: none; display: flex; flex-direction: column; gap: .5rem; align-items: stretch; margin-top: .5rem; }
+            .slide-card .auth-form { display: flex; flex-direction: column; gap: .4rem; margin: 0; }
+            .slide-card .auth-form label { font-size: .92rem; margin-bottom: .12rem; }
+            .slide-card .auth-form input { padding: .45rem .5rem; font-size: .95rem; }
+            .slide-card .auth-actions { display:flex; gap:.5rem; justify-content: flex-start; align-items: center; }
+            .slide-card .auth-primary, .slide-card .auth-secondary, .slide-card .auth-google { padding: .45rem .6rem; font-size: .95rem; width: auto; }
+            .slide-card .auth-google { width: 100%; display: inline-flex; align-items: center; justify-content: center; gap:.5rem; }
+            .slide-card .auth-divider { align-self: center; margin: 0 .5rem; }
+            .slide-card .auth-hint, .slide-card .auth-note { font-size: .85rem; margin: 0; color: var(--text-muted); }
+            .slide-card .modal { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 340px; max-width: 90%; padding: .75rem; box-shadow: 0 8px 24px rgba(0,0,0,.15); border-radius:8px; }
+            @media (max-width: 1100px) {
+              .slide-card h2, .slide-card .slide-card-body > h2 { font-size: clamp(1rem, 2vw, 1.4rem); }
+              .slide-card .auth-forms { max-width: 100%; min-width: 0; }
+              .auth-top { padding: .75rem 0; }
+            }
+            @media (max-width: 900px), (max-height: 800px) {
+              .slide-card .auth-layout { flex-direction: column; gap: .75rem; }
+              .slide-card .auth-social { width: 100%; flex: none; }
+              .slide-card .auth-forms {
+                width: min(292px, calc(100vw - 44px)) !important;
+                max-width: min(292px, calc(100vw - 44px)) !important;
+              }
+              .slide-card .slide-card-body { padding: .55rem .55rem; }
+              .slide-card .auth-form input { padding: .4rem .45rem; font-size: .9rem; }
+            }
+          </style>
 
-            <button type="submit" class="auth-tab auth-tab-active features-course-btn" id="projectSubmit" style="width:100%;margin-top:0.35rem;cursor:pointer;border:none;">Отправить заявку</button>
-          </form>
-          <p id="projectFormFooter" style="margin-top:0.75rem;text-align:center;font-size:0.82rem;color:var(--text-muted);line-height:1.45;">
-            Нажимая кнопку, вы соглашаетесь с <a href="docs/policy.html" style="color:var(--accent);">обработкой персональных данных</a>.
-          </p>
+        <div class="auth-layout">
+          <div class="auth-tabs" role="tablist" aria-label="Авторизация">
+            <button type="button" class="auth-tab auth-tab-active" data-mode="login" role="tab" aria-selected="true">Войти</button>
+            <button type="button" class="auth-tab" data-mode="register" role="tab" aria-selected="false">Регистрация</button>
+          </div>
+
+          <div class="auth-forms">
+            <!-- Single form where fields adapt to selected tab -->
+            <form id="authForm" class="auth-form" action="#" method="post" novalidate>
+              <label for="authEmailField">Email</label>
+              <input type="email" id="authEmailField" name="email" placeholder="you@company.ru" autocomplete="email" required />
+
+              <div id="passwordField" class="password-field">
+                <label for="authPasswordField">Пароль</label>
+                <input type="password" id="authPasswordField" name="password" placeholder="Пароль" autocomplete="current-password" required />
+              </div>
+
+              <div class="auth-actions">
+                <button type="submit" class="btn auth-primary" id="authPrimary">Войти</button>
+                <button type="button" class="btn auth-secondary" id="authSecondary" hidden>Войти</button>
+              </div>
+
+              <button type="button" class="auth-link" id="forgotPasswordBtn">Забыли пароль?</button>
+
+              <!-- Google auth disabled for now -->
+            </form>
+          </div>
+
+          
+
+          <!-- Simple password recovery modal (visual only) -->
+          <div id="forgotModal" class="modal" hidden aria-hidden="true">
+            <div class="modal-body">
+              <h3>Восстановление пароля</h3>
+              <p>Введите ваш email, и мы отправим ссылку для восстановления пароля.</p>
+              <label for="recoverEmail">Email</label>
+              <input type="email" id="recoverEmail" placeholder="you@company.ru" autocomplete="email" />
+              <div style="display:flex;gap:.5rem;margin-top:.75rem;">
+                <button type="button" class="btn auth-primary" id="recoverSend">Отправить</button>
+                <button type="button" class="btn" id="recoverCancel">Отмена</button>
+              </div>
+            </div>
+          </div>
+
+          <script>
+            (function(){
+              const tabs = document.querySelectorAll('.auth-tab');
+              const emailField = document.getElementById('authEmailField');
+              const passwordField = document.getElementById('passwordField');
+              const passwordInput = document.getElementById('authPasswordField');
+              const primaryBtn = document.getElementById('authPrimary');
+              // Google auth отключена пока
+
+              function switchMode(mode){
+                tabs.forEach(t => {
+                  const is = t.dataset.mode === mode;
+                  t.classList.toggle('auth-tab-active', is);
+                  t.setAttribute('aria-selected', String(is));
+                });
+                const isRegister = mode === 'register';
+                // password is required for both modes (registration also asks password)
+                if (passwordInput) passwordInput.required = true;
+                // no secondary inline switch button — tabs are used for navigation
+                // forgot password visible only on login
+                const forgotBtn = document.getElementById('forgotPasswordBtn');
+                if (forgotBtn) forgotBtn.hidden = isRegister;
+                // primary button label change
+                primaryBtn.textContent = isRegister ? 'Создать аккаунт' : 'Войти';
+                // save auth mode
+                try { localStorage.setItem('interactivity_auth_mode', mode); } catch (e) {}
+              }
+
+              tabs.forEach(t => t.addEventListener('click', () => switchMode(t.dataset.mode)));
+
+              // Forgot password modal (visual only)
+              const forgotBtn = document.getElementById('forgotPasswordBtn');
+              const forgotModal = document.getElementById('forgotModal');
+              const recoverCancel = document.getElementById('recoverCancel');
+              const recoverSend = document.getElementById('recoverSend');
+              forgotBtn && forgotBtn.addEventListener('click', () => {
+                forgotModal.hidden = false;
+                forgotModal.setAttribute('aria-hidden','false');
+              });
+              recoverCancel && recoverCancel.addEventListener('click', () => {
+                forgotModal.hidden = true;
+                forgotModal.setAttribute('aria-hidden','true');
+              });
+              recoverSend && recoverSend.addEventListener('click', () => {
+                recoverSend.textContent = 'Отправлено';
+                setTimeout(() => {
+                  recoverSend.textContent = 'Отправить';
+                  forgotModal.hidden = true;
+                  forgotModal.setAttribute('aria-hidden','true');
+                }, 1200);
+              });
+
+              // Ensure initial state (use saved mode, если есть)
+              var initialMode = 'login';
+              try {
+                var savedMode = localStorage.getItem('interactivity_auth_mode');
+                if (savedMode === 'register' || savedMode === 'login') initialMode = savedMode;
+              } catch (e) {}
+              switchMode(initialMode);
+            })();
+          </script>
+          <script type="module">
+            import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.48.0';
+            import { SUPABASE_URL, SUPABASE_ANON_KEY } from './supabase-config.js';
+
+            const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+            const form = document.getElementById('authForm');
+            const tabs = document.querySelectorAll('.auth-tab');
+            const emailInput = document.getElementById('authEmailField');
+            const passwordInput = document.getElementById('authPasswordField');
+            const primaryBtn = document.getElementById('authPrimary');
+            const forgotBtn = document.getElementById('forgotPasswordBtn');
+            const recoverEmailInput = document.getElementById('recoverEmail');
+            const recoverSend = document.getElementById('recoverSend');
+
+            function getMode() {
+              const active = document.querySelector('.auth-tab.auth-tab-active');
+              return active ? active.dataset.mode : 'login';
+            }
+
+            function showInlineMessage(text, type = 'info') {
+              let node = document.getElementById('authMessage');
+              if (!node) {
+                node = document.createElement('p');
+                node.id = 'authMessage';
+                node.className = 'auth-note';
+                const formEl = document.getElementById('authForm');
+                if (formEl) {
+                  formEl.insertBefore(node, formEl.firstChild);
+                } else {
+                  document.body.appendChild(node);
+                }
+              }
+              node.textContent = text;
+              node.style.color = type === 'error' ? '#d9534f' : (type === 'success' ? '#28a745' : '');
+            }
+
+            async function handleRegister(email, password) {
+              const { data, error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                  emailRedirectTo: window.location.origin + '/landing/konstr.html#form'
+                }
+              });
+              if (error) throw error;
+
+              return data;
+            }
+
+            async function handleLogin(email, password) {
+              const { data, error } = await supabase.auth.signInWithPassword({
+                email,
+                password
+              });
+              if (error) throw error;
+              return data;
+            }
+
+            async function handleResetPassword(email) {
+              const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin + '/landing/konstr.html#form'
+              });
+              if (error) throw error;
+              return data;
+            }
+
+            function setLoading(isLoading) {
+              if (!primaryBtn) return;
+              primaryBtn.disabled = isLoading;
+              primaryBtn.dataset.originalText = primaryBtn.dataset.originalText || primaryBtn.textContent;
+              primaryBtn.textContent = isLoading ? 'Подождите…' : primaryBtn.dataset.originalText;
+            }
+
+            if (form && emailInput && passwordInput && primaryBtn) {
+              form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const mode = getMode();
+                const email = emailInput.value.trim();
+                const password = passwordInput.value;
+
+                if (!email || !password) {
+                  showInlineMessage('Введите email и пароль.', 'error');
+                  return;
+                }
+
+                setLoading(true);
+                try {
+                  if (mode === 'register') {
+                    await handleRegister(email, password);
+                    showInlineMessage('Проверьте почту для подтверждения регистрации.', 'success');
+                  } else {
+                    await handleLogin(email, password);
+                    showInlineMessage('Успешный вход. Сейчас перенаправим…', 'success');
+                    setTimeout(() => {
+                      window.location.href = 'app.html';
+                    }, 800);
+                  }
+                } catch (err) {
+                  console.error(err);
+                  showInlineMessage(err.message || 'Не удалось выполнить операцию.', 'error');
+                } finally {
+                  setLoading(false);
+                }
+              });
+            }
+
+            if (forgotBtn && recoverEmailInput && recoverSend) {
+              recoverSend.addEventListener('click', async () => {
+                const email = recoverEmailInput.value.trim();
+                if (!email) {
+                  showInlineMessage('Введите email для восстановления пароля.', 'error');
+                  return;
+                }
+                recoverSend.disabled = true;
+                recoverSend.textContent = 'Отправляем…';
+                try {
+                  await handleResetPassword(email);
+                  showInlineMessage('Если этот email зарегистрирован, мы отправили письмо для сброса пароля.', 'success');
+                } catch (err) {
+                  console.error(err);
+                  showInlineMessage(err.message || 'Не удалось отправить письмо для восстановления.', 'error');
+                } finally {
+                  recoverSend.disabled = false;
+                  recoverSend.textContent = 'Отправить';
+                }
+              });
+            }
+
+            tabs.forEach((tab) => {
+              tab.addEventListener('click', () => {
+                const mode = getMode();
+                if (primaryBtn) {
+                  primaryBtn.dataset.originalText = mode === 'register' ? 'Создать аккаунт' : 'Войти';
+                  primaryBtn.textContent = primaryBtn.dataset.originalText;
+                }
+              });
+            });
+          </script>
         </div>
       </div>
     </div>
@@ -3554,65 +3223,31 @@
   <section class="faq graph-node-section landing-slide" id="faq" data-slide="8">
     <div class="slide-card">
       <!-- Header placed where image was -->
-      <div class="slide-card-header faq-slide-header">
+      <div class="slide-card-header" style="width:100%;text-align:center;padding:1rem 0;">
         <h2 class="font-display">Частые вопросы</h2>
       </div>
       <div class="slide-card-body">
         <p>Нажмите на карточку — ответ внутри.</p>
-        <div class="faq-cards-scroll" aria-label="Список вопросов">
         <div class="flip-cards col-3">
           <div class="flip-card" tabindex="0">
             <div class="flip-card-inner">
               <div class="flip-card-front">
-                <span class="flip-card-emoji">🆚</span>
-                <h4>Чем это лучше тестов?</h4>
-              </div>
-              <div class="flip-card-back">
-                <p>Тест проверяет факт знания. Тренажёр просит принять решение в ситуации и увидеть последствия — ближе к реальной работе и к формированию привычки действовать правильно.</p>
-              </div>
-            </div>
-          </div>
-          <div class="flip-card" tabindex="0">
-            <div class="flip-card-inner">
-              <div class="flip-card-front">
-                <span class="flip-card-emoji">🤝</span>
-                <h4>Заменяет ли это живую практику?</h4>
-              </div>
-              <div class="flip-card-back">
-                <p>Нет, но снижает цену ошибки до неё: сотрудник отрабатывает типовые ветки до выхода «в поле». Очень хорошо сочетается с наставничеством и разбором реальных кейсов.</p>
-              </div>
-            </div>
-          </div>
-          <div class="flip-card" tabindex="0">
-            <div class="flip-card-inner">
-              <div class="flip-card-front">
-                <span class="flip-card-emoji">💰</span>
-                <h4>Сколько стоит?</h4>
-              </div>
-              <div class="flip-card-back">
-                <p>Зависит от глубины сценария, медиа и интеграций. Ориентир для корпоративных проектов — от 100&nbsp;000&nbsp;₽. После брифа даём прозрачную смету и этапы в договоре.</p>
-              </div>
-            </div>
-          </div>
-          <div class="flip-card" tabindex="0">
-            <div class="flip-card-inner">
-              <div class="flip-card-front">
-                <span class="flip-card-emoji">📅</span>
-                <h4>Какие сроки?</h4>
-              </div>
-              <div class="flip-card-back">
-                <p>От нескольких недель для узкого тренажёра до пары месяцев для сложной ветвящейся линейки. Сроки фиксируем на этапе брифа вместе с вами и вашим методологом.</p>
-              </div>
-            </div>
-          </div>
-          <div class="flip-card" tabindex="0">
-            <div class="flip-card-inner">
-              <div class="flip-card-front">
                 <span class="flip-card-emoji">❓</span>
-                <h4>Что такое интерактивный тренажёр?</h4>
+                <h4>Что такое интерактивный сценарий?</h4>
               </div>
               <div class="flip-card-back">
-                <p>Это сюжет или кейс, где ученик делает выборы и из‑за них меняется развитие истории. Так отрабатывают переговоры, сервис, безопасность, продажи и внутренние регламенты.</p>
+                <p>Это формат обучения, где ученик видит ситуацию, делает выбор (ответ или действие) и в зависимости от выбора переходит к разным сценам. Так моделируют диалоги, кейсы и тренажёры.</p>
+              </div>
+            </div>
+          </div>
+          <div class="flip-card" tabindex="0">
+            <div class="flip-card-inner">
+              <div class="flip-card-front">
+                <span class="flip-card-emoji">💻</span>
+                <h4>Нужно ли программирование?</h4>
+              </div>
+              <div class="flip-card-back">
+                <p>Нет. Конструктор позволяет собирать сцены, варианты ответов и переходы визуально, без кода.</p>
               </div>
             </div>
           </div>
@@ -3620,19 +3255,17 @@
             <div class="flip-card-inner">
               <div class="flip-card-front">
                 <span class="flip-card-emoji">📤</span>
-                <h4>Можно в нашу СДО / LMS?</h4>
+                <h4>Загрузка курсов в нашу СДО?</h4>
               </div>
               <div class="flip-card-back">
-                <p>Да. По согласованию отдаём SCORM и помогаем с загрузкой и проверкой в вашей системе. При необходимости обсуждаем и другие форматы сопровождения.</p>
+                <p>Да. Курсы можно экспортировать в формате SCORM и загружать в любую СДО. В Интерактивити есть и встроенная учебная платформа.</p>
               </div>
             </div>
           </div>
         </div>
-        </div>
-        <p class="faq-slide-outro">Если остались вопросы, можно <a href="#contacts" class="landing-hash-link">связаться с нами на слайде «Контакты»</a>.</p>
-        <footer class="faq-slide-footer">
-          <p>Интерактивити — разработка корпоративных тренажёров и курсов под ключ</p>
-          <p class="faq-slide-footer-links"><a href="#documents">Документы</a> · <a href="#contacts">Контакты</a> · <a href="konstr.html">Конструктор</a></p>
+        <footer style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); font-size: 0.85rem;">
+          <p>Интерактивити — конструктор интерактивных сценариев</p>
+          <p style="margin-top: 0.25rem;"><a href="#documents" style="color: inherit;">Документы</a> · <a href="#contacts" style="color: inherit;">Контакты</a></p>
         </footer>
       </div>
     </div>
@@ -3641,10 +3274,10 @@
   <section class="graph-node-section landing-slide" id="contacts" data-slide="9">
     <div class="slide-card">
       <!-- Header placed where image was -->
-      <div class="slide-card-header">
-        <h2 class="font-display">Контакты</h2>
+      <div class="slide-card-header" style="width:100%;text-align:center;padding:1.25rem 0 0.5rem;">
+        <h2 class="font-display" style="margin:0;">Контакты</h2>
       </div>
-      <div class="slide-card-body">
+      <div class="slide-card-body" style="padding-top:0.5rem;">
         
 
         <style>
@@ -3683,17 +3316,20 @@
             align-items: start;
             min-width: 0;
           }
+          #contacts .slide-card-header {
+            padding: 0.95rem 0 0.3rem !important;
+          }
+          #contacts .slide-card-header h2 {
+            font-size: clamp(1.35rem, 2.2vw, 1.8rem);
+            line-height: 1.1;
+          }
           #contacts .slide-card-body {
-            flex: 1 1 0;
-            min-height: 0;
-            justify-content: safe center;
-            padding-top: 0.3rem;
+            justify-content: flex-start;
+            padding-top: 0.2rem !important;
             padding-bottom: 0.65rem !important;
           }
           #contacts .card-wrap {
             max-width: 720px !important;
-            flex-shrink: 0;
-            width: 100%;
           }
           .card-title {
             margin: 0 0 .25rem;
@@ -3882,7 +3518,7 @@
           </div>
 
           <!-- Заголовок реквизитов вынесен наружу -->
-          <h4 class="card-title" style="margin-top:0.75rem;text-align:center;width:100%;">Реквизиты организации</h4>
+          <h4 class="card-title" style="margin-top:0.75rem;text-align:left;">Реквизиты организации</h4>
           <div class="requisites-card" role="group" aria-label="Реквизиты организации" style="padding:0.5rem;">
             <style>
               .requisites-table { width:100%; border-collapse: collapse; }
@@ -3931,10 +3567,10 @@
   <section class="graph-node-section landing-slide" id="documents" data-slide="10">
     <div class="slide-card">
       <!-- Header placed where image was -->
-      <div class="slide-card-header">
-        <h2 class="font-display">Документы</h2>
+      <div class="slide-card-header" style="width:100%;text-align:center;padding:1.25rem 0 0.5rem;">
+        <h2 class="font-display" style="margin:0;">Документы</h2>
       </div>
-      <div class="slide-card-body">
+      <div class="slide-card-body" style="padding-top:0.5rem;">
         <p style="text-align:center;margin:0 0 1rem;color:var(--text-muted);">Правовая информация и условия использования.</p>
 
         <style>
@@ -4042,10 +3678,9 @@
 
   <div class="landing-progress" id="landingProgress" aria-label="Прогресс">
     <div class="landing-progress-dots" id="landingProgressDots"></div>
-    <span class="landing-progress-counter" id="landingProgressCounter">1 / 11</span>
+    <span class="landing-progress-counter" id="landingProgressCounter">1 / 12</span>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
   <script>
     (function() {
       var TOTAL_SLIDES = 11;
@@ -4055,74 +3690,68 @@
       var progressDots = document.getElementById('landingProgressDots');
       var progressCounter = document.getElementById('landingProgressCounter');
       var btnPrev = document.getElementById('btnPrev');
-      // Индекс слайда заявки — не перелистываем дальше по клику в пустоту, пока человек заполняет форму
+      // Индекс слайда авторизации (Попробовать Интерактивити), чтобы блокировать перелистывание именно на нём
       var authSlideEl = document.getElementById('form');
       var authSlideIndex = authSlideEl ? Array.prototype.indexOf.call(slides, authSlideEl) : -1;
 
       var ROLE_ICONS = {
+        // Use absolute URLs to avoid intermittent connection resets on custom domain
+        teacher: 'img/Roles/Role1.png',
         methodist: 'img/Roles/Role2.png',
-        manager: 'img/Roles/Role5.png'
+        producer: 'img/Roles/Role3.png',
+        marketer: 'img/Roles/Role4.png',
+        manager: 'img/Roles/Role5.png',
+        other: 'img/Roles/Role6.png'
       };
       var ROLE_BENEFITS = {
+        teacher: {
+          title: 'Для преподавателя',
+          items: ['Вовлечение учеников через выбор и последствия', 'Свои решения и сценарии без программиста', 'Ученики видят последствия выбора и могут переиграть', 'Узнают себя в ситуациях и отрабатывают навыки'],
+          emojis: ['🎯', '✏️', '🔄', '🪞']
+        },
         methodist: {
-          title: 'Для методолога',
-          items: [
-            'Совместная работа над сценарием: вы задаёте смысл и дидактику, мы — логику веток и медиа',
-            'Меньше согласований «вслепую»: прототип и пилот до массового запуска',
-            'Техническая сборка и трекинг на нашей стороне — без поиска разработчика под интерактив',
-            'Типовые корпоративные кейсы: сервис, продажи, безопасность, внутренние политики',
-            'Выгрузка в SCORM и сопровождение загрузки в вашу LMS'
-          ],
-          emojis: ['🧭', '🔁', '⚙️', '🏢', '📤']
+          title: 'Для методиста',
+          items: ['Вовлечение и доходимость до конца сценария', 'Безопасная среда для отработки навыков', 'Теория через практику в ветвящихся кейсах', 'Единый конструктор и платформа без разрывов'],
+          emojis: ['📈', '🛡️', '📚', '🧩']
+        },
+        producer: {
+          title: 'Для продюсера',
+          items: ['Масштаб: много курсов и сценариев в одной платформе', 'Аналитика и отчёты по прохождению', 'Быстрый запуск без разработки', 'Встраивание и дифференциация продукта', 'Вирусность через вовлекающие сценарии'],
+          emojis: ['📐', '📊', '🚀', '🔌', '🔥']
+        },
+        marketer: {
+          title: 'Для маркетолога',
+          items: ['Сегментация и персонализация по выбору пользователя', 'Дифференциация продукта интерактивом', 'Масштаб и вирусность сценариев', 'Данные о выборах для доработки офферов'],
+          emojis: ['🎯', '✨', '📈', '📋']
         },
         manager: {
-          title: 'Для руководителя обучения',
+          title: 'Для руководителя корпоративного обучения',
           items: [
-            'Внедрение под ключ: от брифа до запуска в вашей экосистеме обучения',
-            'Сроки и этапы в договоре — понятный план для ЛПР и бизнеса',
-            'Управляемый проект: регулярные статусы, согласования, единая точка контакта',
-            'Результат для компании: доходимость, отработка решений, данные по прохождению',
-            'Сопровождение после релиза: правки, сезонные обновления, линейка тренажёров'
+            'Сроки: старт и выпуск курса в согласованные даты',
+            'Гарантии: договорные обязательства и прозрачные этапы разработки',
+            'Поддержка после запуска: правки, сопровождение и развитие контента',
+            'Управление обучением: назначение курсов сотрудникам и трекинг прохождения в одной LMS',
+            'Процесс через методолога-подрядчика: управляемые коммуникации и согласования для ЛПР'
           ],
-          emojis: ['📋', '📅', '🤝', '📈', '🛠️']
+          emojis: ['👥', '📊', '📐', '🛡️', '⚡']
+        },
+        other: {
+          title: 'Для вас',
+          items: ['Вовлечение через интерактив и последствия выбора', 'Аналитика и отчёты по прохождению', 'Масштаб: конструктор и учебная платформа в одном месте', 'Без кода: визуальный редактор сценариев', 'Экспорт в СДО и встроенная платформа'],
+          emojis: ['🎯', '📊', '📐', '🖱️', '📤']
         }
       };
 
       var howStepsAnimated = false;
+      var howChoicesInitialized = false;
+      var howChoicesIntervalId = null;
 
       function goToSlide(i) {
         i = Math.max(0, Math.min(TOTAL_SLIDES - 1, i));
-        var prevSlide = currentSlide;
         currentSlide = i;
         slides.forEach(function(slide, idx) {
           slide.classList.toggle('active', idx === i);
         });
-
-        var problemCascadeItems = document.querySelectorAll('#problem .problem-cascade-item');
-        if (prevSlide === 1 && i !== 1 && problemCascadeItems.length && typeof gsap !== 'undefined') {
-          gsap.killTweensOf(problemCascadeItems);
-          gsap.set(problemCascadeItems, { opacity: 0, y: 18 });
-        }
-        if (i === 1 && problemCascadeItems.length) {
-          if (typeof gsap !== 'undefined') {
-            gsap.killTweensOf(problemCascadeItems);
-            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-              gsap.set(problemCascadeItems, { opacity: 1, y: 0 });
-            } else {
-              gsap.set(problemCascadeItems, { opacity: 0, y: 18 });
-              var problemCascadeTl = gsap.timeline();
-              problemCascadeItems.forEach(function(el, idx) {
-                problemCascadeTl.to(el, { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out' }, idx * 1);
-              });
-            }
-          } else {
-            problemCascadeItems.forEach(function(el) {
-              el.style.opacity = '1';
-              el.style.transform = 'none';
-            });
-          }
-        }
-
         if (progressDots) {
           var dots = progressDots.querySelectorAll('.landing-progress-dot');
           dots.forEach(function(dot, idx) { dot.classList.toggle('active', idx === i); });
@@ -4140,12 +3769,9 @@
         }
         if (btnPrev) btnPrev.disabled = (i === 0);
 
-        // true только в момент первого запуска каскада карточек #how (до howStepsAnimated = true)
-        var howCardsCascadeFirstRun = (i === 4 && typeof gsap !== 'undefined' && !howStepsAnimated);
-
-        // Пошаговая анимация карточек на слайде «Как это работает» (по 1 c на карточку)
-        if (howCardsCascadeFirstRun) {
-          var howCards = document.querySelectorAll('#how .flip-cards .flip-card');
+        // Пошаговая анимация карточек на слайде «Как это работает»
+        if (i === 4 && typeof gsap !== 'undefined' && !howStepsAnimated) {
+          var howCards = document.querySelectorAll('#how .flip-cards.col-4 .flip-card');
           if (howCards.length) {
             gsap.set(howCards, { opacity: 0, y: 32 });
             var tl = gsap.timeline({ defaults: { duration: 1, ease: 'power2.out' } });
@@ -4156,67 +3782,129 @@
           }
         }
 
-        // Полёт ракеты (карточка 4), вылет слов «Сборка…», появление «Поддержка» — синхрон с каскадом при первом заходе
+        // Полёт ракеты на третьей карточке каждый раз при заходе на слайд «Как это работает»
         if (i === 4 && typeof gsap !== 'undefined') {
-          var dBuildNum = howCardsCascadeFirstRun ? 1.98 : 0.12;
-          var dBuildWords = howCardsCascadeFirstRun ? 2.12 : 0.22;
-          var dRocket = howCardsCascadeFirstRun ? 4.12 : 0.72;
-          var dSupport = howCardsCascadeFirstRun ? 4.05 : 0.48;
-
-          var rocket = document.querySelector('#how .flip-cards .flip-card:nth-child(4) .how-launch-rocket');
+          var rocket = document.querySelector('#how .flip-cards.col-4 .flip-card:nth-child(3) .how-launch-rocket');
           if (rocket) {
-            gsap.killTweensOf(rocket);
             gsap.fromTo(rocket,
               {
                 opacity: 0,
-                x: 0,
-                y: 56,
-                rotate: 0
+                x: -80,
+                y: 40,
+                rotate: -25
               },
               {
                 opacity: 1,
                 x: 0,
                 y: 0,
                 rotate: 0,
-                duration: 0.62,
-                ease: 'power2.out',
-                delay: dRocket
+                duration: 0.5,
+                ease: 'power2.inOut',
+                delay: 2.3 // чуть позже, чем завершится анимация появления третьей карточки
               }
             );
           }
-          var buildWords = document.querySelectorAll('#how .flip-card:nth-child(3) .how-build-word');
-          var buildNum = document.querySelector('#how .flip-card:nth-child(3) .how-build-num');
-          if (buildWords.length) {
-            gsap.killTweensOf(buildWords);
-            gsap.set(buildWords, { opacity: 0, x: -36 });
-            gsap.to(buildWords, {
-              opacity: 1,
-              x: 0,
-              duration: 0.52,
-              stagger: 0.24,
-              ease: 'power3.out',
-              delay: dBuildWords
-            });
-          }
-          if (buildNum) {
-            gsap.killTweensOf(buildNum);
-            gsap.fromTo(buildNum, { opacity: 0 }, { opacity: 1, duration: 0.32, delay: dBuildNum });
-          }
-          var supChunks = document.querySelectorAll('#how .flip-card:nth-child(5) .how-support-chunk');
-          if (supChunks.length) {
-            gsap.killTweensOf(supChunks);
-            gsap.set(supChunks, { opacity: 0, y: 10, scale: 0.92 });
-            gsap.to(supChunks, {
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              duration: 0.48,
-              stagger: 0.22,
-              ease: 'back.out(1.55)',
-              delay: dSupport
-            });
-          }
         }
+
+        // Хаотичный разлёт и сборка букв на второй карточке «Как это работает»
+        if (i === 4 && !howChoicesInitialized) {
+          initHowChoicesChaos();
+        }
+      }
+
+      function initHowChoicesChaos() {
+        var slide = document.getElementById('how');
+        if (!slide) return;
+        var title = slide.querySelector('.how-choices-title');
+        if (!title) return;
+        var spans = Array.prototype.slice.call(title.querySelectorAll('span'));
+        if (!spans.length) return;
+
+        // Шаг 1: создаём скрытый измерительный клон для вычисления идеальных позиций букв
+        var measure = title.cloneNode(true);
+        measure.style.position = 'absolute';
+        measure.style.visibility = 'hidden';
+        measure.style.pointerEvents = 'none';
+        measure.style.whiteSpace = 'normal';
+        measure.style.left = '0';
+        measure.style.top = '0';
+        title.parentNode.insertBefore(measure, title.nextSibling);
+
+        var measureRect = measure.getBoundingClientRect();
+        var measureSpans = Array.prototype.slice.call(measure.querySelectorAll('span'));
+        if (measureSpans.length !== spans.length) {
+          // На всякий случай, если что-то пошло не так, просто убираем измеритель и выходим
+          measure.parentNode.removeChild(measure);
+          return;
+        }
+
+        var letters = [];
+        for (var idx = 0; idx < spans.length; idx++) {
+          var mSpan = measureSpans[idx];
+          var r = mSpan.getBoundingClientRect();
+          var left = r.left - measureRect.left;
+          var top = r.top - measureRect.top;
+          letters.push({ el: spans[idx], left: left, top: top });
+        }
+
+        // Измеритель больше не нужен
+        measure.parentNode.removeChild(measure);
+
+        // Шаг 2: фиксируем высоту и переводим реальные спаны в абсолютные координаты
+        title.style.position = 'relative';
+        title.style.display = 'inline-block';
+        var baseHeight = title.offsetHeight || 0;
+        if (baseHeight) {
+          title.style.minHeight = baseHeight + 'px';
+        }
+
+        letters.forEach(function(item) {
+          item.el.classList.add('how-choices-letter');
+          item.el.style.position = 'absolute';
+          item.el.style.left = item.left + 'px';
+          item.el.style.top = item.top + 'px';
+        });
+
+        function scatter() {
+          var slideNow = document.getElementById('how');
+          if (!slideNow || !slideNow.classList.contains('active')) return;
+          var w = title.offsetWidth || 160;
+          var h = baseHeight || title.offsetHeight || 32;
+          letters.forEach(function(item) {
+            item.el.classList.add('scattered');
+            // хаотичное положение по всей карточке: используем почти полный w/h
+            var dx = Math.random() * Math.max(w - 4, 4);
+            var dy = Math.random() * Math.max(h - 4, 4);
+            item.el.style.left = dx + 'px';
+            item.el.style.top = dy + 'px';
+            // индивидуальные параметры «хаоса» для каждой буквы
+            item.el.style.animationDuration = (0.6 + Math.random() * 0.9) + 's';
+            item.el.style.animationDelay = (Math.random() * 0.7) + 's';
+          });
+        }
+
+        function assemble() {
+          letters.forEach(function(item) {
+            item.el.classList.remove('scattered');
+            item.el.style.left = item.left + 'px';
+            item.el.style.top = item.top + 'px';
+          });
+        }
+
+        function runCycle() {
+          var slideNow = document.getElementById('how');
+          if (!slideNow || !slideNow.classList.contains('active')) return;
+          scatter();
+          setTimeout(function() {
+            var s2 = document.getElementById('how');
+            if (!s2 || !s2.classList.contains('active')) return;
+            assemble();
+          }, 3000); // 3 секунды хаоса, затем сборка
+        }
+
+        runCycle();
+        howChoicesIntervalId = setInterval(runCycle, 10000); // 3 сек хаоса + 7 сек покоя
+        howChoicesInitialized = true;
       }
 
       (function initProgressDots() {
@@ -4266,10 +3954,44 @@
           } catch (e) {}
         })();
 
+        var problemTapCount = (window.innerWidth <= 768) ? 1 : 0;
+
         slidesContainer.addEventListener('click', function(e) {
           if (e.target.closest('a, button, input, .role-choice, .demo-course-link, .slide-nav, .flip-card, .demo-course')) return;
           // На слайде авторизации (Попробовать Интерактивити) не переходим дальше по клику в пустую область
           if (currentSlide === authSlideIndex) return;
+
+          var activeSlide = slides[currentSlide];
+          // Для слайда «О продукте» (#problem) на мобиле:
+          // При открытии: показываем ИС.
+          // 1-й клик по слайду — КИС,
+          // 2-й клик по слайду — показываем картинку,
+          // 3-й клик по слайду — переход к следующему слайду.
+          if (activeSlide && activeSlide.id === 'problem' && window.innerWidth <= 768) {
+            var defIS = activeSlide.querySelector('#problemDefIS');
+            var defKIS = activeSlide.querySelector('#problemDefKIS');
+            var diagramWrap = activeSlide.querySelector('.product-diagram-wrap');
+            // если почему-то нет определений — ведём себя как обычно
+            if (defIS && defKIS) {
+              if (problemTapCount === 1) {
+                defIS.style.display = 'none';
+                defKIS.style.display = 'block';
+                problemTapCount = 2;
+                return;
+              } else if (problemTapCount === 2) {
+                if (diagramWrap) {
+                  diagramWrap.style.display = 'flex';
+                }
+                // при появлении картинки определение КИС скрываем
+                defKIS.style.display = 'none';
+                problemTapCount = 3;
+                return;
+              } else if (problemTapCount >= 3) {
+                // третий и последующие клики на этом слайде — обычный переход дальше
+                problemTapCount = 3;
+              }
+            }
+          }
 
           goToSlide(currentSlide + 1);
         });
@@ -4281,6 +4003,89 @@
           problemImage.addEventListener('click', function() {
             if (window.innerWidth <= 768 && slides[currentSlide] && slides[currentSlide].id === 'problem') {
               goToSlide(currentSlide + 1);
+            }
+          });
+        }
+      }
+      // На слайде «Возможности»:
+      // клики по карточке «Учебная платформа» или по её кнопке «Попробовать»
+      // ведут на слайд авторизации (Попробовать Интерактивити)
+        var featuresSection = document.getElementById('features');
+        if (featuresSection) {
+          var featuresCourses = featuresSection.querySelectorAll('.demo-course');
+          var featuresCoursesGrid = featuresSection.querySelector('.demo-courses');
+          var featuresKey = document.getElementById('featuresCourseKey');
+          if (featuresKey) {
+            var keyBtn = featuresKey.querySelector('.features-course-btn[data-action="request-course"]');
+            var keyForm = featuresKey.querySelector('.features-request-form');
+            if (keyBtn && keyForm) {
+              // Переворот карточки по клику на «Оставить заявку»
+              keyBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (window.innerWidth <= 768) {
+                  featuresKey.classList.add('is-flipped');
+                  if (featuresCoursesGrid) featuresCoursesGrid.classList.add('request-mode');
+                } else {
+                  featuresKey.classList.toggle('is-flipped');
+                }
+              });
+
+              var sendBtn = keyForm.querySelector('.features-send-btn');
+              if (sendBtn) {
+                sendBtn.addEventListener('click', function(e) {
+                  e.preventDefault();
+                  var nameInput = keyForm.querySelector('#featuresName');
+                  var contactInput = keyForm.querySelector('#featuresContact');
+                  var messageInput = keyForm.querySelector('#featuresMessage');
+                  var hasError = false;
+
+                  function validateField(input) {
+                    if (!input) return;
+                    var value = (input.value || '').trim();
+                    input.classList.remove('shake');
+                    if (!value) {
+                      // триггерим только анимацию «shake»
+                      void input.offsetWidth;
+                      input.classList.add('shake');
+                      hasError = true;
+                    }
+                  }
+
+                  hasError = false;
+                  validateField(nameInput);
+                  validateField(contactInput);
+                  validateField(messageInput);
+
+                  if (!hasError) {
+                    // Очищаем содержимое и показываем благодарность
+                    var backBody = featuresKey.querySelector('.features-course-back .demo-course-body');
+                    if (backBody) {
+                      backBody.innerHTML =
+                        '<div class="features-thanks">' +
+                          '<h4 style="margin:0 0 0.4rem;font-size:1rem;color:var(--accent);">Спасибо за обращение!</h4>' +
+                          '<p style="margin:0 0 0.25rem;font-size:0.9rem;line-height:1.5;color:var(--text);">Ваша заявка отправлена в команду Интерактивити.</p>' +
+                          '<p style="margin:0;font-size:0.85rem;line-height:1.5;color:var(--text-muted);">Мы свяжемся с вами по указанному контакту, чтобы обсудить задачу и формат курса.</p>' +
+                        '</div>';
+                    }
+                  }
+                });
+              }
+            }
+          }
+        if (featuresCourses[1]) {
+          var lmsButton = featuresCourses[1].querySelector('.features-lms-btn');
+          if (lmsButton) {
+            lmsButton.addEventListener('click', function(e) {
+              e.preventDefault();
+              if (authSlideIndex >= 0) {
+                goToSlide(authSlideIndex);
+              }
+            });
+          }
+          featuresCourses[1].addEventListener('click', function(e) {
+            if (e.target.closest('a, button')) return;
+            if (authSlideIndex >= 0) {
+              goToSlide(authSlideIndex);
             }
           });
         }
@@ -4353,21 +4158,21 @@
         }
       }
 
-      // Рендер по умолчанию — руководитель обучения или последняя выбранная роль
-      if (forYouTitle && forYouList && ROLE_BENEFITS.manager) {
+      // Рендер по умолчанию — "Другая роль" или последняя выбранная, если сохранена
+      if (forYouTitle && forYouList && ROLE_BENEFITS.other) {
         var savedRole = null;
         try { savedRole = localStorage.getItem('interactivity_last_role'); } catch (e) {}
         if (savedRole && ROLE_BENEFITS[savedRole]) {
           renderRoleBenefits(savedRole);
         } else {
-          renderRoleBenefits('manager');
+          renderRoleBenefits('other');
         }
       }
 
       document.querySelectorAll('.role-choice').forEach(function(btn) {
         btn.addEventListener('click', function() {
-          var role = this.getAttribute('data-role') || 'manager';
-          if (!ROLE_BENEFITS[role]) role = 'manager';
+          var role = this.getAttribute('data-role') || 'other';
+          if (!ROLE_BENEFITS[role]) role = 'other';
           renderRoleBenefits(role);
           try { localStorage.setItem('interactivity_last_role', role); } catch (e) {}
           goToSlide(3);
@@ -4398,29 +4203,16 @@
           var href = this.getAttribute('href');
           if (href === '#hero' || href === '#intro') { e.preventDefault(); goToSlide(0); return; }
           if (href === '#problem') { e.preventDefault(); goToSlide(1); return; }
-          if (href === '#how') { e.preventDefault(); goToSlide(4); return; }
+          // Демо — 7‑й слайд (index 5)
           if (href === '#demo') { e.preventDefault(); goToSlide(5); return; }
-          // «Кому не подходит» — тот же слайд, что раньше вели #pricing / #features
-          if (href === '#not-for-you' || href === '#pricing' || href === '#features') { e.preventDefault(); goToSlide(6); return; }
+          // «Тарифы» в шапке ведёт на «Возможности» — 8‑й слайд (index 6)
+          if (href === '#pricing') { e.preventDefault(); goToSlide(6); return; }
           if (href === '#form') { e.preventDefault(); goToSlide(authSlideIndex >= 0 ? authSlideIndex : 7); return; }
           if (href === '#contacts') { e.preventDefault(); goToSlide(9); return; }
           if (href === '#documents') { e.preventDefault(); goToSlide(10); return; }
         });
       }
       document.addEventListener('click', function(e) {
-        var hl = e.target.closest('a.landing-hash-link[href^="#"]');
-        if (hl) {
-          var h = hl.getAttribute('href');
-          if (h && h.length > 1) {
-            var t = document.getElementById(h.slice(1));
-            if (t) {
-              e.preventDefault();
-              var ix = Array.prototype.indexOf.call(slides, t);
-              if (ix >= 0) goToSlide(ix);
-            }
-          }
-          return;
-        }
         var a = e.target.closest('a[href="#documents"], a[href="#contacts"]');
         if (!a) return;
         e.preventDefault();
@@ -4463,120 +4255,14 @@
         });
       }
 
-      function projectFormShakeRow(inputEl) {
-        if (!inputEl) return;
-        var row = inputEl.closest('.project-form-row');
-        if (!row) return;
-        row.classList.remove('shake');
-        void row.offsetWidth;
-        row.classList.add('shake');
-      }
-
-      var projectRequestForm = document.getElementById('projectRequestForm');
-      if (projectRequestForm) {
-        projectRequestForm.addEventListener('submit', function(e) {
-          e.preventDefault();
-          var nm = document.getElementById('projectName');
-          var co = document.getElementById('projectCompany');
-          var ct = document.getElementById('projectContact');
-          var tk = document.getElementById('projectTask');
-          var sub = document.getElementById('projectSubmit');
-          var foot = document.getElementById('projectFormFooter');
-          var fields = [
-            { el: nm, ok: nm && (nm.value || '').trim() },
-            { el: co, ok: co && (co.value || '').trim() },
-            { el: ct, ok: ct && (ct.value || '').trim() },
-            { el: tk, ok: tk && (tk.value || '').trim() }
-          ];
-          var valid = true;
-          fields.forEach(function(f) {
-            if (!f.ok) {
-              valid = false;
-              projectFormShakeRow(f.el);
-            }
-          });
-          if (!valid) return;
-
-          if (sub) {
-            sub.disabled = true;
-            sub.textContent = 'Отправка…';
-          }
-
-          var payload = {
-            name: (nm.value || '').trim(),
-            company: (co.value || '').trim(),
-            contact: (ct.value || '').trim(),
-            task: (tk.value || '').trim()
-          };
-          var sbUrl = typeof window.__IA_SUPABASE_URL === 'string' ? window.__IA_SUPABASE_URL : '';
-          var sbKey = typeof window.__IA_SUPABASE_ANON_KEY === 'string' ? window.__IA_SUPABASE_ANON_KEY : '';
-          var supaGlobal = window.supabase;
-
-          function projectFormSuccess() {
-            if (sub) {
-              sub.disabled = true;
-              sub.textContent = 'Отправлено';
-            }
-            if (foot) {
-              foot.innerHTML = 'Спасибо! Мы свяжемся с вами, чтобы уточнить детали проекта. Срочные вопросы — в разделе <a href="#contacts" class="landing-hash-link" style="color:var(--accent);">контакты</a>.';
-            }
-            [nm, co, ct, tk].forEach(function(el) { if (el) el.disabled = true; });
-          }
-
-          function projectFormFail() {
-            if (sub) {
-              sub.disabled = false;
-              sub.textContent = 'Отправить заявку';
-            }
-            if (foot) {
-              foot.innerHTML = '<span style="color:#f87171;">Не удалось отправить заявку. Попробуйте позже или напишите в разделе <a href="#contacts" class="landing-hash-link" style="color:var(--accent);">контакты</a>.</span>';
-            }
-          }
-
-          if (!sbUrl || !sbKey || !supaGlobal || typeof supaGlobal.createClient !== 'function') {
-            if (sub) {
-              sub.disabled = false;
-              sub.textContent = 'Отправить заявку';
-            }
-            if (foot) {
-              foot.innerHTML = '<span style="color:#f87171;">Отправка с сайта не настроена (нет ключа Supabase). Напишите в <a href="#contacts" class="landing-hash-link" style="color:var(--accent);">контакты</a> или обратитесь к администратору.</span>';
-            }
-            return;
-          }
-
-          try {
-            /* Один клиент + без общего storage с кабинетом: иначе JWT authenticated и RLS без политики для него → 403; повторные createClient — предупреждение GoTrue. */
-            var sb = window.__IA_LANDING_PROJECTS_SB;
-            if (!sb) {
-              var deadStorage = {
-                getItem: function () { return null; },
-                setItem: function () {},
-                removeItem: function () {}
-              };
-              sb = supaGlobal.createClient(sbUrl, sbKey, {
-                auth: {
-                  persistSession: false,
-                  autoRefreshToken: false,
-                  detectSessionInUrl: false,
-                  storage: deadStorage
-                }
-              });
-              window.__IA_LANDING_PROJECTS_SB = sb;
-            }
-            sb.from('landing_project_requests').insert(payload).then(function(res) {
-              if (res && res.error) {
-                projectFormFail();
-                return;
-              }
-              projectFormSuccess();
-            }).catch(function() {
-              projectFormFail();
-            });
-          } catch (err) {
-            projectFormFail();
-          }
-        });
-      }
+      document.getElementById('demoForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var msg = document.createElement('p');
+        msg.style.cssText = 'margin-top:1rem;color:var(--accent);font-weight:600;';
+        msg.textContent = 'Спасибо! Мы свяжемся с вами в ближайшее время.';
+        this.appendChild(msg);
+        this.querySelector('button[type="submit"]').disabled = true;
+      });
 
     })();
   </script>

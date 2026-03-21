@@ -25,7 +25,7 @@ create table if not exists public.course_scorm_attempts (
   attempt_number integer not null,
   status text not null default 'in_progress',
   started_at timestamptz not null default now(),
-  finished_at timestamptz
+  completed_at timestamptz
 );
 
 create index if not exists course_scorm_attempts_user_course_idx
@@ -313,7 +313,7 @@ begin
   end if;
 
   update public.course_scorm_attempts
-  set status = 'completed', finished_at = now()
+  set status = 'completed', completed_at = now()
   where id = p_attempt_id and user_id = v_user;
 
   if not found then

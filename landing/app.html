@@ -73,14 +73,11 @@
       width: 34px;
       height: 34px;
       border-radius: 0.95rem;
-      background: conic-gradient(from 210deg, var(--accent), var(--accent-2), #ec4899, var(--accent));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: 0.92rem;
-      color: #0b1120;
+      object-fit: contain;
+      display: block;
+      flex-shrink: 0;
       box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.35);
+      background: rgba(15, 23, 42, 0.5);
     }
     .brand-title { font-weight: 650; letter-spacing: .03em; }
     .brand-sub { font-size: 0.82rem; color: var(--text-muted); }
@@ -449,6 +446,17 @@
     }
     .tree-course-row { margin-left: 1rem; }
 
+    .tree-project-children {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      margin-left: 0.15rem;
+      min-width: 0;
+    }
+    .tree-project-children[hidden] {
+      display: none !important;
+    }
+
     .project-card {
       padding: 0.7rem 0.85rem;
       border-radius: 0.95rem;
@@ -497,17 +505,6 @@
       text-transform: uppercase;
       letter-spacing: 0.06em;
       margin-bottom: 0.15rem;
-    }
-    .badge-role {
-      display: inline-flex;
-      align-items: center;
-      gap: .25rem;
-      border-radius: 999px;
-      padding: 0.15rem 0.55rem;
-      font-size: 0.75rem;
-      background: rgba(34, 197, 94, 0.12);
-      border: 1px solid rgba(52, 211, 153, 0.6);
-      color: #bbf7d0;
     }
     .profile-top {
       display: flex;
@@ -637,6 +634,29 @@
       background: linear-gradient(90deg, var(--success), #a3e635);
       transition: width 0.4s ease-out;
     }
+    .course-scorm-progress {
+      margin-top: 0.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.28rem;
+    }
+    .course-scorm-progress[hidden] { display: none !important; }
+    .course-scorm-progress-label {
+      font-size: 0.84rem;
+      color: var(--text);
+      line-height: 1.35;
+    }
+    .course-scorm-progress-detail {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      min-height: 1.1em;
+    }
+    .course-scorm-progress.is-error .progress-line-inner {
+      background: linear-gradient(90deg, var(--danger), #fb7185);
+    }
+    .course-scorm-progress.is-success .progress-line-inner {
+      background: linear-gradient(90deg, var(--success), #86efac);
+    }
     .course-meta {
       display: flex;
       justify-content: space-between;
@@ -744,6 +764,7 @@
     }
     .modal[hidden] { display: none !important; }
     .modal .modal-body {
+      position: relative;
       width: 520px;
       max-width: 94%;
       padding: 1.25rem 1.4rem;
@@ -753,6 +774,63 @@
       box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
       max-height: 90vh;
       overflow-y: auto;
+    }
+    .course-modal-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      background: rgba(2, 6, 23, 0.78);
+      backdrop-filter: blur(8px);
+      border-radius: inherit;
+    }
+    .course-modal-overlay[hidden] { display: none !important; }
+    .course-modal-sheet {
+      width: 100%;
+      max-width: 400px;
+      padding: 1.35rem 1.4rem 1.25rem;
+      border-radius: 1rem;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      background: linear-gradient(165deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.9));
+      box-shadow:
+        0 0 0 1px rgba(56, 189, 248, 0.12),
+        0 28px 60px rgba(0, 0, 0, 0.55);
+      text-align: center;
+    }
+    .course-modal-sheet-icon {
+      width: 54px;
+      height: 54px;
+      margin: 0 auto 0.9rem;
+      border-radius: 1rem;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.22), rgba(168, 85, 247, 0.18));
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.55rem;
+      line-height: 1;
+    }
+    .course-modal-sheet h4 {
+      margin: 0 0 0.45rem;
+      font-size: 1.05rem;
+      font-weight: 650;
+      letter-spacing: 0.02em;
+    }
+    .course-modal-sheet > p.muted {
+      margin: 0;
+      line-height: 1.45;
+      font-size: 0.88rem;
+    }
+    .course-modal-sheet-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      margin-top: 1.15rem;
     }
 
     .select {
@@ -791,10 +869,10 @@
   <div class="app-shell">
     <header class="app-header">
       <div class="brand">
-        <div class="brand-logo">In</div>
+        <img class="brand-logo" src="img/logo_mini.png" width="34" height="34" alt="" />
         <div>
           <div class="brand-title">Интерактивити</div>
-          <div class="brand-sub">LMS · личный кабинет</div>
+          <div class="brand-sub">Личный кабинет</div>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:0.65rem;">
@@ -819,18 +897,7 @@
         </div>
 
         <div class="nav" role="tablist" aria-label="Вкладки">
-          <button class="nav-btn" type="button" data-tab="profile" role="tab" aria-selected="true">
-            <span class="nav-left">
-              <span class="nav-ico">👤</span>
-              <span class="nav-text">
-                <strong>Профиль</strong>
-                <span>Данные и доступ</span>
-              </span>
-            </span>
-            <span class="nav-right">↵</span>
-          </button>
-
-          <button class="nav-btn" type="button" data-tab="lms" role="tab" aria-selected="false">
+          <button class="nav-btn" type="button" data-tab="lms" role="tab" aria-selected="true">
             <span class="nav-left">
               <span class="nav-ico">🎓</span>
               <span class="nav-text">
@@ -839,6 +906,17 @@
               </span>
             </span>
             <span class="nav-right" id="coursesCountPill">…</span>
+          </button>
+
+          <button class="nav-btn" type="button" data-tab="profile" role="tab" aria-selected="false">
+            <span class="nav-left">
+              <span class="nav-ico">👤</span>
+              <span class="nav-text">
+                <strong>Профиль</strong>
+                <span>Данные и доступ</span>
+              </span>
+            </span>
+            <span class="nav-right">↵</span>
           </button>
 
           <button class="nav-btn" type="button" data-tab="builder" role="tab" aria-selected="false" aria-disabled="true">
@@ -854,13 +932,13 @@
         </div>
 
         <div class="sidebar-foot">
-          <div>Версия: <strong style="color:var(--text);font-weight:600;">0.2</strong></div>
+          <div>Версия: <strong id="cabinetAppVersion" style="color:var(--text);font-weight:600;">…</strong></div>
           <div>Подсказка: после входа вы попадаете сюда автоматически.</div>
         </div>
       </aside>
 
       <main>
-        <section class="card tab-panel" id="tab-profile" role="tabpanel">
+        <section class="card tab-panel" id="tab-profile" role="tabpanel" hidden>
           <div class="card-header">
             <div>
               <div class="card-title">Профиль</div>
@@ -892,11 +970,7 @@
                 <div class="form-row">
                   <div class="profile-label">Имя</div>
                   <input class="input" id="fullNameInput" placeholder="Ваше имя" />
-                  <div class="muted">Это имя будет видно в кабинете и в списках группы.</div>
-                </div>
-                <div>
-                  <div class="profile-label">Роль</div>
-                  <div><span class="badge-role" id="profileRole">Слушатель</span></div>
+                  <div class="muted">Это имя будет видно в кабинете и в шапке вместо email, а также в списках группы.</div>
                 </div>
                 <div>
                   <div class="profile-label">Email</div>
@@ -916,12 +990,12 @@
           </div>
           <div class="divider"></div>
           <div class="notice">
-            Для смены роли (куратор/методист) и управления доступом обратитесь к администратору.
+            Роли в проектах и курсах настраиваются в разделе «Учебная платформа» (приглашения и состав участников).
           </div>
           <div id="profileMessage" class="message-banner"></div>
         </section>
 
-        <section class="card tab-panel" id="tab-lms" role="tabpanel" hidden>
+        <section class="card tab-panel" id="tab-lms" role="tabpanel">
           <div class="card-header">
             <div>
               <div class="card-title">Учебная платформа</div>
@@ -1132,6 +1206,32 @@
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    /** Версия в левой панели: из landing/app-version.json (обновляйте перед пушем: node scripts/bump-cabinet-version.cjs minor|major). */
+    async function loadCabinetAppVersion() {
+      const el = document.getElementById('cabinetAppVersion');
+      if (!el) return;
+      try {
+        const url = new URL('app-version.json', window.location.href);
+        const r = await fetch(url.href, { cache: 'no-store' });
+        if (!r.ok) throw new Error(String(r.status));
+        const j = await r.json();
+        let text = null;
+        if (typeof j.version === 'string') {
+          const s = j.version.trim();
+          if (/^\d+\.\d+$/.test(s)) text = s;
+        }
+        if (text == null && j && typeof j === 'object') {
+          const ma = Number(j.major);
+          const mi = Number(j.minor);
+          if (Number.isFinite(ma) && Number.isFinite(mi)) text = `${ma}.${mi}`;
+        }
+        el.textContent = text || '—';
+      } catch (_) {
+        el.textContent = '—';
+      }
+    }
+    void loadCabinetAppVersion();
+
     /**
      * Запуск: новое окно с scorm-player.html; сам пакет грузится во внутренний iframe плеера.
      * SCORM ищет API в window.parent — идеально один origin у плеера и файлов пакета.
@@ -1148,7 +1248,7 @@
     function getScormPlayerLaunchUrl(courseId) {
       const q = new URLSearchParams({ courseId: String(courseId) });
       try {
-        q.set('cabinet', new URL('index.html#form', window.location.href).href);
+        q.set('cabinet', new URL('konstr.html#form', window.location.href).href);
       } catch (_) {}
       if (SCORM_PLAYER_USE_SUPABASE_STORAGE) {
         return `${SUPABASE_URL}/storage/v1/object/public/${SCORM_PLAYER_BUCKET}/${SCORM_PLAYER_FILENAME}?${q}`;
@@ -1172,10 +1272,8 @@
     const userMiniText = document.getElementById('userMiniText');
     const logoutBtn = document.getElementById('logoutBtn');
 
-    const profileName = document.getElementById('profileName');
     const profileEmail = document.getElementById('profileEmail');
     const profileCreated = document.getElementById('profileCreated');
-    const profileRole = document.getElementById('profileRole');
     const profileAvatar = document.getElementById('profileAvatar');
     const profileAvatarFallback = document.getElementById('profileAvatarFallback');
     const avatarInput = document.getElementById('avatarInput');
@@ -1194,6 +1292,36 @@
     const sidebarChip = document.getElementById('sidebarChip');
     const sidebarCollapseBtn = document.getElementById('sidebarCollapseBtn');
     const sidebarCollapseBtnIcon = document.getElementById('sidebarCollapseBtnIcon');
+
+    function displayNameForHeader(fullName, email) {
+      const n = (fullName || '').trim();
+      return n || (email || '—');
+    }
+
+    function initialsFromUser(fullName, email) {
+      const n = (fullName || '').trim();
+      if (n) {
+        const parts = n.split(/\s+/).filter(Boolean);
+        if (parts.length >= 2) {
+          return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        }
+        return n.slice(0, 2).toUpperCase();
+      }
+      const em = (email || '').trim();
+      return (em[0] || 'U').toUpperCase();
+    }
+
+    /** Имя в шапке и в chip сайдбара: full_name, иначе email. */
+    function updateUserChromeDisplay(email, fullName) {
+      const label = displayNameForHeader(fullName, email);
+      if (userMiniText) userMiniText.textContent = label;
+      if (sidebarChip) sidebarChip.textContent = label;
+      const ini = initialsFromUser(fullName, email);
+      if (profileAvatarFallback) profileAvatarFallback.textContent = ini;
+      if (userAvatar && !userAvatar.querySelector('img')) {
+        userAvatar.textContent = ini;
+      }
+    }
 
     const SIDEBAR_COLLAPSED_KEY = 'ia_sidebar_collapsed_v1';
 
@@ -1336,7 +1464,7 @@
     async function requireAuthOrRedirect() {
       const { data: { user }, error } = await supabase.auth.getUser();
       if (error || !user) {
-        window.location.href = 'index.html#form';
+        window.location.href = 'konstr.html#form';
         return null;
       }
       return user;
@@ -1344,18 +1472,14 @@
 
     async function loadProfile(user) {
       const email = user.email || 'Без email';
-      const initials = (email[0] || 'U').toUpperCase();
       userMini.hidden = false;
-      userAvatar.textContent = initials;
-      userMiniText.textContent = email;
       profileEmail.textContent = email;
-      sidebarChip.textContent = email;
-      if (profileAvatarFallback) profileAvatarFallback.textContent = initials;
+      updateUserChromeDisplay(email, '');
 
       try {
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
-          .select('full_name, created_at, role, avatar_url')
+          .select('full_name, created_at, avatar_url')
           .eq('id', user.id)
           .maybeSingle();
 
@@ -1366,17 +1490,8 @@
 
         const fullName = (profile && profile.full_name) || '';
         if (fullNameInput) fullNameInput.value = fullName;
-        if (profileName) profileName.textContent = fullName || 'Безымянный пользователь';
         profileCreated.textContent = formatDate((profile && profile.created_at) || user.created_at);
-        if (profileRole) {
-          const role = (profile && profile.role) || 'listener';
-          const map = {
-            admin: 'Администратор',
-            curator: 'Куратор',
-            listener: 'Слушатель'
-          };
-          profileRole.textContent = map[role] || 'Слушатель';
-        }
+        updateUserChromeDisplay(email, fullName);
 
         const avatarUrl = profile && profile.avatar_url;
         renderAvatar(avatarUrl);
@@ -1459,11 +1574,15 @@
         };
       } else {
         if (profileAvatarFallback) profileAvatarFallback.style.display = '';
-        // header mini avatar back to initials look
-        if (userAvatar && userAvatar.querySelector('img')) {
-          userAvatar.innerHTML = '';
-          userAvatar.style.background = '';
-          userAvatar.style.overflow = '';
+        if (userAvatar) {
+          if (userAvatar.querySelector('img')) {
+            userAvatar.innerHTML = '';
+            userAvatar.style.background = '';
+            userAvatar.style.overflow = '';
+          }
+          if (!userAvatar.querySelector('img')) {
+            userAvatar.textContent = (profileAvatarFallback && profileAvatarFallback.textContent) || 'U';
+          }
         }
       }
     }
@@ -1883,6 +2002,86 @@
       });
     }
 
+    async function loadCoursesIntoProjectChildren(childrenWrap, projectId, user, canManage) {
+      childrenWrap.innerHTML = '<div class="muted" style="padding:0.35rem 0.7rem;">Загрузка курсов…</div>';
+      try {
+        const courses = await fetchProjectCourses(projectId);
+        childrenWrap.innerHTML = '';
+        if (!courses || !courses.length) {
+          const empty = document.createElement('div');
+          empty.className = 'muted';
+          empty.style.padding = '0.35rem 0.7rem';
+          empty.textContent = 'Курсы пока не созданы.';
+          childrenWrap.appendChild(empty);
+          childrenWrap.dataset.loaded = '1';
+          return;
+        }
+        courses.forEach((c) => {
+          const courseRow = document.createElement('div');
+          courseRow.className = 'tree-row tree-course-row';
+          courseRow.style.cursor = 'pointer';
+          courseRow.setAttribute('role', 'treeitem');
+          courseRow.tabIndex = -1;
+          courseRow.style.justifyContent = 'space-between';
+
+          const courseLeft = document.createElement('span');
+          courseLeft.className = 'tree-left';
+
+          const courseIco = document.createElement('span');
+          courseIco.className = 'tree-ico';
+          courseIco.style.background = 'linear-gradient(135deg,var(--accent),#60a5fa)';
+          courseIco.textContent = '📘';
+
+          const courseTitleWrap = document.createElement('span');
+          courseTitleWrap.className = 'tree-title';
+
+          const courseStrong = document.createElement('strong');
+          courseStrong.textContent = c.title ? String(c.title) : 'Без названия';
+          courseStrong.title = courseStrong.textContent;
+
+          const courseStatus = document.createElement('span');
+          courseStatus.textContent = c.is_published ? 'Опубликован' : 'Черновик';
+
+          courseTitleWrap.appendChild(courseStrong);
+          courseTitleWrap.appendChild(courseStatus);
+          courseLeft.appendChild(courseIco);
+          courseLeft.appendChild(courseTitleWrap);
+
+          const arrow = document.createElement('span');
+          arrow.className = 'nav-right';
+          arrow.style.flex = '0 0 auto';
+          arrow.style.fontSize = '0.78rem';
+          arrow.style.color = 'var(--text-muted)';
+          arrow.textContent = canManage ? '›' : (c.is_published ? '▶' : '—');
+
+          courseRow.appendChild(courseLeft);
+          courseRow.appendChild(arrow);
+
+          courseRow.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            if (!canManage) {
+              if (!c.is_published) {
+                setProjectsMessage('Курс ещё не опубликован.', 'error');
+                return;
+              }
+              setProjectsMessage('');
+              launchScormCourseInNewWindow(c.id);
+              return;
+            }
+            openCourseCard(c, { canManage });
+          });
+
+          childrenWrap.appendChild(courseRow);
+        });
+        childrenWrap.dataset.loaded = '1';
+      } catch (err) {
+        console.error(err);
+        childrenWrap.innerHTML = '<div class="muted" style="padding:0.35rem 0.7rem;">Не удалось загрузить курсы.</div>';
+        delete childrenWrap.dataset.loaded;
+      }
+    }
+
     function renderProjectsSingleListRight(user, pendingInvites, projects) {
       if (!projectsSingleListRight) return;
       projectsSingleListRight.innerHTML = '';
@@ -2034,7 +2233,7 @@
         row.setAttribute('role', 'treeitem');
         row.tabIndex = 0;
         row.setAttribute('aria-current', 'false');
-        row.setAttribute('aria-expanded', 'false');
+        row.setAttribute('aria-expanded', 'true');
         row.style.justifyContent = 'space-between';
 
         const left = document.createElement('span');
@@ -2043,18 +2242,15 @@
         const toggleBtn = document.createElement('button');
         toggleBtn.type = 'button';
         toggleBtn.className = 'btn btn-ghost btn-sm btn-icon';
-        toggleBtn.textContent = '▸';
-        toggleBtn.title = 'Показать курсы';
+        toggleBtn.textContent = '▾';
+        toggleBtn.title = 'Скрыть курсы';
         toggleBtn.setAttribute('aria-label', 'Показать/скрыть курсы');
 
         const childrenWrap = document.createElement('div');
-        childrenWrap.hidden = true;
+        childrenWrap.className = 'tree-project-children';
+        childrenWrap.hidden = false;
         childrenWrap.setAttribute('role', 'group');
         childrenWrap.setAttribute('aria-label', `Курсы проекта: ${title}`);
-        childrenWrap.style.display = 'flex';
-        childrenWrap.style.flexDirection = 'column';
-        childrenWrap.style.gap = '0.45rem';
-        childrenWrap.style.marginLeft = '0.15rem';
 
         const ico = document.createElement('span');
         ico.className = 'tree-ico';
@@ -2124,84 +2320,10 @@
 
           if (!willOpen) return;
           if (childrenWrap.dataset.loaded === '1') return;
-          childrenWrap.dataset.loaded = '1';
-
-          childrenWrap.innerHTML = '<div class="muted" style="padding:0.35rem 0.7rem;">Загрузка курсов…</div>';
-          try {
-            const courses = await fetchProjectCourses(projectId);
-            childrenWrap.innerHTML = '';
-            if (!courses || !courses.length) {
-              const empty = document.createElement('div');
-              empty.className = 'muted';
-              empty.style.padding = '0.35rem 0.7rem';
-              empty.textContent = 'Курсы пока не созданы.';
-              childrenWrap.appendChild(empty);
-              return;
-            }
-
-            courses.forEach((c) => {
-              const courseRow = document.createElement('div');
-              courseRow.className = 'tree-row tree-course-row';
-              courseRow.style.cursor = 'pointer';
-              courseRow.setAttribute('role', 'treeitem');
-              courseRow.tabIndex = -1;
-              courseRow.style.justifyContent = 'space-between';
-
-              const courseLeft = document.createElement('span');
-              courseLeft.className = 'tree-left';
-
-              const courseIco = document.createElement('span');
-              courseIco.className = 'tree-ico';
-              courseIco.style.background = 'linear-gradient(135deg,var(--accent),#60a5fa)';
-              courseIco.textContent = '📘';
-
-              const courseTitleWrap = document.createElement('span');
-              courseTitleWrap.className = 'tree-title';
-
-              const courseStrong = document.createElement('strong');
-              courseStrong.textContent = c.title ? String(c.title) : 'Без названия';
-              courseStrong.title = courseStrong.textContent;
-
-              const courseStatus = document.createElement('span');
-              courseStatus.textContent = c.is_published ? 'Опубликован' : 'Черновик';
-
-              courseTitleWrap.appendChild(courseStrong);
-              courseTitleWrap.appendChild(courseStatus);
-              courseLeft.appendChild(courseIco);
-              courseLeft.appendChild(courseTitleWrap);
-
-              const arrow = document.createElement('span');
-              arrow.className = 'nav-right';
-              arrow.style.flex = '0 0 auto';
-              arrow.style.fontSize = '0.78rem';
-              arrow.style.color = 'var(--text-muted)';
-              arrow.textContent = canManage ? '›' : (c.is_published ? '▶' : '—');
-
-              courseRow.appendChild(courseLeft);
-              courseRow.appendChild(arrow);
-
-              courseRow.addEventListener('click', (ev) => {
-                ev.preventDefault();
-                ev.stopPropagation();
-                if (!canManage) {
-                  if (!c.is_published) {
-                    setProjectsMessage('Курс ещё не опубликован.', 'error');
-                    return;
-                  }
-                  setProjectsMessage('');
-                  launchScormCourseInNewWindow(c.id);
-                  return;
-                }
-                openCourseCard(c, { canManage });
-              });
-
-              childrenWrap.appendChild(courseRow);
-            });
-          } catch (err) {
-            console.error(err);
-            childrenWrap.innerHTML = '<div class="muted" style="padding:0.35rem 0.7rem;">Не удалось загрузить курсы.</div>';
-          }
+          await loadCoursesIntoProjectChildren(childrenWrap, projectId, user, canManage);
         });
+
+        void loadCoursesIntoProjectChildren(childrenWrap, projectId, user, canManage);
 
         row.appendChild(left);
         row.appendChild(actionsWrap);
@@ -3216,7 +3338,14 @@
       return out;
     }
 
-    async function uploadCourseScormPackage({ courseId, file, userId }) {
+    async function uploadCourseScormPackage({ courseId, file, userId, onProgress }) {
+      const report = (percent, message, detail, variant) => {
+        try {
+          if (typeof onProgress === 'function') {
+            onProgress({ percent, message, detail: detail || '', variant: variant || '' });
+          }
+        } catch (_) {}
+      };
       if (!courseId) throw new Error('Сначала сохраните курс.');
       if (!file) throw new Error('Выберите ZIP-файл SCORM-пакета.');
       const name = String(file.name || '').toLowerCase();
@@ -3227,6 +3356,7 @@
       const zipPath = `scorm/${base}/${stamp}/package.zip`;
       const rootPath = `scorm/${base}/${stamp}/`;
 
+      report(4, 'Загрузка ZIP в хранилище…', file.name || '');
       const bucketCandidates = ['course-scorm', 'scorm'];
       let uploadErr = null;
       let uploadedBucket = null;
@@ -3248,6 +3378,7 @@
           + formatErr(uploadErr)
         );
       }
+      report(14, 'Архив принят, регистрируем версию пакета…');
 
       const { data: maxRow, error: maxErr } = await supabase
         .from('course_scorm_package_versions')
@@ -3309,6 +3440,7 @@
           .eq('id', inserted.id);
         if (activateErr) throw activateErr;
       }
+      report(18, 'Распаковка и загрузка файлов пакета…');
 
       // 1) Extract ZIP locally and upload extracted files into storage root.
       // 2) Parse imsmanifest.xml and fill parsed SCORM tables.
@@ -3319,6 +3451,7 @@
         const zip = await JSZip.loadAsync(file);
         const entries = Object.values(zip.files || {});
         const fileEntries = entries.filter((e) => e && !e.dir);
+        const totalZipFiles = Math.max(1, fileEntries.length);
         const warnings = [];
         /** @type {Map<string, string>} канонический путь в ZIP -> безопасный ключ в Storage */
         const pathMap = new Map();
@@ -3345,6 +3478,8 @@
             continue;
           }
           uploadedFiles += 1;
+          const pctMain = 18 + Math.round((uploadedFiles / totalZipFiles) * 52);
+          report(Math.min(69, pctMain), 'Загрузка файлов пакета…', `${uploadedFiles} из ${totalZipFiles}`);
 
           if (relPath.toLowerCase().endsWith('imsmanifest.xml')) {
             manifestXmlOriginal = await entry.async('string');
@@ -3355,6 +3490,17 @@
         if (!manifestXmlOriginal) throw new Error('В архиве не найден imsmanifest.xml');
 
         // Второй проход: переписать ссылки в текстовых файлах под безопасные имена (HTML/JS/CSS и т.д.)
+        const textAssetEntries = fileEntries.filter((e) => {
+          const originalRelPath = String(e.name || '').replace(/\\/g, '/').replace(/^\/+/, '');
+          const relPath = decodePercentPath(originalRelPath);
+          if (!relPath || relPath.toLowerCase().endsWith('imsmanifest.xml')) return false;
+          const storageRel = pathMap.get(relPath) || safeStorageRelPath(relPath);
+          return isProbablyTextAsset(storageRel);
+        });
+        const totalTextAssets = Math.max(1, textAssetEntries.length);
+        let textPassIdx = 0;
+        report(72, 'Обновление путей в HTML, JS и CSS…');
+
         for (const entry of fileEntries) {
           const originalRelPath = String(entry.name || '').replace(/\\/g, '/').replace(/^\/+/, '');
           const relPath = decodePercentPath(originalRelPath);
@@ -3362,6 +3508,8 @@
           if (relPath.toLowerCase().endsWith('imsmanifest.xml')) continue;
           const storageRel = pathMap.get(relPath) || safeStorageRelPath(relPath);
           if (!isProbablyTextAsset(storageRel)) continue;
+          textPassIdx += 1;
+          report(72 + Math.min(10, Math.round((textPassIdx / totalTextAssets) * 10)), 'Обновление путей в HTML, JS и CSS…', `${textPassIdx} из ${totalTextAssets}`);
           try {
             const raw = await entry.async('uint8array');
             const text = new TextDecoder('utf-8', { fatal: false }).decode(raw);
@@ -3510,6 +3658,7 @@
             .upsert(scoRows, { onConflict: 'package_version_id,sco_identifier' });
           if (error) throw error;
         }
+        report(96, 'Финализация…');
       } catch (e) {
         // Keep uploaded ZIP + package row, but mark parsing failure.
         const parseErrText = formatErr(e) || 'parse error';
@@ -3526,6 +3675,7 @@
         throw new Error('ZIP загружен, но разбор SCORM не завершён: ' + parseErrText);
       }
 
+      report(100, 'SCORM успешно загружен', `Версия пакета v${inserted.version_number}`, 'success');
       return inserted;
     }
 
@@ -3651,14 +3801,14 @@
     }
 
     function openCourseCard(course, { canManage }) {
-      const isNew = !course || !course.id;
-      if (!canManage && !isNew && course && course.id) {
-        if (!course.is_published) {
+      let workingCourse = (course && typeof course === 'object') ? { ...course } : {};
+      if (!canManage && workingCourse.id) {
+        if (!workingCourse.is_published) {
           setProjectsMessage('Курс ещё не опубликован.', 'error');
           return;
         }
         setProjectsMessage('');
-        launchScormCourseInNewWindow(course.id);
+        launchScormCourseInNewWindow(workingCourse.id);
         return;
       }
       // lightweight modal
@@ -3678,17 +3828,18 @@
               <div class="profile-label">Описание</div>
               <textarea class="input" id="courseEditDesc" rows="4" style="resize:vertical;"></textarea>
             </div>
-            <div class="form-row">
-              <div class="profile-label">Картинка (URL)</div>
-              <input class="input" id="courseEditImage" placeholder="https://..." />
-            </div>
             <div class="form-row" style="margin-top:.2rem;">
               <div class="profile-label">SCORM-пакет (ZIP)</div>
-              <div class="row" style="align-items:center; gap:.45rem;">
-                <input class="input" id="courseScormZipInput" type="file" accept=".zip,application/zip" style="flex:1;min-width:230px;" />
-                <button type="button" class="btn btn-ghost" id="courseScormUploadBtn">Загрузить SCORM</button>
+              <input type="file" id="courseScormZipInput" accept=".zip,application/zip" hidden aria-hidden="true" tabindex="-1" />
+              <button type="button" class="btn" id="courseScormUploadBtn" style="width:100%;justify-content:center;">Загрузить SCORM</button>
+              <div class="muted" id="courseScormInfo" style="margin-top:.35rem;">Нажмите кнопку, выберите ZIP (например, PeopleGames.zip) — загрузка начнётся сразу после выбора.</div>
+              <div class="course-scorm-progress" id="courseScormProgressWrap" hidden>
+                <div class="course-scorm-progress-label" id="courseScormProgressLabel"></div>
+                <div class="progress-line" id="courseScormProgressTrack" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Прогресс загрузки SCORM">
+                  <div class="progress-line-inner" id="courseScormProgressBar"></div>
+                </div>
+                <div class="course-scorm-progress-detail" id="courseScormProgressDetail"></div>
               </div>
-              <div class="muted" id="courseScormInfo">Загрузите ZIP архив SCORM (например, PeopleGames.zip).</div>
             </div>
             <div class="form-row" id="courseLaunchRow" style="margin-top:.35rem;">
               <button type="button" class="btn" id="courseLaunchScormBtn" style="width:100%;justify-content:center;">▶ Запустить курс (новое окно)</button>
@@ -3704,6 +3855,17 @@
               </div>
             </div>
             <div class="message-banner" id="courseEditMsg" style="margin-top:.5rem;"></div>
+            <div class="course-modal-overlay" id="courseSaveBeforeScormOverlay" hidden>
+              <div class="course-modal-sheet" role="dialog" aria-modal="true" aria-labelledby="courseSaveBeforeScormTitle">
+                <div class="course-modal-sheet-icon" aria-hidden="true">💾</div>
+                <h4 id="courseSaveBeforeScormTitle">Сначала сохраните курс</h4>
+                <p class="muted">Чтобы загрузить SCORM, курс должен быть в базе. Сохранить сейчас и сразу начать загрузку пакета?</p>
+                <div class="course-modal-sheet-actions">
+                  <button type="button" class="btn btn-ghost" id="courseSaveBeforeScormCancel">Отмена</button>
+                  <button type="button" class="btn" id="courseSaveBeforeScormOk">Сохранить и загрузить</button>
+                </div>
+              </div>
+            </div>
           </div>
         `;
         document.body.appendChild(modal);
@@ -3711,16 +3873,49 @@
 
       const titleEl = document.getElementById('courseEditTitle');
       const descEl = document.getElementById('courseEditDesc');
-      const imgEl = document.getElementById('courseEditImage');
       const pubEl = document.getElementById('courseEditPublished');
       const saveBtn = document.getElementById('courseSaveBtn');
       const scormZipInput = document.getElementById('courseScormZipInput');
       const scormUploadBtn = document.getElementById('courseScormUploadBtn');
       const scormInfoEl = document.getElementById('courseScormInfo');
+      if (scormInfoEl && !document.getElementById('courseScormProgressWrap')) {
+        const wrap = document.createElement('div');
+        wrap.id = 'courseScormProgressWrap';
+        wrap.className = 'course-scorm-progress';
+        wrap.hidden = true;
+        wrap.innerHTML = `
+                <div class="course-scorm-progress-label" id="courseScormProgressLabel"></div>
+                <div class="progress-line" id="courseScormProgressTrack" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Прогресс загрузки SCORM">
+                  <div class="progress-line-inner" id="courseScormProgressBar"></div>
+                </div>
+                <div class="course-scorm-progress-detail" id="courseScormProgressDetail"></div>
+              `;
+        scormInfoEl.insertAdjacentElement('afterend', wrap);
+      }
+      const scormProgressWrap = document.getElementById('courseScormProgressWrap');
+      const scormProgressLabel = document.getElementById('courseScormProgressLabel');
+      const scormProgressBar = document.getElementById('courseScormProgressBar');
+      const scormProgressTrack = document.getElementById('courseScormProgressTrack');
+      const scormProgressDetail = document.getElementById('courseScormProgressDetail');
       const launchRow = document.getElementById('courseLaunchRow');
       const launchScormBtn = document.getElementById('courseLaunchScormBtn');
       const closeBtn = document.getElementById('courseCloseBtn');
       const msgEl = document.getElementById('courseEditMsg');
+      const courseModalBody = modal.querySelector('.modal-body');
+      if (courseModalBody && !document.getElementById('courseSaveBeforeScormOverlay')) {
+        courseModalBody.insertAdjacentHTML('beforeend', `
+            <div class="course-modal-overlay" id="courseSaveBeforeScormOverlay" hidden>
+              <div class="course-modal-sheet" role="dialog" aria-modal="true" aria-labelledby="courseSaveBeforeScormTitle">
+                <div class="course-modal-sheet-icon" aria-hidden="true">💾</div>
+                <h4 id="courseSaveBeforeScormTitle">Сначала сохраните курс</h4>
+                <p class="muted">Чтобы загрузить SCORM, курс должен быть в базе. Сохранить сейчас и сразу начать загрузку пакета?</p>
+                <div class="course-modal-sheet-actions">
+                  <button type="button" class="btn btn-ghost" id="courseSaveBeforeScormCancel">Отмена</button>
+                  <button type="button" class="btn" id="courseSaveBeforeScormOk">Сохранить и загрузить</button>
+                </div>
+              </div>
+            </div>`);
+      }
 
       const setMsg = (t, isErr=false) => {
         if (!msgEl) return;
@@ -3728,69 +3923,228 @@
         msgEl.className = 'message-banner' + (isErr ? ' error' : '');
       };
 
-      const headerEl = modal.querySelector('h3');
-      if (headerEl) headerEl.textContent = isNew ? 'Создать курс' : 'Курс';
+      const resetScormProgressState = () => {
+        if (scormProgressWrap) {
+          scormProgressWrap.hidden = true;
+          scormProgressWrap.classList.remove('is-error', 'is-success');
+        }
+        if (scormProgressBar) scormProgressBar.style.width = '0%';
+        if (scormProgressLabel) scormProgressLabel.textContent = '';
+        if (scormProgressDetail) scormProgressDetail.textContent = '';
+        if (scormProgressTrack) scormProgressTrack.setAttribute('aria-valuenow', '0');
+      };
 
-      if (titleEl) titleEl.value = course && course.title ? course.title : '';
-      if (descEl) descEl.value = course && course.description ? course.description : '';
-      if (imgEl) imgEl.value = course && course.image_url ? course.image_url : '';
-      if (pubEl) pubEl.checked = !!(course && course.is_published);
+      const setScormProgress = ({ percent, message, detail, variant }) => {
+        if (scormProgressWrap) {
+          scormProgressWrap.hidden = false;
+          scormProgressWrap.classList.toggle('is-error', variant === 'error');
+          scormProgressWrap.classList.toggle('is-success', variant === 'success');
+        }
+        const p = Math.max(0, Math.min(100, Number(percent) || 0));
+        if (scormProgressBar) scormProgressBar.style.width = `${p}%`;
+        if (scormProgressLabel) scormProgressLabel.textContent = message || '';
+        if (scormProgressDetail) scormProgressDetail.textContent = detail || '';
+        if (scormProgressTrack) scormProgressTrack.setAttribute('aria-valuenow', String(Math.round(p)));
+      };
+
+      function askSaveBeforeScorm() {
+        return new Promise((resolve) => {
+          const overlay = document.getElementById('courseSaveBeforeScormOverlay');
+          const btnOk = document.getElementById('courseSaveBeforeScormOk');
+          const btnCancel = document.getElementById('courseSaveBeforeScormCancel');
+          if (!overlay || !btnOk || !btnCancel) {
+            resolve(false);
+            return;
+          }
+          let onKey = null;
+          let settled = false;
+          const finish = (v) => {
+            if (settled) return;
+            settled = true;
+            overlay.hidden = true;
+            overlay.removeEventListener('click', onBackdrop);
+            btnOk.removeEventListener('click', onOk);
+            btnCancel.removeEventListener('click', onCancel);
+            if (onKey) document.removeEventListener('keydown', onKey);
+            resolve(v);
+          };
+          const onBackdrop = (e) => {
+            if (e.target === overlay) finish(false);
+          };
+          const onOk = () => finish(true);
+          const onCancel = () => finish(false);
+          onKey = (e) => {
+            if (e.key === 'Escape') finish(false);
+          };
+          overlay.hidden = false;
+          overlay.addEventListener('click', onBackdrop);
+          btnOk.addEventListener('click', onOk);
+          btnCancel.addEventListener('click', onCancel);
+          document.addEventListener('keydown', onKey);
+          setTimeout(() => {
+            try { btnOk.focus(); } catch (_) {}
+          }, 0);
+        });
+      }
+
+      async function persistCourseFromModal() {
+        const activePid = window.__activeProject ? window.__activeProject.id : null;
+        if (!activePid && !workingCourse.id) throw new Error('Сначала выберите проект.');
+        const payload = {
+          title: (titleEl && titleEl.value ? titleEl.value.trim() : '').slice(0, 200),
+          description: descEl ? descEl.value.trim() : null,
+          image_url: (typeof workingCourse.image_url === 'string' && workingCourse.image_url.trim())
+            ? workingCourse.image_url.trim()
+            : null,
+          is_published: pubEl ? !!pubEl.checked : false
+        };
+        if (!payload.title) throw new Error('Укажите название курса.');
+        const selectCols = 'id, project_id, title, description, image_url, is_published, created_at, created_by';
+        if (workingCourse.id) {
+          const { data, error } = await supabase
+            .from('project_courses')
+            .update(payload)
+            .eq('id', workingCourse.id)
+            .select(selectCols)
+            .single();
+          if (error) throw error;
+          workingCourse = { ...workingCourse, ...data };
+          return { created: false };
+        }
+        const { data, error } = await supabase
+          .from('project_courses')
+          .insert({ project_id: activePid, ...payload })
+          .select(selectCols)
+          .single();
+        if (error) throw error;
+        workingCourse = { ...workingCourse, ...data };
+        return { created: true };
+      }
+
+      async function refreshCoursesListUi() {
+        const user = await requireAuthOrRedirect();
+        const pid = window.__activeProject ? window.__activeProject.id : null;
+        const myRole = window.__activeProjectRole || null;
+        if (user && pid) {
+          const canM = myRole === 'admin' || myRole === 'methodologist';
+          const fresh = await fetchProjectCourses(pid);
+          renderProjectCourses(fresh, { canManage: canM });
+        }
+      }
+
+      const syncCourseModalAfterPersist = () => {
+        const h = modal.querySelector('h3');
+        if (h) h.textContent = workingCourse.id ? 'Курс' : 'Создать курс';
+        if (launchRow) launchRow.hidden = !canManage || !workingCourse.id;
+        if (scormInfoEl && (!scormProgressWrap || scormProgressWrap.hidden)) {
+          scormInfoEl.textContent = workingCourse.id
+            ? 'Нажмите «Загрузить SCORM» и выберите ZIP — загрузка начнётся сразу.'
+            : 'Сначала сохраните курс или нажмите «Загрузить SCORM» — при необходимости курс сохранится автоматически, затем выберите ZIP.';
+        }
+        if (launchScormBtn) {
+          launchScormBtn.onclick = () => {
+            if (workingCourse.id) launchScormCourseInNewWindow(workingCourse.id);
+          };
+        }
+      };
+
+      if (titleEl) titleEl.value = workingCourse.title ? workingCourse.title : '';
+      if (descEl) descEl.value = workingCourse.description ? workingCourse.description : '';
+      if (pubEl) pubEl.checked = !!workingCourse.is_published;
 
       const setDisabled = (disabled) => {
-        [titleEl, descEl, imgEl, pubEl, saveBtn, scormZipInput, scormUploadBtn].forEach((x) => { if (x) x.disabled = disabled; });
+        [titleEl, descEl, pubEl, saveBtn, scormZipInput, scormUploadBtn].forEach((x) => { if (x) x.disabled = disabled; });
       };
 
       setDisabled(!canManage);
       if (saveBtn) saveBtn.hidden = !canManage;
       if (pubEl) pubEl.disabled = !canManage;
       if (scormUploadBtn) scormUploadBtn.hidden = !canManage;
-      if (scormZipInput) scormZipInput.hidden = !canManage;
-      if (scormInfoEl) {
-        if (isNew) scormInfoEl.textContent = 'Сначала сохраните курс, затем можно загрузить SCORM ZIP.';
-        else scormInfoEl.textContent = 'Загрузите ZIP архив SCORM (например, PeopleGames.zip).';
-      }
+      resetScormProgressState();
       if (!canManage) setMsg('Только администратор/куратор проекта может редактировать курс.');
       else setMsg('');
+      syncCourseModalAfterPersist();
 
-      if (launchRow) launchRow.hidden = !canManage || isNew || !course || !course.id;
-      if (launchScormBtn) {
-        launchScormBtn.onclick = () => {
-          if (course && course.id) launchScormCourseInNewWindow(course.id);
+      if (scormUploadBtn && scormZipInput) {
+        scormUploadBtn.onclick = () => {
+          if (!canManage || scormUploadBtn.disabled) return;
+          try {
+            scormZipInput.click();
+          } catch (e) {
+            console.error(e);
+            setMsg('Не удалось открыть выбор файла.', true);
+          }
         };
-      }
-
-      if (scormUploadBtn) {
-        scormUploadBtn.onclick = async () => {
-          setMsg('');
-          if (isNew || !course || !course.id) {
-            setMsg('Сначала сохраните курс, затем загружайте SCORM.', true);
+        scormZipInput.onchange = async () => {
+          const file = scormZipInput.files && scormZipInput.files[0] ? scormZipInput.files[0] : null;
+          if (!file) return;
+          const name = String(file.name || '').toLowerCase();
+          if (!name.endsWith('.zip')) {
+            setMsg('Нужен файл в формате ZIP.', true);
+            scormZipInput.value = '';
             return;
           }
+          setMsg('');
+          resetScormProgressState();
+          if (!workingCourse.id) {
+            const ok = await askSaveBeforeScorm();
+            if (!ok) {
+              scormZipInput.value = '';
+              return;
+            }
+            setLoadingBtn(scormUploadBtn, true, 'Сохранение…');
+            try {
+              await persistCourseFromModal();
+            } catch (e) {
+              console.error(e);
+              setMsg(formatErr(e) || 'Не удалось сохранить курс.', true);
+              setLoadingBtn(scormUploadBtn, false, 'Загрузить SCORM');
+              scormZipInput.value = '';
+              return;
+            }
+            syncCourseModalAfterPersist();
+            setMsg('');
+          }
+          setLoadingBtn(scormUploadBtn, true, 'Загрузка…');
           try {
-            const file = scormZipInput && scormZipInput.files && scormZipInput.files[0] ? scormZipInput.files[0] : null;
-            setLoadingBtn(scormUploadBtn, true, 'Загрузка…');
             const user = await requireAuthOrRedirect();
             if (!user) throw new Error('Не удалось определить пользователя.');
             const inserted = await uploadCourseScormPackage({
-              courseId: course.id,
+              courseId: workingCourse.id,
               file,
-              userId: user.id
+              userId: user.id,
+              onProgress: ({ percent, message, detail, variant }) => setScormProgress({ percent, message, detail, variant })
             });
-            if (scormZipInput) scormZipInput.value = '';
-            if (scormInfoEl) scormInfoEl.textContent = `Загружена версия SCORM v${inserted.version_number}.`;
-            setMsg(`SCORM-пакет загружен (версия v${inserted.version_number}).`);
+            scormZipInput.value = '';
+            if (scormInfoEl) scormInfoEl.textContent = `Активна версия SCORM v${inserted.version_number}. Можно запустить курс.`;
+            setMsg(`SCORM-пакет успешно загружен (версия v${inserted.version_number}).`);
+            await refreshCoursesListUi();
           } catch (e) {
             console.error(e);
-            setMsg(formatErr(e) || 'Не удалось загрузить SCORM-пакет.', true);
+            const errText = formatErr(e) || 'Не удалось загрузить SCORM-пакет.';
+            const cur = scormProgressBar && scormProgressBar.style.width
+              ? parseFloat(scormProgressBar.style.width)
+              : 0;
+            setScormProgress({
+              percent: Number.isFinite(cur) && cur > 0 ? cur : 8,
+              message: 'Ошибка загрузки SCORM',
+              detail: errText,
+              variant: 'error'
+            });
+            setMsg(errText, true);
           } finally {
             setLoadingBtn(scormUploadBtn, false, 'Загрузить SCORM');
+            scormZipInput.value = '';
           }
         };
       }
 
       const close = () => {
+        const saveOv = document.getElementById('courseSaveBeforeScormOverlay');
+        if (saveOv) saveOv.hidden = true;
         modal.hidden = true;
         modal.setAttribute('aria-hidden', 'true');
+        resetScormProgressState();
       };
       closeBtn && (closeBtn.onclick = close);
 
@@ -3800,40 +4154,13 @@
       if (saveBtn) {
         saveBtn.onclick = async () => {
           setMsg('');
+          resetScormProgressState();
           setLoadingBtn(saveBtn, true, 'Сохраняем…');
           try {
-            const activePid = window.__activeProject ? window.__activeProject.id : null;
-            if (!activePid && isNew) throw new Error('Сначала выберите проект.');
-            const payload = {
-              title: (titleEl && titleEl.value ? titleEl.value.trim() : '').slice(0, 200),
-              description: descEl ? descEl.value.trim() : null,
-              image_url: imgEl ? imgEl.value.trim() : null,
-              is_published: pubEl ? !!pubEl.checked : false
-            };
-
-            let { error } = { error: null };
-            if (!isNew) {
-              error = (await supabase
-                .from('project_courses')
-                .update(payload)
-                .eq('id', course.id)).error;
-            } else {
-              error = (await supabase
-                .from('project_courses')
-                .insert({ project_id: activePid, ...payload })).error;
-            }
-            if (error) throw error;
-            setMsg(isNew ? 'Создано.' : 'Сохранено.');
-
-            // refresh list for active project
-            const user = await requireAuthOrRedirect();
-            const pid = window.__activeProject ? window.__activeProject.id : null;
-            const myRole = window.__activeProjectRole || null;
-            if (user && pid) {
-              const canM = myRole === 'admin' || myRole === 'methodologist';
-              const fresh = await fetchProjectCourses(pid);
-              renderProjectCourses(fresh, { canManage: canM });
-            }
+            const { created } = await persistCourseFromModal();
+            setMsg(created ? 'Создано.' : 'Сохранено.');
+            syncCourseModalAfterPersist();
+            await refreshCoursesListUi();
           } catch (e) {
             console.error(e);
             setMsg(formatErr(e) || 'Не удалось сохранить.', true);
@@ -3868,7 +4195,7 @@
 
     logoutBtn.addEventListener('click', async () => {
       try { await supabase.auth.signOut(); }
-      finally { window.location.href = 'index.html#form'; }
+      finally { window.location.href = 'konstr.html#form'; }
     });
 
     function isValidAvatarFile(file) {
@@ -3950,8 +4277,8 @@
       setProfileMessage('');
       try {
         await updateProfile(user, { full_name: name || null });
-        if (profileName) profileName.textContent = name || 'Безымянный пользователь';
         if (window.__profileSnapshot) window.__profileSnapshot.full_name = name || '';
+        updateUserChromeDisplay(user.email || '', name || '');
         setProfileMessage('Профиль сохранён.', 'info');
       } catch (e) {
         console.error(e);
@@ -3964,7 +4291,7 @@
     resetProfileBtn && resetProfileBtn.addEventListener('click', () => {
       const snap = window.__profileSnapshot || { full_name: '', avatar_url: null };
       if (fullNameInput) fullNameInput.value = snap.full_name || '';
-      if (profileName) profileName.textContent = (snap.full_name && snap.full_name.trim()) ? snap.full_name : 'Безымянный пользователь';
+      if (currentUser) updateUserChromeDisplay(currentUser.email || '', snap.full_name || '');
       renderAvatar(snap.avatar_url);
       syncRemoveAvatarVisibility(!!snap.avatar_url);
       setProfileMessage('Изменения сброшены.', 'info');

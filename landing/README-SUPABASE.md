@@ -27,3 +27,7 @@ node landing/scripts/sync-supabase-config.mjs
 Выполните в SQL Editor: **`tech/supabase-storage-scorm-read.sql`** — политики `SELECT` на `storage.objects` для bucket `course-scorm` и `scorm` (роли `authenticated` и `anon`).
 
 Убедитесь, что **Project URL** в `.env` совпадает с Dashboard (ошибка в ref → другой проект и пустой Storage).
+
+### Заявки с лендинга (`index.html`, слайд «Заявка»)
+
+В SQL Editor выполните **`tech/supabase-landing-project-requests.sql`**: таблица `landing_project_requests` и политика `INSERT` для роли `anon`. Без этого отправка формы вернёт ошибку.

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest identifier="PeopleGames_Module_Manifest" xmlns="http://www.imsglobal.org/xsd/imscp_v1p1" xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_v1p3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.imsglobal.org/xsd/imscp_v1p1 imscp_v1p1.xsd http://www.adlnet.org/xsd/adlcp_v1p3 adlcp_v1p3.xsd">
+  <metadata>
+    <schema>ADL SCORM</schema>
+    <schemaversion>1.2</schemaversion>
+  </metadata>
+  <organizations default="PeopleGames_Organization">
+    <organization identifier="PeopleGames_Organization">
+      <title>Корпоративные игры: Как не стать ПЕШКОЙ</title>
+      <item identifier="PeopleGames_Item_1" identifierref="PeopleGames_Resource">
+        <title>Курс-новелла по Берну: Люди, которые играют в игры</title>
+      </item>
+    </organization>
+  </organizations>
+  <resources>
+    <resource identifier="PeopleGames_Resource" type="webcontent" adlcp:scormType="sco" href="index.html">
+      <file href="index.html"/>
+      <file href="js/scorm_api.js"/>
+      <file href="assets/images/office.jpg"/>
+      <file href="assets/images/boss..png"/>
+      <file href="assets/images/Bern.png"/>
+      <file href="assets/images/First.png"/>
+      <file href="assets/images/cert.png"/>
+      <file href="assets/images/OFFICE_NIGHT.png"/>
+      <file href="assets/images/ALISA_OFFICE_NIGHT.png"/>
+      <file href="assets/images/FinalFon.png"/>
+      <file href="assets/images/bossalisevictor.png"/>
+      <file href="assets/images/boss_bad..png"/>
+      <file href="assets/images/lenfinal.png"/>
+      <file href="assets/images/bosszam.png"/>
+      <file href="assets/images/KITCHEN.png"/>
+      <file href="assets/images/2First.png"/>
+      <file href="assets/images/First.jpg"/>
+      <file href="assets/images/Леночка1.png"/>
+      <file href="assets/images/Леночка2.png"/>
+      <file href="assets/images/Виктор.png"/>
+      <file href="assets/images/Алиса1.png"/>
+      <file href="assets/images/Алиса2.png"/>
+      <file href="assets/audio/mfon2.mp3"/>
+      <file href="assets/audio/applause.mp3"/>
+    </resource>
+  </resources>
+</manifest>

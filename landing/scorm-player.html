@@ -519,7 +519,7 @@
     async function requireAuthOrRedirect(cabinetLoginUrl) {
       const { data: { user }, error } = await supabase.auth.getUser();
       if (error || !user) {
-        window.location.href = cabinetLoginUrl || 'index.html#form';
+        window.location.href = cabinetLoginUrl || 'konstr.html#form';
         return null;
       }
       return user;
