@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <link rel="icon" href="data:," />
+  <link rel="icon" type="image/png" href="img/logo_mini.png" />
+  <link rel="apple-touch-icon" href="img/logo_mini.png" />
   <title>SCORM — запуск курса</title>
   <style>
     :root {
@@ -31,16 +32,29 @@
       padding: 0.5rem 0.75rem;
       border-bottom: 1px solid var(--border);
       background: rgba(15, 23, 42, 0.95);
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
+      min-height: 2.25rem;
+      max-height: 2.25rem;
+      overflow: hidden;
     }
     #toolbar .title { font-weight: 600; font-size: 0.92rem; max-width: 55vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     #toolbar .muted { color: var(--muted); font-size: 0.8rem; }
     #status { font-size: 0.78rem; color: var(--muted); }
+    #status {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 42vw;
+    }
+    #scoHint { display: none; }
     #frame-wrap {
       flex: 1;
       min-height: 0;
       display: flex;
       flex-direction: column;
+      margin-top: 0;
+      padding-top: 0;
+      background: #fff;
     }
     #scoFrame {
       flex: 1;
@@ -59,10 +73,20 @@
     }
     .btn:hover { border-color: var(--accent); }
     #err {
-      padding: 1rem;
+      display: none;
+      padding: 0;
       color: #f97373;
       font-size: 0.9rem;
       max-width: 42rem;
+    }
+    #err:not(:empty) {
+      display: block;
+      padding: 1rem;
+    }
+    #closeWinBtn {
+      padding: 0.12rem 0.6rem;
+      font-size: 1.25rem;
+      line-height: 1;
     }
   </style>
 </head>
@@ -74,7 +98,7 @@
     </div>
     <div style="display:flex;align-items:center;gap:.5rem;">
       <span id="status"></span>
-      <button type="button" class="btn" id="closeWinBtn">Закрыть окно</button>
+      <button type="button" class="btn" id="closeWinBtn" aria-label="Закрыть окно" title="Закрыть окно">×</button>
     </div>
   </div>
   <div id="err"></div>
@@ -516,10 +540,28 @@
       if (statusEl) statusEl.textContent = t || '';
     }
 
-    async function requireAuthOrRedirect(cabinetLoginUrl) {
+    async function requireAuthOrRedirect(cabinetLoginUrl, { allowAnonymous=false } = {}) {
       const { data: { user }, error } = await supabase.auth.getUser();
       if (error || !user) {
-        window.location.href = cabinetLoginUrl || 'konstr.html#form';
+        if (allowAnonymous) {
+          try {
+            const anon = await supabase.auth.signInAnonymously();
+            const anonUser =
+              anon && anon.data && anon.data.user
+                ? anon.data.user
+                : anon && anon.data && anon.data.session && anon.data.session.user
+                  ? anon.data.session.user
+                  : anon && anon.user
+                    ? anon.user
+                    : null;
+            if (anonUser) return anonUser;
+          } catch (e) {
+            console.warn('[SCORM] anonymous sign-in failed:', e);
+          }
+        }
+        if (!allowAnonymous) {
+          window.location.href = cabinetLoginUrl || 'konstr.html#form';
+        }
         return null;
       }
       return user;
@@ -794,6 +836,7 @@
         courseId: (q.get('courseId') || q.get('course') || q.get('c') || '').trim(),
         scoIdentifier: (q.get('sco') || '').trim() || null,
         cabinetLoginUrl: (q.get('cabinet') || '').trim() || null,
+        share: ((q.get('share') || '').trim() === '1'),
         /** Человекочитаемый slug из ссылки «Поделиться» (не обязателен для работы). */
         titleSlug: (q.get('t') || '').trim() || null
       };
@@ -897,7 +940,7 @@
           if (finished) return err('101');
           if (initialized) return err('101');
           initialized = true;
-          setStatus('SCORM: инициализировано');
+          setStatus('');
           return ok();
         },
         LMSFinish: function (param) {
@@ -954,18 +997,27 @@
     }
 
     document.getElementById('closeWinBtn').addEventListener('click', () => {
-      window.close();
+      const q = parseQuery();
+      window.location.href = q.cabinetLoginUrl || 'konstr.html#form';
     });
 
     (async function main() {
-      const { courseId, scoIdentifier, cabinetLoginUrl } = parseQuery();
+      const { courseId, scoIdentifier, cabinetLoginUrl, share } = parseQuery();
       if (!courseId) {
         showErr('Не указан courseId в URL (?courseId=… или коротко ?c=…)');
         return;
       }
 
-      const user = await requireAuthOrRedirect(cabinetLoginUrl);
-      if (!user) return;
+      const user = await requireAuthOrRedirect(cabinetLoginUrl, { allowAnonymous: !!share });
+      if (!user) {
+        if (share) {
+          showErr(
+            'Не удалось создать анонимную сессию для «Поделиться». ' +
+            'В Supabase включите Anonymous sign-ins (анонимные входы) и повторите.'
+          );
+        }
+        return;
+      }
 
       const { data: course, error: cErr } = await supabase
         .from('project_courses')
@@ -988,13 +1040,16 @@
         .eq('project_id', course.project_id)
         .eq('user_id', user.id)
         .maybeSingle();
-      if (mErr) throw mErr;
+      if (mErr && !share) throw mErr;
+      let role = 'listener';
       if (!mem) {
-        showErr('Вы не участник проекта этого курса.');
-        return;
+        if (!share) {
+          showErr('Вы не участник проекта этого курса.');
+          return;
+        }
+      } else {
+        role = mem.role || 'listener';
       }
-
-      const role = mem.role || 'listener';
       const canManage = role === 'admin' || role === 'methodologist';
       if (!canManage && !course.is_published) {
         showErr('Курс ещё не опубликован.');
@@ -1087,7 +1142,7 @@
       });
 
       courseTitleEl.textContent = course.title || 'Курс';
-      scoHintEl.textContent = `SCO: ${scoIdStr || sco.id}`;
+      scoHintEl.hidden = true;
       toolbar.hidden = false;
       frameWrap.hidden = false;
       errEl.textContent = '';

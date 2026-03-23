@@ -886,6 +886,39 @@
     .course-launch-actions .btn {
       flex: 1 1 12rem;
       justify-content: center;
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.22), rgba(2, 6, 23, 0.25) 55%);
+      border-color: rgba(56, 189, 248, 0.65);
+      color: var(--text);
+      box-shadow: 0 10px 28px rgba(2, 132, 199, 0.12);
+    }
+
+    .course-launch-actions #courseLaunchScormBtn {
+      border-color: rgba(56, 189, 248, 0.9);
+    }
+
+    .course-launch-actions #courseShareBtn {
+      background: rgba(56, 189, 248, 0.08);
+      border-color: rgba(56, 189, 248, 0.9);
+      color: var(--text);
+    }
+    .course-launch-actions #courseShareBtn.btn-ghost {
+      background: rgba(56, 189, 248, 0.08);
+    }
+
+    #createCourseBtn {
+      width: auto !important;
+      justify-content: center;
+      background: rgba(56, 189, 248, 0.08);
+      border-color: rgba(56, 189, 248, 0.9);
+      color: var(--text);
+      box-shadow: 0 10px 28px rgba(2, 132, 199, 0.12);
+      min-width: 12.5rem;
+      padding-left: 1.1rem;
+      padding-right: 1.1rem;
+    }
+    #createCourseBtn:hover {
+      background: rgba(56, 189, 248, 0.18);
+      border-color: rgba(56, 189, 248, 1);
     }
 
     .course-modal-main-tabs {
@@ -1218,9 +1251,9 @@
                       </div>
 
                       <div class="project-card-panel" id="projectTabCourses" hidden>
-                        <div id="courseCreateBlock" hidden style="margin-bottom:.6rem;">
-                          <div class="row" style="align-items:center;">
-                            <button type="button" class="btn" id="createCourseBtn" style="width:100%;">Создать курс</button>
+                        <div id="courseCreateBlock" hidden style="margin-top:.35rem;margin-bottom:.6rem;">
+                          <div class="row" style="align-items:center;justify-content:flex-start;">
+                            <button type="button" class="btn btn-ghost" id="createCourseBtn">Создать курс</button>
                           </div>
                           <div class="muted" style="margin-top:.35rem;">Курс можно сохранить как черновик или опубликовать в карточке курса.</div>
                         </div>
@@ -1421,11 +1454,13 @@
     }
 
     /**
-     * Ссылка для «Поделиться»: короткие параметры c=uuid и t=slug названия; без длинного cabinet (плеер подставит konstr.html#form).
+     * Ссылка для «Поделиться»: короткие параметры c=uuid, t=slug названия и share=1.
+     * Плеер подхватит share=1 и создаст анонимную сессию без страницы логина.
      */
     function getScormPlayerShareUrl(courseId, title) {
       const q = new URLSearchParams();
       q.set('c', String(courseId));
+      q.set('share', '1');
       const slug = slugifyCourseTitleForUrl(title);
       if (slug) q.set('t', slug);
       if (SCORM_PLAYER_USE_SUPABASE_STORAGE) {
@@ -1792,6 +1827,84 @@
       btn.disabled = isLoading;
       btn.dataset.originalText = btn.dataset.originalText || btn.textContent;
       btn.textContent = isLoading ? loadingText : btn.dataset.originalText;
+    }
+
+    function ensureLmsConfirmOverlay() {
+      let overlay = document.getElementById('lmsConfirmOverlay');
+      if (overlay) return overlay;
+      overlay = document.createElement('div');
+      overlay.id = 'lmsConfirmOverlay';
+      overlay.className = 'course-modal-overlay';
+      overlay.hidden = true;
+      overlay.innerHTML = `
+        <div class="course-modal-sheet" role="dialog" aria-modal="true" aria-labelledby="lmsConfirmTitle">
+          <div class="course-modal-sheet-icon" id="lmsConfirmIcon" aria-hidden="true">⚠️</div>
+          <h4 id="lmsConfirmTitle">Подтверждение</h4>
+          <p class="muted" id="lmsConfirmText"></p>
+          <div class="course-modal-sheet-actions">
+            <button type="button" class="btn btn-ghost" id="lmsConfirmCancel">Отмена</button>
+            <button type="button" class="btn btn-danger" id="lmsConfirmOk">Удалить</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      return overlay;
+    }
+
+    function askLmsConfirm({
+      title = 'Подтверждение',
+      message = 'Подтвердите действие.',
+      okText = 'Подтвердить',
+      cancelText = 'Отмена',
+      icon = '⚠️'
+    } = {}) {
+      return new Promise((resolve) => {
+        const overlay = ensureLmsConfirmOverlay();
+        const titleEl = document.getElementById('lmsConfirmTitle');
+        const textEl = document.getElementById('lmsConfirmText');
+        const iconEl = document.getElementById('lmsConfirmIcon');
+        const btnOk = document.getElementById('lmsConfirmOk');
+        const btnCancel = document.getElementById('lmsConfirmCancel');
+        if (!overlay || !titleEl || !textEl || !btnOk || !btnCancel) {
+          resolve(false);
+          return;
+        }
+        let onKey = null;
+        let settled = false;
+        const finish = (v) => {
+          if (settled) return;
+          settled = true;
+          overlay.hidden = true;
+          overlay.removeEventListener('click', onBackdrop);
+          btnOk.removeEventListener('click', onOk);
+          btnCancel.removeEventListener('click', onCancel);
+          if (onKey) document.removeEventListener('keydown', onKey);
+          resolve(v);
+        };
+        const onBackdrop = (e) => {
+          if (e.target === overlay) finish(false);
+        };
+        const onOk = () => finish(true);
+        const onCancel = () => finish(false);
+        onKey = (e) => {
+          if (e.key === 'Escape') finish(false);
+        };
+
+        titleEl.textContent = title;
+        textEl.textContent = message;
+        btnOk.textContent = okText;
+        btnCancel.textContent = cancelText;
+        if (iconEl) iconEl.textContent = icon;
+
+        overlay.hidden = false;
+        overlay.addEventListener('click', onBackdrop);
+        btnOk.addEventListener('click', onOk);
+        btnCancel.addEventListener('click', onCancel);
+        document.addEventListener('keydown', onKey);
+        setTimeout(() => {
+          try { btnOk.focus(); } catch (_) {}
+        }, 0);
+      });
     }
 
     // ===== Projects =====
@@ -2255,7 +2368,43 @@
           arrow.textContent = canManage ? '›' : (c.is_published ? '▶' : '—');
 
           courseRow.appendChild(courseLeft);
-          courseRow.appendChild(arrow);
+          const courseActions = document.createElement('span');
+          courseActions.style.display = 'flex';
+          courseActions.style.alignItems = 'center';
+          courseActions.style.gap = '.5rem';
+          courseActions.style.flex = '0 0 auto';
+          courseActions.appendChild(arrow);
+
+          if (canManage) {
+            const delCourseBtn = document.createElement('button');
+            delCourseBtn.type = 'button';
+            delCourseBtn.className = 'btn btn-ghost btn-sm btn-icon btn-danger';
+            delCourseBtn.textContent = '🗑';
+            delCourseBtn.title = 'Удалить курс';
+            delCourseBtn.setAttribute('aria-label', 'Удалить курс');
+            delCourseBtn.addEventListener('click', async (ev) => {
+              ev.preventDefault();
+              ev.stopPropagation();
+              setLoadingBtn(delCourseBtn, true, 'Удаление…');
+              try {
+                const ok = await deleteCourse(c.id, c.title || '');
+                if (!ok) return;
+                setProjectsMessage('Курс удалён.', 'info');
+                await loadCoursesIntoProjectChildren(childrenWrap, projectId, user, canManage);
+                if (window.__activeProject && String(window.__activeProject.id) === String(projectId)) {
+                  await selectProjectById(user, projectId);
+                }
+              } catch (errDel) {
+                console.error(errDel);
+                setProjectsMessage(errDel.message || 'Не удалось удалить курс.', 'error');
+              } finally {
+                setLoadingBtn(delCourseBtn, false, '🗑');
+              }
+            });
+            courseActions.appendChild(delCourseBtn);
+          }
+
+          courseRow.appendChild(courseActions);
 
           courseRow.addEventListener('click', (ev) => {
             ev.preventDefault();
@@ -2400,7 +2549,7 @@
         delBtn.textContent = '🗑';
         delBtn.title = 'Удалить проект';
         delBtn.setAttribute('aria-label', 'Удалить проект');
-        delBtn.disabled = !canManage;
+        delBtn.hidden = !canManage;
         delBtn.addEventListener('click', async (e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -2499,7 +2648,7 @@
         delBtn.textContent = '🗑';
         delBtn.title = 'Удалить проект';
         delBtn.setAttribute('aria-label', 'Удалить проект');
-        delBtn.disabled = !canManage;
+        delBtn.hidden = !canManage;
         delBtn.addEventListener('click', async (e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -2899,25 +3048,34 @@
       const user = currentUser || await requireAuthOrRedirect();
       if (!user) return;
       if (!projectId) return;
-      if (!window.confirm('Удалить проект? Действие нельзя отменить.')) return;
+      let coursesCount = 0;
+      try {
+        const { count, error: cntErr } = await supabase
+          .from('project_courses')
+          .select('id', { count: 'exact', head: true })
+          .eq('project_id', projectId);
+        if (!cntErr && typeof count === 'number') coursesCount = count;
+      } catch (_) {}
 
-      // Try delete in dependency order.
-      try {
-        await supabase.from('project_courses').delete().eq('project_id', projectId);
-      } catch (e) {
-        console.warn('Не удалось удалить курсы', e);
-      }
-      try {
-        await supabase.from('project_members').delete().eq('project_id', projectId);
-      } catch (e) {
-        console.warn('Не удалось удалить участников', e);
-      }
-      try {
-        await supabase.from('project_invites').delete().eq('project_id', projectId);
-      } catch (e) {
-        console.warn('Не удалось удалить приглашения', e);
-      }
+      const warnText = coursesCount > 0
+        ? `Удалить проект и все его курсы (${coursesCount})? Действие нельзя отменить.`
+        : 'Удалить проект? Действие нельзя отменить.';
+      const okProjectDelete = await askLmsConfirm({
+        title: 'Удалить проект?',
+        message: warnText,
+        okText: 'Удалить проект',
+        cancelText: 'Отмена',
+        icon: '🗑'
+      });
+      if (!okProjectDelete) return;
 
+      // Удаляем связанные данные явно (даже если в БД нет ON DELETE CASCADE).
+      const { error: coursesErr } = await supabase.from('project_courses').delete().eq('project_id', projectId);
+      if (coursesErr) throw coursesErr;
+      const { error: membersErr } = await supabase.from('project_members').delete().eq('project_id', projectId);
+      if (membersErr) throw membersErr;
+      const { error: invitesErr } = await supabase.from('project_invites').delete().eq('project_id', projectId);
+      if (invitesErr) throw invitesErr;
       const { error: projErr } = await supabase.from('projects').delete().eq('id', projectId);
       if (projErr) throw projErr;
 
@@ -2928,6 +3086,22 @@
       }
 
       await refreshProjectsSingleListRight();
+    }
+
+    async function deleteCourse(courseId, title) {
+      if (!courseId) return false;
+      const t = (title || '').trim();
+      const okCourseDelete = await askLmsConfirm({
+        title: 'Удалить курс?',
+        message: `Удалить курс «${t || 'без названия'}»? Действие нельзя отменить.`,
+        okText: 'Удалить курс',
+        cancelText: 'Отмена',
+        icon: '🗑'
+      });
+      if (!okCourseDelete) return false;
+      const { error } = await supabase.from('project_courses').delete().eq('id', courseId);
+      if (error) throw error;
+      return true;
     }
 
     async function inviteToProject(user, projectId, email, role) {
@@ -3942,12 +4116,13 @@
       listEl.style.gap = '0.45rem';
 
       list.forEach((c) => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'tree-row tree-course-row';
-        btn.dataset.courseId = c.id;
-        btn.setAttribute('aria-current', String(window.__activeCourseId && window.__activeCourseId === c.id));
-        btn.style.cursor = 'pointer';
+        const row = document.createElement('div');
+        row.className = 'tree-row tree-course-row';
+        row.dataset.courseId = c.id;
+        row.setAttribute('aria-current', String(window.__activeCourseId && window.__activeCourseId === c.id));
+        row.setAttribute('role', 'button');
+        row.tabIndex = 0;
+        row.style.cursor = 'pointer';
 
         const statusLabel = c.is_published ? 'Опубликован' : 'Черновик';
         const statusClass = 'pill ' + (c.is_published ? 'status-completed' : 'status-active');
@@ -3963,7 +4138,7 @@
           ? desc.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
           : '';
 
-        btn.innerHTML = `
+        row.innerHTML = `
           <span class="tree-left">
             <span class="tree-ico" style="background:linear-gradient(135deg,var(--accent),#38bdf8);">📘</span>
             <span class="tree-title">
@@ -3971,15 +4146,15 @@
               ${safeDesc ? `<span title="${safeDesc}">${safeDesc}</span>` : `<span>—</span>`}
             </span>
           </span>
-          <span style="display:flex;align-items:center;gap:.55rem;flex:0 0 auto;">
+          <span class="course-list-actions" style="display:flex;align-items:center;gap:.55rem;flex:0 0 auto;">
             <span class="${statusClass}">${statusLabel}</span>
             <span class="nav-right" style="font-size:0.78rem; color:var(--text-muted);">${hint}</span>
           </span>
         `;
 
-        btn.addEventListener('click', () => {
+        const openCourseFromList = () => {
           window.__activeCourseId = c.id;
-          Array.from(coursesContainer.querySelectorAll('button[data-course-id]')).forEach((el) => {
+          Array.from(coursesContainer.querySelectorAll('[data-course-id]')).forEach((el) => {
             el.setAttribute('aria-current', String(el.dataset.courseId === String(c.id)));
           });
           if (!canManage) {
@@ -3992,9 +4167,47 @@
             return;
           }
           openCourseCard(c, { canManage });
+        };
+        row.addEventListener('click', openCourseFromList);
+        row.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openCourseFromList();
+          }
         });
 
-        listEl.appendChild(btn);
+        if (canManage) {
+          const actionsWrap = row.querySelector('.course-list-actions');
+          if (actionsWrap) {
+            const delCourseBtn = document.createElement('button');
+            delCourseBtn.type = 'button';
+            delCourseBtn.className = 'btn btn-ghost btn-sm btn-icon btn-danger';
+            delCourseBtn.textContent = '🗑';
+            delCourseBtn.title = 'Удалить курс';
+            delCourseBtn.setAttribute('aria-label', 'Удалить курс');
+            delCourseBtn.addEventListener('click', async (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setLoadingBtn(delCourseBtn, true, 'Удаление…');
+              try {
+                const ok = await deleteCourse(c.id, c.title || '');
+                if (!ok) return;
+                setProjectsMessage('Курс удалён.', 'info');
+                const user = currentUser || await requireAuthOrRedirect();
+                const pid = window.__activeProject ? window.__activeProject.id : null;
+                if (user && pid) await selectProjectById(user, pid);
+              } catch (errDel) {
+                console.error(errDel);
+                setProjectsMessage(errDel.message || 'Не удалось удалить курс.', 'error');
+              } finally {
+                setLoadingBtn(delCourseBtn, false, '🗑');
+              }
+            });
+            actionsWrap.appendChild(delCourseBtn);
+          }
+        }
+
+        listEl.appendChild(row);
       });
 
       coursesContainer.appendChild(listEl);
@@ -4753,7 +4966,14 @@
         deleteBtn.onclick = async () => {
           if (!workingCourse.id || !canManage || deleteBtn.disabled) return;
           const t = (titleEl && titleEl.value ? titleEl.value.trim() : '') || workingCourse.title || '';
-          if (!confirm(`Удалить курс «${t || 'без названия'}»? Это действие нельзя отменить.`)) return;
+          const okDelete = await askLmsConfirm({
+            title: 'Удалить курс?',
+            message: `Удалить курс «${t || 'без названия'}»? Это действие нельзя отменить.`,
+            okText: 'Удалить курс',
+            cancelText: 'Отмена',
+            icon: '🗑'
+          });
+          if (!okDelete) return;
           setMsg('');
           setLoadingBtn(deleteBtn, true, 'Удаление…');
           setDisabled(true);

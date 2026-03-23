@@ -76,17 +76,20 @@ begin
     raise exception 'Course not found';
   end if;
 
-  if not exists (
+  if exists (
     select 1 from public.project_members pm
     where pm.project_id = v_project and pm.user_id = v_user
   ) then
-    raise exception 'Not a project member';
+    select pm.role into v_role
+    from public.project_members pm
+    where pm.project_id = v_project and pm.user_id = v_user
+    limit 1;
+  else
+    -- Для режима «Поделиться» допускаем анонимного listener
+    -- (как в scorm_start_attempt): можно писать аналитические агрегаты
+    -- только если курс опубликован.
+    v_role := 'listener';
   end if;
-
-  select pm.role into v_role
-  from public.project_members pm
-  where pm.project_id = v_project and pm.user_id = v_user
-  limit 1;
 
   if coalesce(v_role, 'listener') = 'listener' and not coalesce(v_published, false) then
     raise exception 'Course not published';

@@ -3670,7 +3670,7 @@
         </div>
         <h2 class="font-display text-2xl sm:text-3xl font-bold text-white mb-2" id="final-screen-title">Поздравляем!</h2>
         <p class="text-slate-200 text-lg mb-4" id="final-screen-subtitle">Твой психолог будет тобой гордиться!</p>
-        <button type="button" id="final-screen-exit-btn" class="btn-go px-6 py-3 rounded-xl font-display font-semibold text-white bg-accent">Выйти</button>
+        <!-- Кнопка «Выйти» удалена по требованию (см. #final-screen-exit-btn в JS/стилях) -->
       </div>
     </div>
 
@@ -5253,11 +5253,7 @@
       document.body.addEventListener('click', function(e) {
         var exitLink = e.target && e.target.closest ? e.target.closest('#pg-exit-link') : null;
         if (exitLink) { e.preventDefault(); e.stopPropagation(); goToAlchemy(); return; }
-        var exitBtn = e.target && e.target.closest ? e.target.closest('#final-screen-exit-btn') : null;
-        if (exitBtn) { e.preventDefault(); e.stopPropagation(); goToAlchemy(); }
       }, true);
-      var finalScreenExitBtn = document.getElementById('final-screen-exit-btn');
-      if (finalScreenExitBtn) finalScreenExitBtn.addEventListener('click', function(e) { e.preventDefault(); e.stopPropagation(); goToAlchemy(); });
 
       var userNameInput = document.getElementById('userNameInput');
       var btnGoHeroWrap = document.getElementById('btn-go-hero-wrap');

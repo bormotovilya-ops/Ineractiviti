@@ -162,17 +162,19 @@ begin
     raise exception 'Course not found';
   end if;
 
-  if not exists (
+  if exists (
     select 1 from public.project_members pm
     where pm.project_id = v_project and pm.user_id = v_user
   ) then
-    raise exception 'Not a project member';
+    select pm.role into v_role
+    from public.project_members pm
+    where pm.project_id = v_project and pm.user_id = v_user
+    limit 1;
+  else
+    -- Для «Поделиться» позволяем начать опубликованный курс как listener,
+    -- даже если у пользователя нет записи в project_members.
+    v_role := 'listener';
   end if;
-
-  select pm.role into v_role
-  from public.project_members pm
-  where pm.project_id = v_project and pm.user_id = v_user
-  limit 1;
 
   if coalesce(v_role, 'listener') = 'listener' and not coalesce(v_published, false) then
     raise exception 'Course not published';
@@ -331,3 +333,84 @@ grant execute on function public.scorm_finish_attempt(uuid) to authenticated;
 -- Явные права на таблицы (RLS всё равно фильтрует)
 grant select on public.course_scorm_attempts to authenticated;
 grant select on public.course_scorm_sco_states to authenticated;
+
+-- ---------- Public/course read for «Поделиться» ----------
+-- scorm-player (landing/scorm-player.html) в режиме share=1 делает запрос к project_courses по id.
+-- Чтобы опубликованные курсы были доступны для анонимных (signInAnonymously) пользователей,
+-- добавляем permissive policy на SELECT.
+alter table public.project_courses enable row level security;
+
+drop policy if exists project_courses_select_published_for_authenticated
+  on public.project_courses;
+
+create policy project_courses_select_published_for_authenticated
+  on public.project_courses
+  for select
+  to authenticated
+  using (
+    is_published
+    or exists (
+      select 1
+      from public.project_members pm
+      where pm.project_id = project_courses.id
+        and pm.user_id = auth.uid()
+    )
+  );
+
+-- course_scorm_package_versions: чтобы слушатель/anon (share) мог прочитать активную версию
+-- опубликованного курса и стартовать SCORM.
+alter table public.course_scorm_package_versions enable row level security;
+
+drop policy if exists course_scorm_package_versions_select_published_for_authenticated
+  on public.course_scorm_package_versions;
+
+create policy course_scorm_package_versions_select_published_for_authenticated
+  on public.course_scorm_package_versions
+  for select
+  to authenticated
+  using (
+    exists (
+      select 1
+      from public.project_courses pc
+      where pc.id = course_scorm_package_versions.course_id
+        and pc.is_published = true
+    )
+    or exists (
+      select 1
+      from public.project_members pm
+      where pm.project_id = (
+        select pc2.project_id
+        from public.project_courses pc2
+        where pc2.id = course_scorm_package_versions.course_id
+      )
+        and pm.user_id = auth.uid()
+    )
+  );
+
+-- course_scorm_scos: чтобы можно было загрузить список SCO из активной версии.
+alter table public.course_scorm_scos enable row level security;
+
+drop policy if exists course_scorm_scos_select_published_for_authenticated
+  on public.course_scorm_scos;
+
+create policy course_scorm_scos_select_published_for_authenticated
+  on public.course_scorm_scos
+  for select
+  to authenticated
+  using (
+    exists (
+      select 1
+      from public.course_scorm_package_versions pv
+      join public.project_courses pc on pc.id = pv.course_id
+      where pv.id = course_scorm_scos.package_version_id
+        and pc.is_published = true
+    )
+    or exists (
+      select 1
+      from public.course_scorm_package_versions pv
+      join public.project_courses pc on pc.id = pv.course_id
+      join public.project_members pm on pm.project_id = pc.project_id
+      where pv.id = course_scorm_scos.package_version_id
+        and pm.user_id = auth.uid()
+    )
+  );
