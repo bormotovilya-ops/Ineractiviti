@@ -842,6 +842,91 @@
       };
     }
 
+    const VISITOR_KEY = 'ia_visitor_id';
+    const UTM_KEY = 'ia_utm_data_v1';
+    const LAST_PATH_KEY = 'ia_last_path_v1';
+
+    function nowIso() {
+      try {
+        return new Date().toISOString();
+      } catch {
+        return null;
+      }
+    }
+
+    function getOrCreateVisitorId() {
+      try {
+        const existing = localStorage.getItem(VISITOR_KEY);
+        if (existing) return existing;
+        const id = `v_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+        localStorage.setItem(VISITOR_KEY, id);
+        return id;
+      } catch {
+        return `v_${Date.now().toString(36)}`;
+      }
+    }
+
+    function readStoredUtmSnapshot() {
+      try {
+        return JSON.parse(localStorage.getItem(UTM_KEY) || '{}') || {};
+      } catch {
+        return {};
+      }
+    }
+
+    function getUtmFromQuery() {
+      const q = new URLSearchParams(window.location.search);
+      const keys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'utm_id', 'gclid', 'fbclid', 'yclid'];
+      const out = {};
+      for (const key of keys) {
+        const val = (q.get(key) || '').trim();
+        if (val) out[key] = val;
+      }
+      return out;
+    }
+
+    function buildMergedUtmSnapshot() {
+      const stored = readStoredUtmSnapshot();
+      const incoming = getUtmFromQuery();
+      const path = window.location.pathname || '/';
+      const out = { ...stored, ...incoming };
+      if (!out.first_seen_at) out.first_seen_at = nowIso();
+      if (!out.first_path) out.first_path = path;
+      if (!out.first_referrer && document.referrer) out.first_referrer = document.referrer;
+      out.last_seen_at = nowIso();
+      out.last_path = path;
+      try {
+        localStorage.setItem(UTM_KEY, JSON.stringify(out));
+        localStorage.setItem(LAST_PATH_KEY, path);
+      } catch (_) {}
+      return out;
+    }
+
+    async function saveLandingUtmOnOpen() {
+      try {
+        const visitorId = getOrCreateVisitorId();
+        const utm = buildMergedUtmSnapshot();
+        await supabase.rpc('upsert_cookie_consent', {
+          p_visitor_id: visitorId,
+          p_landing_path: utm.last_path || localStorage.getItem(LAST_PATH_KEY) || window.location.pathname || '/',
+          p_referrer: utm.first_referrer || document.referrer || null,
+          p_utm_source: utm.utm_source || null,
+          p_utm_medium: utm.utm_medium || null,
+          p_utm_campaign: utm.utm_campaign || null,
+          p_utm_term: utm.utm_term || null,
+          p_utm_content: utm.utm_content || null,
+          p_utm_id: utm.utm_id || null,
+          p_gclid: utm.gclid || null,
+          p_fbclid: utm.fbclid || null,
+          p_yclid: utm.yclid || null,
+          p_consent_accepted: true,
+          p_consented_at: nowIso()
+        });
+      } catch (e) {
+        if (scormDebug()) console.warn('[UTM] upsert_cookie_consent on open failed', e);
+      }
+    }
+
     async function startAttempt(courseId, packageVersionId, scoIdentifier) {
       const { data, error } = await supabase.rpc('scorm_start_attempt', {
         p_course_id: courseId,
@@ -1002,7 +1087,9 @@
     });
 
     (async function main() {
+      await saveLandingUtmOnOpen();
       const { courseId, scoIdentifier, cabinetLoginUrl, share } = parseQuery();
+      const utm = getUtmFromQuery();
       if (!courseId) {
         showErr('Не указан courseId в URL (?courseId=… или коротко ?c=…)');
         return;
@@ -1190,15 +1277,19 @@
         try {
           if (d.type === 'PEOPLE_GAMES_RUN_SAVE' && d.run) {
             const r = d.run;
+            const metrics = {
+              chapterPoints: r.chapterPoints && typeof r.chapterPoints === 'object' ? r.chapterPoints : {},
+              wrongByChapter: r.wrongByChapter && typeof r.wrongByChapter === 'object' ? r.wrongByChapter : {}
+            };
+            if (Object.keys(utm).length) {
+              metrics.utm = utm;
+            }
             const { error } = await supabase.rpc('course_analytics_record_run', {
               p_course_id: courseId,
               p_points: typeof r.points === 'number' ? Math.floor(r.points) : 0,
               p_result: typeof r.result === 'string' ? r.result : '',
               p_learner_name: typeof r.name === 'string' ? r.name : '',
-              p_metrics: {
-                chapterPoints: r.chapterPoints && typeof r.chapterPoints === 'object' ? r.chapterPoints : {},
-                wrongByChapter: r.wrongByChapter && typeof r.wrongByChapter === 'object' ? r.wrongByChapter : {}
-              }
+              p_metrics: metrics
             });
             if (error && scormDebug()) console.warn('[LMS] course_analytics_record_run', error);
           } else if (d.type === 'PEOPLE_GAMES_WRONG_CHOICE' && d.choiceId) {
