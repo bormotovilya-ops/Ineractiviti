@@ -3066,6 +3066,7 @@
        Some browsers/extensions can report/introduce per-element zoom/scale;
        we force both CSS transform and zoom back to defaults. */
     #form,
+    #konstr-auth,
     #not-for-you,
     #demo,
     #how {
@@ -3075,10 +3076,12 @@
 
     /* Also normalize the main slide containers where scaling might be applied */
     #form .slide-card,
+    #konstr-auth .slide-card,
     #not-for-you .slide-card,
     #demo .slide-card,
     #how .slide-card,
     #form .slide-card-body,
+    #konstr-auth .slide-card-body,
     #not-for-you .slide-card-body,
     #demo .slide-card-body,
     #how .slide-card-body {
@@ -3639,7 +3642,295 @@
     </div>
   </section>
 
-  <section class="faq graph-node-section landing-slide" id="faq" data-slide="8">
+  <!-- Вход в конструктор (как на konstr.html): открывается только по прямой ссылке …/index.html#konstr-auth — нет в меню и в индикаторе сцен -->
+  <section id="konstr-auth" class="form-section graph-node-section landing-slide landing-slide--deep-link-only" data-slide="8" style="display:flex;align-items:center;justify-content:center;flex-direction:column;" aria-label="Вход в конструктор">
+    <div class="slide-card">
+      <div class="auth-top" style="width:100%;text-align:center;padding:1rem 0;">
+        <h2 class="font-display">Интерактивити</h2>
+        <p style="margin:0.25rem 0 0;">Войдите или зарегистрируйтесь, чтобы получить доступ к платформе.</p>
+      </div>
+      <div class="auth-bottom" style="width:100%;display:flex;justify-content:center;">
+        <div class="slide-card-body" style="width:100%;max-width:920px;">
+          <style>
+            #konstr-auth .slide-card { width: 100%; }
+            #konstr-auth .slide-card .slide-card-body { padding: 1rem 1rem; }
+            #konstr-auth .slide-card .auth-layout { display: flex; flex-direction: column; gap: .75rem; align-items: center; justify-content: center; width: 100%; }
+            #konstr-auth .slide-card .auth-tabs { display:flex; gap:.5rem; align-items:center; justify-content:center; }
+            #konstr-auth .slide-card .auth-forms {
+              width: min(320px, calc(100vw - 56px)) !important;
+              max-width: min(320px, calc(100vw - 56px)) !important;
+              margin: 0 auto !important;
+            }
+            #konstr-auth .slide-card h2, #konstr-auth .slide-card .slide-card-body > h2 { font-size: clamp(1.25rem, 2.2vw, 1.75rem); margin-bottom: .5rem; }
+            #konstr-auth .slide-card .auth-forms {
+              flex: 0 1 min(320px, calc(100vw - 56px));
+              min-width: 0;
+              max-width: min(320px, calc(100vw - 56px));
+              width: min(320px, calc(100vw - 56px)) !important;
+            }
+            #konstr-auth .slide-card .auth-social { width: 100%; flex: none; display: flex; flex-direction: column; gap: .5rem; align-items: stretch; margin-top: .5rem; }
+            #konstr-auth .slide-card .auth-form { display: flex; flex-direction: column; gap: .4rem; margin: 0; }
+            #konstr-auth .slide-card .auth-form label { font-size: .92rem; margin-bottom: .12rem; }
+            #konstr-auth .slide-card .auth-form input { padding: .45rem .5rem; font-size: .95rem; }
+            #konstr-auth .slide-card .auth-actions { display:flex; gap:.5rem; justify-content: flex-start; align-items: center; }
+            #konstr-auth .slide-card .auth-primary, #konstr-auth .slide-card .auth-secondary, #konstr-auth .slide-card .auth-google { padding: .45rem .6rem; font-size: .95rem; width: auto; }
+            #konstr-auth .slide-card .auth-google { width: 100%; display: inline-flex; align-items: center; justify-content: center; gap:.5rem; }
+            #konstr-auth .slide-card .auth-divider { align-self: center; margin: 0 .5rem; }
+            #konstr-auth .slide-card .auth-hint, #konstr-auth .slide-card .auth-note { font-size: .85rem; margin: 0; color: var(--text-muted); }
+            #konstr-auth .slide-card .modal { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 340px; max-width: 90%; padding: .75rem; box-shadow: 0 8px 24px rgba(0,0,0,.15); border-radius:8px; }
+            @media (max-width: 1100px) {
+              #konstr-auth .slide-card h2, #konstr-auth .slide-card .slide-card-body > h2 { font-size: clamp(1rem, 2vw, 1.4rem); }
+              #konstr-auth .slide-card .auth-forms { max-width: 100%; min-width: 0; }
+              #konstr-auth .auth-top { padding: .75rem 0; }
+            }
+            @media (max-width: 900px), (max-height: 800px) {
+              #konstr-auth .slide-card .auth-layout { flex-direction: column; gap: .75rem; }
+              #konstr-auth .slide-card .auth-social { width: 100%; flex: none; }
+              #konstr-auth .slide-card .auth-forms {
+                width: min(292px, calc(100vw - 44px)) !important;
+                max-width: min(292px, calc(100vw - 44px)) !important;
+              }
+              #konstr-auth .slide-card .slide-card-body { padding: .55rem .55rem; }
+              #konstr-auth .slide-card .auth-form input { padding: .4rem .45rem; font-size: .9rem; }
+            }
+          </style>
+
+        <div class="auth-layout">
+          <div class="auth-tabs" role="tablist" aria-label="Авторизация">
+            <button type="button" class="auth-tab auth-tab-active" data-mode="login" role="tab" aria-selected="true">Войти</button>
+            <button type="button" class="auth-tab" data-mode="register" role="tab" aria-selected="false">Регистрация</button>
+          </div>
+
+          <div class="auth-forms">
+            <form id="authForm" class="auth-form" action="#" method="post" novalidate>
+              <label for="authEmailField">Email</label>
+              <input type="email" id="authEmailField" name="email" placeholder="you@company.ru" autocomplete="email" required />
+
+              <div id="passwordField" class="password-field">
+                <label for="authPasswordField">Пароль</label>
+                <input type="password" id="authPasswordField" name="password" placeholder="Пароль" autocomplete="current-password" required />
+              </div>
+
+              <div class="auth-actions">
+                <button type="submit" class="btn auth-primary" id="authPrimary">Войти</button>
+                <button type="button" class="btn auth-secondary" id="authSecondary" hidden>Войти</button>
+              </div>
+
+              <button type="button" class="auth-link" id="forgotPasswordBtn">Забыли пароль?</button>
+            </form>
+          </div>
+
+          <div id="forgotModal" class="modal" hidden aria-hidden="true">
+            <div class="modal-body">
+              <h3>Восстановление пароля</h3>
+              <p>Введите ваш email, и мы отправим ссылку для восстановления пароля.</p>
+              <label for="recoverEmail">Email</label>
+              <input type="email" id="recoverEmail" placeholder="you@company.ru" autocomplete="email" />
+              <div style="display:flex;gap:.5rem;margin-top:.75rem;">
+                <button type="button" class="btn auth-primary" id="recoverSend">Отправить</button>
+                <button type="button" class="btn" id="recoverCancel">Отмена</button>
+              </div>
+            </div>
+          </div>
+
+          <script>
+            (function(){
+              const tabs = document.querySelectorAll('#konstr-auth .auth-tab');
+              const passwordInput = document.getElementById('authPasswordField');
+              const primaryBtn = document.getElementById('authPrimary');
+
+              function switchMode(mode){
+                tabs.forEach(t => {
+                  const is = t.dataset.mode === mode;
+                  t.classList.toggle('auth-tab-active', is);
+                  t.setAttribute('aria-selected', String(is));
+                });
+                const isRegister = mode === 'register';
+                if (passwordInput) passwordInput.required = true;
+                const forgotBtn = document.getElementById('forgotPasswordBtn');
+                if (forgotBtn) forgotBtn.hidden = isRegister;
+                if (primaryBtn) primaryBtn.textContent = isRegister ? 'Создать аккаунт' : 'Войти';
+                try { localStorage.setItem('interactivity_auth_mode', mode); } catch (e) {}
+              }
+
+              tabs.forEach(t => t.addEventListener('click', () => switchMode(t.dataset.mode)));
+
+              const forgotBtn = document.getElementById('forgotPasswordBtn');
+              const forgotModal = document.getElementById('forgotModal');
+              const recoverCancel = document.getElementById('recoverCancel');
+              const recoverSend = document.getElementById('recoverSend');
+              forgotBtn && forgotBtn.addEventListener('click', () => {
+                forgotModal.hidden = false;
+                forgotModal.setAttribute('aria-hidden','false');
+              });
+              recoverCancel && recoverCancel.addEventListener('click', () => {
+                forgotModal.hidden = true;
+                forgotModal.setAttribute('aria-hidden','true');
+              });
+              recoverSend && recoverSend.addEventListener('click', () => {
+                recoverSend.textContent = 'Отправлено';
+                setTimeout(() => {
+                  recoverSend.textContent = 'Отправить';
+                  forgotModal.hidden = true;
+                  forgotModal.setAttribute('aria-hidden','true');
+                }, 1200);
+              });
+
+              var initialMode = 'login';
+              try {
+                var savedMode = localStorage.getItem('interactivity_auth_mode');
+                if (savedMode === 'register' || savedMode === 'login') initialMode = savedMode;
+              } catch (e) {}
+              switchMode(initialMode);
+            })();
+          </script>
+          <script type="module">
+            import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.48.0';
+            import { SUPABASE_URL, SUPABASE_ANON_KEY } from './supabase-config.js';
+
+            const AUTH_REDIRECT_URL = new URL('index.html#konstr-auth', window.location.href).href;
+
+            const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+            const form = document.getElementById('authForm');
+            const tabs = document.querySelectorAll('#konstr-auth .auth-tab');
+            const emailInput = document.getElementById('authEmailField');
+            const passwordInput = document.getElementById('authPasswordField');
+            const primaryBtn = document.getElementById('authPrimary');
+            const forgotBtn = document.getElementById('forgotPasswordBtn');
+            const recoverEmailInput = document.getElementById('recoverEmail');
+            const recoverSend = document.getElementById('recoverSend');
+
+            function getMode() {
+              const active = document.querySelector('#konstr-auth .auth-tab.auth-tab-active');
+              return active ? active.dataset.mode : 'login';
+            }
+
+            function showInlineMessage(text, type = 'info') {
+              let node = document.getElementById('authMessage');
+              if (!node) {
+                node = document.createElement('p');
+                node.id = 'authMessage';
+                node.className = 'auth-note';
+                const formEl = document.getElementById('authForm');
+                if (formEl) {
+                  formEl.insertBefore(node, formEl.firstChild);
+                } else {
+                  document.body.appendChild(node);
+                }
+              }
+              node.textContent = text;
+              node.style.color = type === 'error' ? '#d9534f' : (type === 'success' ? '#28a745' : '');
+            }
+
+            async function handleRegister(email, password) {
+              const { data, error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                  emailRedirectTo: AUTH_REDIRECT_URL
+                }
+              });
+              if (error) throw error;
+
+              return data;
+            }
+
+            async function handleLogin(email, password) {
+              const { data, error } = await supabase.auth.signInWithPassword({
+                email,
+                password
+              });
+              if (error) throw error;
+              return data;
+            }
+
+            async function handleResetPassword(email) {
+              const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: AUTH_REDIRECT_URL
+              });
+              if (error) throw error;
+              return data;
+            }
+
+            function setLoading(isLoading) {
+              if (!primaryBtn) return;
+              primaryBtn.disabled = isLoading;
+              primaryBtn.dataset.originalText = primaryBtn.dataset.originalText || primaryBtn.textContent;
+              primaryBtn.textContent = isLoading ? 'Подождите…' : primaryBtn.dataset.originalText;
+            }
+
+            if (form && emailInput && passwordInput && primaryBtn) {
+              form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const mode = getMode();
+                const email = emailInput.value.trim();
+                const password = passwordInput.value;
+
+                if (!email || !password) {
+                  showInlineMessage('Введите email и пароль.', 'error');
+                  return;
+                }
+
+                setLoading(true);
+                try {
+                  if (mode === 'register') {
+                    await handleRegister(email, password);
+                    showInlineMessage('Проверьте почту для подтверждения регистрации.', 'success');
+                  } else {
+                    await handleLogin(email, password);
+                    showInlineMessage('Успешный вход. Сейчас перенаправим…', 'success');
+                    setTimeout(() => {
+                      window.location.href = 'app.html';
+                    }, 800);
+                  }
+                } catch (err) {
+                  console.error(err);
+                  showInlineMessage(err.message || 'Не удалось выполнить операцию.', 'error');
+                } finally {
+                  setLoading(false);
+                }
+              });
+            }
+
+            if (forgotBtn && recoverEmailInput && recoverSend) {
+              recoverSend.addEventListener('click', async () => {
+                const email = recoverEmailInput.value.trim();
+                if (!email) {
+                  showInlineMessage('Введите email для восстановления пароля.', 'error');
+                  return;
+                }
+                recoverSend.disabled = true;
+                recoverSend.textContent = 'Отправляем…';
+                try {
+                  await handleResetPassword(email);
+                  showInlineMessage('Если этот email зарегистрирован, мы отправили письмо для сброса пароля.', 'success');
+                } catch (err) {
+                  console.error(err);
+                  showInlineMessage(err.message || 'Не удалось отправить письмо для восстановления.', 'error');
+                } finally {
+                  recoverSend.disabled = false;
+                  recoverSend.textContent = 'Отправить';
+                }
+              });
+            }
+
+            tabs.forEach((tab) => {
+              tab.addEventListener('click', () => {
+                const mode = getMode();
+                if (primaryBtn) {
+                  primaryBtn.dataset.originalText = mode === 'register' ? 'Создать аккаунт' : 'Войти';
+                  primaryBtn.textContent = primaryBtn.dataset.originalText;
+                }
+              });
+            });
+          </script>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="faq graph-node-section landing-slide" id="faq" data-slide="9">
     <div class="slide-card">
       <!-- Header placed where image was -->
       <div class="slide-card-header faq-slide-header">
@@ -3726,7 +4017,7 @@
     </div>
   </section>
 
-  <section class="graph-node-section landing-slide" id="contacts" data-slide="9">
+  <section class="graph-node-section landing-slide" id="contacts" data-slide="10">
     <div class="slide-card">
       <!-- Header placed where image was -->
       <div class="slide-card-header">
@@ -4013,7 +4304,7 @@
     </div>
   </section>
 
-  <section class="graph-node-section landing-slide" id="documents" data-slide="10">
+  <section class="graph-node-section landing-slide" id="documents" data-slide="11">
     <div class="slide-card">
       <!-- Header placed where image was -->
       <div class="slide-card-header">
@@ -4133,16 +4424,50 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
   <script>
     (function() {
-      var TOTAL_SLIDES = 11;
       var currentSlide = 0;
       var slidesContainer = document.getElementById('landingSlides');
       var slides = document.querySelectorAll('.landing-slide');
+      var TOTAL_SLIDES = slides.length;
       var progressDots = document.getElementById('landingProgressDots');
       var progressCounter = document.getElementById('landingProgressCounter');
       var btnPrev = document.getElementById('btnPrev');
       // Индекс слайда заявки — не перелистываем дальше по клику в пустоту, пока человек заполняет форму
       var authSlideEl = document.getElementById('form');
       var authSlideIndex = authSlideEl ? Array.prototype.indexOf.call(slides, authSlideEl) : -1;
+      var konstrAuthSlideEl = document.getElementById('konstr-auth');
+      var konstrAuthSlideIndex = konstrAuthSlideEl ? Array.prototype.indexOf.call(slides, konstrAuthSlideEl) : -1;
+
+      function isDeepLinkOnlySlide(el) {
+        return el && el.classList && el.classList.contains('landing-slide--deep-link-only');
+      }
+      function navigableSlideCountFn() {
+        var n = 0;
+        for (var s = 0; s < slides.length; s++) {
+          if (!isDeepLinkOnlySlide(slides[s])) n++;
+        }
+        return n;
+      }
+      var navigableSlideCount = navigableSlideCountFn();
+      function nextSlideIndex(from) {
+        var j;
+        for (j = from + 1; j < slides.length; j++) {
+          if (!isDeepLinkOnlySlide(slides[j])) return j;
+        }
+        for (j = 0; j < from; j++) {
+          if (!isDeepLinkOnlySlide(slides[j])) return j;
+        }
+        return from;
+      }
+      function prevSlideIndex(from) {
+        var j;
+        for (j = from - 1; j >= 0; j--) {
+          if (!isDeepLinkOnlySlide(slides[j])) return j;
+        }
+        for (j = slides.length - 1; j > from; j--) {
+          if (!isDeepLinkOnlySlide(slides[j])) return j;
+        }
+        return from;
+      }
 
       var ROLE_ICONS = {
         methodist: 'img/Roles/Role2.png',
@@ -4210,9 +4535,22 @@
 
         if (progressDots) {
           var dots = progressDots.querySelectorAll('.landing-progress-dot');
-          dots.forEach(function(dot, idx) { dot.classList.toggle('active', idx === i); });
+          dots.forEach(function(dot) {
+            var si = dot.getAttribute('data-slide-index');
+            if (si != null) dot.classList.toggle('active', parseInt(si, 10) === i);
+          });
         }
-        if (progressCounter) progressCounter.textContent = (i + 1) + ' / ' + TOTAL_SLIDES;
+        if (progressCounter) {
+          if (isDeepLinkOnlySlide(slides[i])) {
+            progressCounter.textContent = '—';
+          } else {
+            var pos = 0;
+            for (var k = 0; k <= i; k++) {
+              if (!isDeepLinkOnlySlide(slides[k])) pos++;
+            }
+            progressCounter.textContent = pos + ' / ' + navigableSlideCount;
+          }
+        }
         // Сохраняем последний просмотренный слайд
         try { localStorage.setItem('interactivity_last_slide', String(i)); } catch (e) {}
         // Обновляем hash в адресной строке под текущий слайд
@@ -4306,14 +4644,18 @@
 
       (function initProgressDots() {
         if (!progressDots) return;
-        for (var i = 0; i < TOTAL_SLIDES; i++) {
+        var sceneNum = 0;
+        for (var di = 0; di < slides.length; di++) {
+          if (isDeepLinkOnlySlide(slides[di])) continue;
+          sceneNum++;
           var dot = document.createElement('button');
           dot.type = 'button';
-          dot.className = 'landing-progress-dot' + (i === 0 ? ' active' : '');
-          dot.setAttribute('aria-label', 'Сцена ' + (i + 1));
+          dot.className = 'landing-progress-dot' + (di === 0 ? ' active' : '');
+          dot.setAttribute('data-slide-index', String(di));
+          dot.setAttribute('aria-label', 'Сцена ' + sceneNum);
           dot.addEventListener('click', function() {
-            var idx = Array.prototype.indexOf.call(progressDots.children, this);
-            goToSlide(idx);
+            var ix = parseInt(this.getAttribute('data-slide-index'), 10);
+            if (!isNaN(ix)) goToSlide(ix);
           });
           progressDots.appendChild(dot);
         }
@@ -4353,10 +4695,11 @@
 
         slidesContainer.addEventListener('click', function(e) {
           if (e.target.closest('a, button, input, .role-choice, .demo-course-link, .slide-nav, .flip-card, .demo-course')) return;
-          // На слайде авторизации (Попробовать Интерактивити) не переходим дальше по клику в пустую область
+          // На слайде заявки и на скрытом входе в конструктор не уходим дальше по клику в пустоту
           if (currentSlide === authSlideIndex) return;
+          if (currentSlide === konstrAuthSlideIndex) return;
 
-          goToSlide(currentSlide + 1);
+          goToSlide(nextSlideIndex(currentSlide));
         });
 
         // Дополнительно: клик по картинке на слайде «О продукте» на мобиле
@@ -4365,16 +4708,15 @@
         if (problemImage) {
           problemImage.addEventListener('click', function() {
             if (window.innerWidth <= 768 && slides[currentSlide] && slides[currentSlide].id === 'problem') {
-              goToSlide(currentSlide + 1);
+              goToSlide(nextSlideIndex(currentSlide));
             }
           });
         }
       }
       var btnNext = document.getElementById('btnNext');
-      if (btnPrev) btnPrev.addEventListener('click', function() { if (!this.disabled) goToSlide(currentSlide - 1); });
+      if (btnPrev) btnPrev.addEventListener('click', function() { if (!this.disabled) goToSlide(prevSlideIndex(currentSlide)); });
       if (btnNext) btnNext.addEventListener('click', function() {
-        if (currentSlide === TOTAL_SLIDES - 1) goToSlide(0);
-        else goToSlide(currentSlide + 1);
+        goToSlide(nextSlideIndex(currentSlide));
       });
       document.querySelectorAll('.flip-card').forEach(function(card) {
         card.addEventListener('click', function(e) {
@@ -4467,12 +4809,12 @@
         if (delta > 30) {
           e.preventDefault();
           wheelBlock = true;
-          goToSlide(currentSlide + 1);
+          goToSlide(nextSlideIndex(currentSlide));
           setTimeout(function() { wheelBlock = false; }, 400);
         } else if (delta < -30) {
           e.preventDefault();
           wheelBlock = true;
-          goToSlide(currentSlide - 1);
+          goToSlide(prevSlideIndex(currentSlide));
           setTimeout(function() { wheelBlock = false; }, 400);
         }
       }, { passive: false });
@@ -4488,8 +4830,8 @@
           // «Кому не подходит» — тот же слайд, что раньше вели #pricing / #features
           if (href === '#not-for-you' || href === '#pricing' || href === '#features') { e.preventDefault(); goToSlide(6); return; }
           if (href === '#form') { e.preventDefault(); goToSlide(authSlideIndex >= 0 ? authSlideIndex : 7); return; }
-          if (href === '#contacts') { e.preventDefault(); goToSlide(9); return; }
-          if (href === '#documents') { e.preventDefault(); goToSlide(10); return; }
+          if (href === '#contacts') { e.preventDefault(); goToSlide(10); return; }
+          if (href === '#documents') { e.preventDefault(); goToSlide(11); return; }
         });
       }
       document.addEventListener('click', function(e) {
@@ -4509,8 +4851,8 @@
         var a = e.target.closest('a[href="#documents"], a[href="#contacts"]');
         if (!a) return;
         e.preventDefault();
-        if (a.getAttribute('href') === '#documents') goToSlide(10);
-        else if (a.getAttribute('href') === '#contacts') goToSlide(9);
+        if (a.getAttribute('href') === '#documents') goToSlide(11);
+        else if (a.getAttribute('href') === '#contacts') goToSlide(10);
       });
       var siteLogo = document.querySelector('.site-logo');
       if (siteLogo && (siteLogo.getAttribute('href') === '#hero' || siteLogo.getAttribute('href') === '#intro')) {

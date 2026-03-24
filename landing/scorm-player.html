@@ -560,7 +560,7 @@
           }
         }
         if (!allowAnonymous) {
-          window.location.href = cabinetLoginUrl || 'konstr.html#form';
+          window.location.href = cabinetLoginUrl || 'index.html#intro';
         }
         return null;
       }
@@ -1083,7 +1083,7 @@
 
     document.getElementById('closeWinBtn').addEventListener('click', () => {
       const q = parseQuery();
-      window.location.href = q.cabinetLoginUrl || 'konstr.html#form';
+      window.location.href = q.cabinetLoginUrl || 'index.html#intro';
     });
 
     (async function main() {

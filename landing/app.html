@@ -1416,7 +1416,7 @@
     function getScormPlayerLaunchUrl(courseId) {
       const q = new URLSearchParams({ courseId: String(courseId) });
       try {
-        q.set('cabinet', new URL('konstr.html#form', window.location.href).href);
+        q.set('cabinet', new URL('index.html#intro', window.location.href).href);
       } catch (_) {}
       if (SCORM_PLAYER_USE_SUPABASE_STORAGE) {
         return `${SUPABASE_URL}/storage/v1/object/public/${SCORM_PLAYER_BUCKET}/${SCORM_PLAYER_FILENAME}?${q}`;
