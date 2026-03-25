@@ -1317,7 +1317,7 @@
                             </select>
                             <button type="button" class="btn" id="inviteBtn">Пригласить</button>
                           </div>
-                          <div class="muted">Приглашение создаётся по email. После принятия у пользователя появится доступ к проекту.</div>
+                          <div class="muted">На указанный email уходит письмо со ссылкой: после входа в кабинет приглашение принимается автоматически. Нужен тот же email, что в аккаунте. Настройка письма: Edge Function <code>send-project-invite</code> и Resend — см. <code>landing/README-SUPABASE.md</code>.</div>
                         </div>
 
                         <div id="membersBlock" hidden style="margin-top:.6rem;">
@@ -2000,7 +2000,47 @@
       return 'lms';
     }
 
+    const IA_PENDING_INVITE_TOKEN_KEY = 'ia_pending_invite_token';
+
+    function parseInviteTokenFromLocation() {
+      try {
+        const raw = (window.location.hash || '').replace(/^#/, '').trim();
+        const m = /^invite=([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$/i.exec(raw);
+        return m ? m[1] : null;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function stashInviteTokenFromUrl() {
+      const t = parseInviteTokenFromLocation();
+      if (t) {
+        try { sessionStorage.setItem(IA_PENDING_INVITE_TOKEN_KEY, t); } catch (_) {}
+      }
+    }
+
+    function getPendingInviteToken() {
+      try {
+        const s = sessionStorage.getItem(IA_PENDING_INVITE_TOKEN_KEY);
+        if (s && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(s.trim())) {
+          return s.trim();
+        }
+      } catch (_) {}
+      return parseInviteTokenFromLocation();
+    }
+
+    function clearPendingInviteToken() {
+      try { sessionStorage.removeItem(IA_PENDING_INVITE_TOKEN_KEY); } catch (_) {}
+    }
+
+    function buildProjectInviteAcceptUrl(token) {
+      const u = new URL('app.html', window.location.href);
+      u.hash = 'invite=' + String(token);
+      return u.href;
+    }
+
     async function requireAuthOrRedirect() {
+      stashInviteTokenFromUrl();
       const { data: { user }, error } = await supabase.auth.getUser();
       if (error || !user) {
         window.location.href = 'konstr.html#form';
@@ -3414,6 +3454,11 @@
       const r = (role || 'listener').trim();
       if (!['listener', 'methodologist'].includes(r)) throw new Error('Недопустимая роль для приглашения.');
 
+      if (typeof crypto === 'undefined' || typeof crypto.randomUUID !== 'function') {
+        throw new Error('Браузер не поддерживает crypto.randomUUID — обновите браузер.');
+      }
+      const inviteToken = crypto.randomUUID();
+
       const { error } = await supabase
         .from('project_invites')
         .insert({
@@ -3421,14 +3466,33 @@
           email: e,
           role: r,
           status: 'pending',
-          invited_by: user.id
+          invited_by: user.id,
+          invite_token: inviteToken
         });
+
       if (error) {
+        const msg = String(error.message || error.details || '');
         if (error.code === '23505') {
           throw new Error('Для этого email уже есть активное приглашение (pending). Отмени его или дождись принятия.');
         }
+        if (/invite_token|column|does not exist|не существует/i.test(msg)) {
+          throw new Error('Выполните в Supabase SQL: tech/supabase-project-invite-email.sql (колонка invite_token).');
+        }
         throw error;
       }
+
+      const acceptUrl = buildProjectInviteAcceptUrl(inviteToken);
+      let emailSent = false;
+      try {
+        const { data: fnData, error: fnErr } = await supabase.functions.invoke('send-project-invite', {
+          body: { invite_token: inviteToken, accept_url: acceptUrl },
+        });
+        if (!fnErr && fnData && fnData.sent === true) emailSent = true;
+      } catch (err) {
+        console.warn('send-project-invite:', err);
+      }
+
+      return { inviteEmail: e, acceptUrl, emailSent };
     }
 
     async function updateMemberRole(projectId, userId, newRole) {
@@ -3740,6 +3804,38 @@
         clearTbody(membersTbody, 'Ошибка загрузки.');
         clearTbody(invitesTbody, 'Ошибка загрузки.');
         if (coursesContainer) coursesContainer.innerHTML = '<p class="muted">Не удалось загрузить курсы.</p>';
+      }
+    }
+
+    /**
+     * @returns {Promise<null | { projectId: string }>}
+     */
+    async function tryAcceptPendingInvite(user) {
+      const token = getPendingInviteToken();
+      if (!token || !user) return null;
+      setProjectsMessage('');
+      try {
+        const { data, error } = await supabase.rpc('accept_project_invite_by_token', { p_token: token });
+        if (error) throw error;
+        clearPendingInviteToken();
+        try {
+          const u = new URL(window.location.href);
+          u.hash = 'lms';
+          history.replaceState(null, '', u.pathname + u.search + u.hash);
+        } catch (_) {}
+
+        const pid = data && (data.project_id != null ? data.project_id : data.projectId);
+        const projectId = pid != null ? String(pid) : '';
+        setProjectsMessage('Приглашение по ссылке принято.', 'info');
+        return projectId ? { projectId } : {};
+      } catch (e) {
+        console.warn(e);
+        const raw = (e && (e.message || e.error_description || e.details)) ? String(e.message || e.error_description || e.details) : '';
+        const human = /invite_email_mismatch|совпадает|другой email/i.test(raw)
+          ? 'Войдите под email, на который отправлено приглашение, и откройте ссылку снова.'
+          : (raw || 'Не удалось принять приглашение по ссылке.');
+        setProjectsMessage(human, 'error');
+        return null;
       }
     }
 
@@ -5566,9 +5662,16 @@
       await loadProfile(user);
       await loadCourses(user);
 
+      const inviteAcceptResult = await tryAcceptPendingInvite(user);
+
       if (projectsSummary) projectsSummary.textContent = 'Загрузка…';
       if (projectsCountPill) projectsCountPill.textContent = '…';
       await loadMyProjects(user);
+      if (inviteAcceptResult && inviteAcceptResult.projectId) {
+        try {
+          await selectProjectById(user, inviteAcceptResult.projectId);
+        } catch (_) {}
+      }
       renderProjectsSingleListRight(user, [], window.__myProjects || []);
 
       // Load my pending invites (for any role)
@@ -5598,9 +5701,22 @@
         setProjectsMessage('');
         setLoadingBtn(inviteBtn, true, 'Приглашаем…');
         try {
-          await inviteToProject(user, active.id, email, role);
+          const invRes = await inviteToProject(user, active.id, email, role);
           if (inviteEmailInput) inviteEmailInput.value = '';
-          setProjectsMessage('Приглашение создано.', 'info');
+          if (invRes && invRes.emailSent) {
+            setProjectsMessage(`Приглашение отправлено на ${invRes.inviteEmail}. В письме — ссылка для входа и принятия.`, 'info');
+          } else if (invRes) {
+            let msg = `Приглашение создано для ${invRes.inviteEmail}. Письмо не отправлено (настройте Edge Function send-project-invite и Resend — см. README-SUPABASE.md). `;
+            try {
+              await copyTextToClipboard(invRes.acceptUrl);
+              msg += 'Ссылка для приглашённого скопирована в буфер обмена.';
+            } catch (_) {
+              msg += `Ссылка: ${invRes.acceptUrl}`;
+            }
+            setProjectsMessage(msg, 'info');
+          } else {
+            setProjectsMessage('Приглашение создано.', 'info');
+          }
           await selectProjectById(user, active.id);
         } catch (e) {
           console.error(e);

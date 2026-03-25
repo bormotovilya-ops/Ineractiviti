@@ -43,3 +43,19 @@ insert into public.platform_admins (user_id) values ('ВАШ_UUID');
 ```
 
 После этого в кабинете появится раздел «Платформа»: заявки с формы `#form` и глобальные заметки в `platform_settings`.
+
+### Приглашения в проект: письмо со ссылкой (`app.html`)
+
+1. В SQL Editor выполните **`tech/supabase-project-invite-email.sql`** — колонка `invite_token` и функция `accept_project_invite_by_token`.
+2. Задеплойте Edge Function из репозитория: **`supabase/functions/send-project-invite`** (нужен [Supabase CLI](https://supabase.com/docs/guides/cli)).
+3. В Dashboard → **Edge Functions → Secrets** задайте:
+   - **`RESEND_API_KEY`** — ключ [Resend](https://resend.com) (или оставьте пустым: приглашение в БД создаётся, письмо не уйдёт — в кабинете покажется ссылка и она скопируется в буфер).
+   - **`INVITE_FROM_EMAIL`** — отправитель (например `onboarding@resend.dev` для теста или ваш домен в Resend).
+
+```bash
+supabase secrets set RESEND_API_KEY=re_...
+supabase secrets set INVITE_FROM_EMAIL="Интерактивити <onboarding@resend.dev>"
+supabase functions deploy send-project-invite
+```
+
+Ссылка в письме ведёт на `app.html#invite=<uuid>`. Если пользователь ещё не вошёл, токен сохраняется в `sessionStorage`, после входа с `konstr.html` / `index.html` открывается кабинет с тем же hash, приглашение принимается после загрузки `app.html`. Войти нужно под **тем же email**, что указан в приглашении.

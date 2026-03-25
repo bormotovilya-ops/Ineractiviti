@@ -1,0 +1,7 @@
+# Локальная разработка Supabase CLI. Деплой функции:
+#   supabase secrets set RESEND_API_KEY=re_...
+#   supabase secrets set INVITE_FROM_EMAIL="Интерактивити <onboarding@resend.dev>"
+#   supabase functions deploy send-project-invite
+
+[functions.send-project-invite]
+verify_jwt = true
