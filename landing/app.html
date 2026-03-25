@@ -5730,6 +5730,11 @@
         if (!active || !active.id) return;
         if (myRole !== 'admin') return;
 
+        // Keep the currently opened project tab (details/courses/members)
+        // so we don't jump to "Основные реквизиты" after refresh.
+        const activeProjectTabBtn = (projectTabButtons || []).find((b) => b && b.classList && b.classList.contains('auth-tab-active'));
+        const restoreProjectTabId = (activeProjectTabBtn && activeProjectTabBtn.dataset && activeProjectTabBtn.dataset.projectTab) ? activeProjectTabBtn.dataset.projectTab : 'details';
+
         const email = inviteEmailInput ? inviteEmailInput.value : '';
         const role = inviteRoleSelect ? inviteRoleSelect.value : 'listener';
         setProjectsMessage('');
@@ -5737,8 +5742,11 @@
         try {
           const invRes = await inviteToProject(user, active.id, email, role);
           if (inviteEmailInput) inviteEmailInput.value = '';
+
+          let postInviteMessage = '';
+          let postInviteMessageType = 'info';
           if (invRes && invRes.emailSent) {
-            setProjectsMessage(`Приглашение отправлено на ${invRes.inviteEmail}. В письме — ссылка для входа и принятия (проверьте спам).`, 'info');
+            postInviteMessage = `Приглашение отправлено на ${invRes.inviteEmail}. В письме — ссылка для входа и принятия (проверьте спам).`;
           } else if (invRes) {
             const why = (invRes.emailFailureReason && String(invRes.emailFailureReason).trim()) || 'см. landing/README-SUPABASE.md (Edge Function + Resend).';
             let msg = `Приглашение в базе создано для ${invRes.inviteEmail}. Письмо не ушло: ${why} `;
@@ -5748,11 +5756,21 @@
             } catch (_) {
               msg += `Ссылка: ${invRes.acceptUrl}`;
             }
-            setProjectsMessage(msg, 'error');
+            postInviteMessage = msg;
+            postInviteMessageType = 'error';
           } else {
-            setProjectsMessage('Приглашение создано.', 'info');
+            postInviteMessage = 'Приглашение создано.';
           }
+
           await selectProjectById(user, active.id);
+
+          // Restore the same tab and re-apply the message after refresh.
+          if (typeof setProjectCardTab === 'function') {
+            setProjectCardTab(restoreProjectTabId);
+          }
+          if (postInviteMessage) {
+            setProjectsMessage(postInviteMessage, postInviteMessageType);
+          }
         } catch (e) {
           console.error(e);
           setProjectsMessage(e.message || 'Не удалось пригласить.', 'error');
