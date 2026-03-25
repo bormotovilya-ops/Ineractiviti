@@ -1031,6 +1031,38 @@
       .courses-grid { grid-template-columns: 1fr; }
       .split { grid-template-columns: 1fr; }
     }
+
+    .platform-admin-subhead {
+      margin: 0 0 0.35rem;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+    }
+    .platform-kv {
+      display: grid;
+      grid-template-columns: minmax(0, 160px) 1fr;
+      gap: 0.35rem 1rem;
+      font-size: 0.88rem;
+      align-items: baseline;
+    }
+    .platform-kv dt { color: var(--text-muted); margin: 0; }
+    .platform-kv dd { margin: 0; word-break: break-word; }
+    .table-wrap-scroll {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: 0.85rem;
+      border: 1px solid rgba(148, 163, 184, 0.22);
+    }
+    .table-requests td.cell-task {
+      max-width: min(320px, 40vw);
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .table-requests th,
+    .table-requests td { vertical-align: top; }
   </style>
 </head>
 <body>
@@ -1085,6 +1117,17 @@
               </span>
             </span>
             <span class="nav-right">↵</span>
+          </button>
+
+          <button class="nav-btn" type="button" data-tab="platform" role="tab" aria-selected="false" id="navPlatformBtn" hidden>
+            <span class="nav-left">
+              <span class="nav-ico" style="background:linear-gradient(135deg,#34d399,#059669)">⚙</span>
+              <span class="nav-text">
+                <strong>Платформа</strong>
+                <span>Заявки и система</span>
+              </span>
+            </span>
+            <span class="nav-right">A</span>
           </button>
 
           <button class="nav-btn" type="button" data-tab="builder" role="tab" aria-selected="false" aria-disabled="true">
@@ -1343,6 +1386,64 @@
           </div>
         </section>
 
+        <section class="card tab-panel" id="tab-platform" role="tabpanel" hidden>
+          <div class="card-header">
+            <div>
+              <div class="card-title">Платформа</div>
+              <div class="muted">Заявки с лендинга и общие параметры экземпляра</div>
+            </div>
+            <span class="chip" style="border-color:rgba(52,211,153,.55);">Админ</span>
+          </div>
+          <div class="divider"></div>
+
+          <div>
+            <div class="platform-admin-subhead">Заявки с главной страницы</div>
+            <p class="muted" style="margin:0 0 0.6rem;">Форма «Заявка на проект» в блоке <code>index.html#form</code> пишет в таблицу <code>landing_project_requests</code>.</p>
+            <div class="row" style="margin-bottom:0.5rem;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+              <button type="button" class="btn btn-sm" id="platformRequestsRefreshBtn">Обновить список</button>
+              <span class="muted" id="platformRequestsMeta"></span>
+            </div>
+            <div class="table-wrap-scroll">
+              <table class="table table-requests" aria-label="Заявки с лендинга">
+                <thead>
+                  <tr>
+                    <th>Дата</th>
+                    <th>Имя</th>
+                    <th>Компания</th>
+                    <th>Контакт</th>
+                    <th>Задача</th>
+                  </tr>
+                </thead>
+                <tbody id="platformRequestsTbody">
+                  <tr><td class="muted-cell" colspan="5">Загрузка…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div>
+            <div class="platform-admin-subhead">Инфраструктура (константы кабинета)</div>
+            <dl class="platform-kv" id="platformInfraKv"></dl>
+            <p class="muted" style="margin:0.65rem 0 0;">URL и anon key задаются в <code>landing/.env</code> и попадают в <code>supabase-config.js</code> через <code>node landing/scripts/sync-supabase-config.mjs</code>.</p>
+          </div>
+
+          <div class="divider"></div>
+
+          <div>
+            <div class="platform-admin-subhead">Глобальные заметки команды</div>
+            <p class="muted" style="margin:0 0 0.45rem;">Одна запись на весь экземпляр (<code>platform_settings</code>), доступна только администраторам платформы.</p>
+            <textarea class="input" id="platformOperatorNotes" rows="4" placeholder="Дежурства, особенности инстанса, напоминания…"></textarea>
+            <div class="row" style="margin-top:0.55rem;flex-wrap:wrap;gap:0.5rem;">
+              <button type="button" class="btn btn-sm" id="platformSettingsSaveBtn">Сохранить</button>
+              <span class="muted" id="platformSettingsStatus" style="align-self:center;"></span>
+            </div>
+          </div>
+
+          <div id="platformPanelMessage" class="message-banner"></div>
+        </section>
+
         <section class="card tab-panel" id="tab-builder" role="tabpanel" hidden>
           <div class="card-header">
             <div>
@@ -1373,6 +1474,14 @@
     import { SUPABASE_URL, SUPABASE_ANON_KEY } from './supabase-config.js';
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    function supabaseProjectHost() {
+      try {
+        return new URL(SUPABASE_URL).host;
+      } catch {
+        return '—';
+      }
+    }
 
     /** Версия в левой панели: из landing/app-version.json (обновляйте перед пушем: node scripts/bump-cabinet-version.cjs minor|major). */
     async function loadCabinetAppVersion() {
@@ -1573,8 +1682,203 @@
     const panels = {
       profile: document.getElementById('tab-profile'),
       lms: document.getElementById('tab-lms'),
+      platform: document.getElementById('tab-platform'),
       builder: document.getElementById('tab-builder'),
     };
+    const navPlatformBtn = document.getElementById('navPlatformBtn');
+    const platformRequestsTbody = document.getElementById('platformRequestsTbody');
+    const platformRequestsMeta = document.getElementById('platformRequestsMeta');
+    const platformRequestsRefreshBtn = document.getElementById('platformRequestsRefreshBtn');
+    const platformInfraKv = document.getElementById('platformInfraKv');
+    const platformOperatorNotes = document.getElementById('platformOperatorNotes');
+    const platformSettingsSaveBtn = document.getElementById('platformSettingsSaveBtn');
+    const platformSettingsStatus = document.getElementById('platformSettingsStatus');
+    const platformPanelMessage = document.getElementById('platformPanelMessage');
+
+    let isPlatformAdminUser = false;
+
+    function setPlatformPanelMessage(text, type = 'info') {
+      if (!platformPanelMessage) return;
+      platformPanelMessage.textContent = text || '';
+      platformPanelMessage.className = 'message-banner' + (type === 'error' ? ' error' : '');
+    }
+
+    function formatDateTime(iso) {
+      if (!iso) return '—';
+      try {
+        const d = new Date(iso);
+        return d.toLocaleString('ru-RU', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+      } catch {
+        return String(iso);
+      }
+    }
+
+    async function checkPlatformAdmin(userId) {
+      if (!userId) return false;
+      try {
+        const { data, error } = await supabase
+          .from('platform_admins')
+          .select('user_id')
+          .eq('user_id', userId)
+          .maybeSingle();
+        if (error) return false;
+        return !!data;
+      } catch {
+        return false;
+      }
+    }
+
+    function renderPlatformInfraKv() {
+      if (!platformInfraKv) return;
+      const verEl = document.getElementById('cabinetAppVersion');
+      const verText = (verEl && verEl.textContent && verEl.textContent.trim()) || '—';
+      const rows = [
+        ['Версия кабинета', verText],
+        ['Хост Supabase', supabaseProjectHost()],
+        ['Ваш user id (для platform_admins)', currentUser && currentUser.id ? currentUser.id : '—'],
+        ['Плеер SCORM из Storage', SCORM_PLAYER_USE_SUPABASE_STORAGE ? 'да' : 'нет'],
+        ['Bucket SCORM (константа)', SCORM_PLAYER_BUCKET],
+        ['Файл плеера в Storage', SCORM_PLAYER_FILENAME],
+      ];
+      platformInfraKv.innerHTML = '';
+      rows.forEach(([k, v]) => {
+        const dt = document.createElement('dt');
+        dt.textContent = k;
+        const dd = document.createElement('dd');
+        dd.textContent = v == null ? '—' : String(v);
+        platformInfraKv.appendChild(dt);
+        platformInfraKv.appendChild(dd);
+      });
+    }
+
+    function renderPlatformRequestsRows(rows) {
+      if (!platformRequestsTbody) return;
+      platformRequestsTbody.innerHTML = '';
+      if (!rows || !rows.length) {
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 5;
+        td.className = 'muted-cell';
+        td.textContent = 'Заявок пока нет.';
+        tr.appendChild(td);
+        platformRequestsTbody.appendChild(tr);
+        return;
+      }
+      rows.forEach((r) => {
+        const tr = document.createElement('tr');
+        const cells = [
+          formatDateTime(r.created_at),
+          r.name,
+          r.company,
+          r.contact,
+          r.task,
+        ];
+        cells.forEach((text, i) => {
+          const td = document.createElement('td');
+          if (i === 4) td.className = 'cell-task';
+          td.textContent = text == null ? '' : String(text);
+          tr.appendChild(td);
+        });
+        platformRequestsTbody.appendChild(tr);
+      });
+    }
+
+    async function loadLandingProjectRequests() {
+      if (!platformRequestsTbody) return;
+      if (platformRequestsMeta) platformRequestsMeta.textContent = '';
+      platformRequestsTbody.innerHTML = '';
+      const tr0 = document.createElement('tr');
+      const td0 = document.createElement('td');
+      td0.colSpan = 5;
+      td0.className = 'muted-cell';
+      td0.textContent = 'Загрузка…';
+      tr0.appendChild(td0);
+      platformRequestsTbody.appendChild(tr0);
+
+      const { data, error } = await supabase
+        .from('landing_project_requests')
+        .select('created_at, name, company, contact, task')
+        .order('created_at', { ascending: false })
+        .limit(500);
+
+      if (error) {
+        platformRequestsTbody.innerHTML = '';
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 5;
+        td.className = 'muted-cell';
+        td.textContent = 'Не удалось загрузить заявки. Проверьте политики RLS и скрипт tech/supabase-platform-admin.sql.';
+        tr.appendChild(td);
+        platformRequestsTbody.appendChild(tr);
+        if (platformRequestsMeta) platformRequestsMeta.textContent = formatErr(error);
+        return;
+      }
+      const list = data || [];
+      if (platformRequestsMeta) {
+        platformRequestsMeta.textContent = list.length ? `Всего в выборке: ${list.length}` : '';
+      }
+      renderPlatformRequestsRows(list);
+    }
+
+    async function loadPlatformSettingsUi() {
+      if (!platformOperatorNotes) return;
+      platformOperatorNotes.value = '';
+      if (platformSettingsStatus) platformSettingsStatus.textContent = '';
+      const { data, error } = await supabase
+        .from('platform_settings')
+        .select('operator_notes, updated_at')
+        .eq('id', 1)
+        .maybeSingle();
+      if (error) {
+        if (platformSettingsStatus) {
+          platformSettingsStatus.textContent = 'Таблица platform_settings недоступна или не создана.';
+        }
+        return;
+      }
+      if (data && data.operator_notes != null) {
+        platformOperatorNotes.value = String(data.operator_notes);
+      }
+      if (platformSettingsStatus && data && data.updated_at) {
+        platformSettingsStatus.textContent = `Сохранено: ${formatDateTime(data.updated_at)}`;
+      }
+    }
+
+    async function savePlatformSettings() {
+      if (!platformOperatorNotes || !platformSettingsSaveBtn) return;
+      setPlatformPanelMessage('');
+      const notes = platformOperatorNotes.value || '';
+      setLoadingBtn(platformSettingsSaveBtn, true, 'Сохраняем…');
+      try {
+        const { error } = await supabase
+          .from('platform_settings')
+          .upsert(
+            { id: 1, operator_notes: notes || null, updated_at: new Date().toISOString() },
+            { onConflict: 'id' }
+          );
+        if (error) throw error;
+        await loadPlatformSettingsUi();
+        setPlatformPanelMessage('Заметка сохранена.', 'info');
+      } catch (e) {
+        console.error(e);
+        setPlatformPanelMessage(e.message || 'Не удалось сохранить настройки.', 'error');
+      } finally {
+        setLoadingBtn(platformSettingsSaveBtn, false, 'Сохранить');
+      }
+    }
+
+    async function refreshPlatformAdminPanel() {
+      if (!isPlatformAdminUser) return;
+      setPlatformPanelMessage('');
+      renderPlatformInfraKv();
+      await loadLandingProjectRequests();
+      await loadPlatformSettingsUi();
+    }
 
     function formatDate(iso) {
       if (!iso) return '—';
@@ -1692,7 +1996,7 @@
 
     function resolveInitialTab() {
       const hash = (window.location.hash || '').replace('#', '').trim();
-      if (hash === 'lms' || hash === 'profile' || hash === 'builder') return hash;
+      if (hash === 'lms' || hash === 'profile' || hash === 'builder' || hash === 'platform') return hash;
       return 'lms';
     }
 
@@ -5080,7 +5384,17 @@
           setLmsInnerTab('projects');
           setLmsCardMode(false);
         }
+        if (btn.dataset.tab === 'platform') {
+          refreshPlatformAdminPanel();
+        }
       });
+    });
+
+    platformRequestsRefreshBtn && platformRequestsRefreshBtn.addEventListener('click', () => {
+      loadLandingProjectRequests();
+    });
+    platformSettingsSaveBtn && platformSettingsSaveBtn.addEventListener('click', () => {
+      savePlatformSettings();
     });
 
     // LMS inner tabs
@@ -5228,13 +5542,22 @@
         try { localStorage.setItem(SIDEBAR_COLLAPSED_KEY, next ? '1' : '0'); } catch {}
       });
 
-      const initialTab = resolveInitialTab();
-      setActiveTab(initialTab);
-      if (initialTab === 'lms') setLmsInnerTab('projects');
-      setLmsCardMode(false);
       const user = await requireAuthOrRedirect();
       if (!user) return;
       currentUser = user;
+
+      isPlatformAdminUser = await checkPlatformAdmin(user.id);
+      if (navPlatformBtn) navPlatformBtn.hidden = !isPlatformAdminUser;
+
+      let initialTab = resolveInitialTab();
+      if (initialTab === 'platform' && !isPlatformAdminUser) initialTab = 'lms';
+
+      setActiveTab(initialTab);
+      if (initialTab === 'lms') setLmsInnerTab('projects');
+      setLmsCardMode(false);
+      if (isPlatformAdminUser && initialTab === 'platform') {
+        await refreshPlatformAdminPanel();
+      }
       try {
         await bindCookieConsentToUser(user);
       } catch (e) {

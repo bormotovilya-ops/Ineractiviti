@@ -31,3 +31,15 @@ node landing/scripts/sync-supabase-config.mjs
 ### Заявки с лендинга (`index.html`, слайд «Заявка»)
 
 В SQL Editor выполните **`tech/supabase-landing-project-requests.sql`**: таблица `landing_project_requests` и политика `INSERT` для роли `anon`. Без этого отправка формы вернёт ошибку.
+
+### Панель администратора платформы (`app.html`)
+
+Выполните **`tech/supabase-platform-admin.sql`**: таблицы `platform_admins` и `platform_settings`, политика `SELECT` на `landing_project_requests` для пользователей из `platform_admins`.
+
+Первого администратора добавьте в SQL Editor (подставьте UUID из **Authentication → Users**):
+
+```sql
+insert into public.platform_admins (user_id) values ('ВАШ_UUID');
+```
+
+После этого в кабинете появится раздел «Платформа»: заявки с формы `#form` и глобальные заметки в `platform_settings`.
