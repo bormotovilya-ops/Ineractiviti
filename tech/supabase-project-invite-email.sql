@@ -1,4 +1,5 @@
--- Приглашения в проект: токен в ссылке + письмо через Edge Function send-project-invite (см. supabase/functions/send-project-invite).
+-- Приглашения в проект: колонка invite_token и RPC принятия по ссылке.
+-- Этот скрипт НЕ отправляет почту. Письмо шлёт Edge Function send-project-invite + Resend (см. landing/README-SUPABASE.md).
 -- Выполните в Supabase → SQL Editor.
 
 -- Уникальный токен для ссылки app.html#invite=<uuid>

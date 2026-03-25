@@ -59,3 +59,16 @@ supabase functions deploy send-project-invite
 ```
 
 Ссылка в письме ведёт на `app.html#invite=<uuid>`. Если пользователь ещё не вошёл, токен сохраняется в `sessionStorage`, после входа с `konstr.html` / `index.html` открывается кабинет с тем же hash, приглашение принимается после загрузки `app.html`. Войти нужно под **тем же email**, что указан в приглашении.
+
+#### Письмо не приходит, хотя SQL уже выполнен
+
+**Важно:** файл `tech/supabase-project-invite-email.sql` только настраивает таблицу и RPC. **Почту он не шлёт.** Отправка идёт только через задеплоенную Edge Function **`send-project-invite`** и API **Resend**.
+
+Проверьте по шагам:
+
+1. **Функция задеплоена** в тот же проект Supabase, что и в `landing/.env` (`supabase functions list` или Dashboard → Edge Functions). Если функции нет — `invoke` вернёт 404, письма не будет.
+2. **Секреты проекта** (Dashboard → **Project Settings** → **Edge Functions** → **Secrets**, либо вкладка Secrets у функции): задан **`RESEND_API_KEY`**. Без него функция отвечает `sent: false` и письмо не уходит.
+3. После приглашения в кабинете смотрите **красное сообщение** под формой — там теперь выводится причина (Resend, отсутствие ключа, ошибка вызова).
+4. В Resend: на бесплатном тарифе часто можно слать **только на подтверждённые адреса** или только с тестового отправителя — проверьте [документацию Resend](https://resend.com/docs) и вкладку **Logs** в Resend.
+5. Папка **«Спам»** у получателя.
+6. Логи вызова: Dashboard → Edge Functions → **send-project-invite** → **Logs**.

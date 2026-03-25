@@ -3483,16 +3483,50 @@
 
       const acceptUrl = buildProjectInviteAcceptUrl(inviteToken);
       let emailSent = false;
+      let emailFailureReason = '';
       try {
         const { data: fnData, error: fnErr } = await supabase.functions.invoke('send-project-invite', {
           body: { invite_token: inviteToken, accept_url: acceptUrl },
         });
-        if (!fnErr && fnData && fnData.sent === true) emailSent = true;
+        if (fnErr) {
+          emailFailureReason = formatErr(fnErr) || (fnErr.message ? String(fnErr.message) : 'Ошибка вызова Edge Function');
+          try {
+            const ctx = fnErr.context;
+            const raw = ctx && (ctx.body ?? ctx);
+            if (typeof raw === 'string') {
+              const j = JSON.parse(raw);
+              if (j && j.error) emailFailureReason += ` (${j.error})`;
+            } else if (raw && typeof raw === 'object' && raw.error) {
+              emailFailureReason += ` (${raw.error})`;
+            }
+          } catch (_) {}
+          if (/non-2xx|404|not found|Failed to send/i.test(emailFailureReason)) {
+            emailFailureReason += '. Задеплойте функцию: supabase functions deploy send-project-invite';
+          }
+          console.warn('send-project-invite:', fnErr, fnData);
+        } else if (fnData && fnData.sent === true) {
+          emailSent = true;
+        } else if (fnData) {
+          if (fnData.reason === 'resend_not_configured') {
+            emailFailureReason =
+              'не задан секрет RESEND_API_KEY для Edge Function (Supabase → Edge Functions → Secrets). Один SQL на БД письма не отправляет.';
+          } else if (fnData.reason === 'resend_api_error') {
+            const d = (fnData.detail && String(fnData.detail).slice(0, 400)) || '';
+            emailFailureReason = 'ответ Resend: ' + (d || 'см. логи функции в Dashboard');
+          } else if (fnData.error) {
+            emailFailureReason = String(fnData.error);
+          } else {
+            emailFailureReason = 'функция вернула sent=false без пояснения';
+          }
+        } else {
+          emailFailureReason = 'пустой ответ от send-project-invite';
+        }
       } catch (err) {
         console.warn('send-project-invite:', err);
+        emailFailureReason = (err && err.message) ? String(err.message) : 'сбой сети или вызова функции';
       }
 
-      return { inviteEmail: e, acceptUrl, emailSent };
+      return { inviteEmail: e, acceptUrl, emailSent, emailFailureReason };
     }
 
     async function updateMemberRole(projectId, userId, newRole) {
@@ -5704,16 +5738,17 @@
           const invRes = await inviteToProject(user, active.id, email, role);
           if (inviteEmailInput) inviteEmailInput.value = '';
           if (invRes && invRes.emailSent) {
-            setProjectsMessage(`Приглашение отправлено на ${invRes.inviteEmail}. В письме — ссылка для входа и принятия.`, 'info');
+            setProjectsMessage(`Приглашение отправлено на ${invRes.inviteEmail}. В письме — ссылка для входа и принятия (проверьте спам).`, 'info');
           } else if (invRes) {
-            let msg = `Приглашение создано для ${invRes.inviteEmail}. Письмо не отправлено (настройте Edge Function send-project-invite и Resend — см. README-SUPABASE.md). `;
+            const why = (invRes.emailFailureReason && String(invRes.emailFailureReason).trim()) || 'см. landing/README-SUPABASE.md (Edge Function + Resend).';
+            let msg = `Приглашение в базе создано для ${invRes.inviteEmail}. Письмо не ушло: ${why} `;
             try {
               await copyTextToClipboard(invRes.acceptUrl);
               msg += 'Ссылка для приглашённого скопирована в буфер обмена.';
             } catch (_) {
               msg += `Ссылка: ${invRes.acceptUrl}`;
             }
-            setProjectsMessage(msg, 'info');
+            setProjectsMessage(msg, 'error');
           } else {
             setProjectsMessage('Приглашение создано.', 'info');
           }
