@@ -1081,10 +1081,59 @@
       };
     }
 
+    // Чтобы фоновые аудио из SCO не продолжали играть после закрытия,
+    // принудительно ставим на паузу audio/video внутри iframe и сбрасываем src.
+    function stopScoMedia() {
+      // 1) Пауза в родительском документе плеера (на всякий случай).
+      try {
+        document.querySelectorAll('audio, video').forEach((m) => {
+          try { m.pause(); } catch (_) {}
+          try { m.muted = true; } catch (_) {}
+          try { m.currentTime = 0; } catch (_) {}
+          try { m.src = ''; } catch (_) {}
+        });
+      } catch (_) {}
+
+      const frame = scoFrame;
+      try {
+        if (frame) {
+          const doc = frame.contentDocument || (frame.contentWindow && frame.contentWindow.document);
+          if (doc && doc.querySelectorAll) {
+            doc.querySelectorAll('audio, video').forEach((m) => {
+              try {
+                m.pause();
+              } catch (_) {}
+              try {
+                m.muted = true;
+              } catch (_) {}
+              try {
+                m.currentTime = 0;
+              } catch (_) {}
+              // Иногда релевантно, если SCO использует отдельные источники после pause.
+              try {
+                m.src = '';
+              } catch (_) {}
+            });
+          }
+        }
+      } catch (_) {}
+
+      try {
+        if (frame) {
+          frame.removeAttribute('srcdoc');
+          frame.src = 'about:blank';
+        }
+      } catch (_) {}
+    }
+
     document.getElementById('closeWinBtn').addEventListener('click', () => {
       const q = parseQuery();
+      stopScoMedia();
       window.location.href = q.cabinetLoginUrl || 'index.html#intro';
     });
+
+    window.addEventListener('pagehide', () => stopScoMedia(), { once: true });
+    window.addEventListener('beforeunload', () => stopScoMedia());
 
     (async function main() {
       await saveLandingUtmOnOpen();
