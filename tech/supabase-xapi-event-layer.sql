@@ -485,7 +485,12 @@ $$;
 
 grant execute on function public.map_internal_event_to_xapi(jsonb) to authenticated;
 grant execute on function public.ingest_event(jsonb) to authenticated;
+grant execute on function public.ingest_event(jsonb) to service_role;
 grant execute on function public.xapi_statements_list(uuid, uuid, integer) to authenticated;
+grant execute on function public.xapi_statements_list(uuid, uuid, integer) to service_role;
+
+-- PostgREST подхватывает новые RPC без перезапуска проекта (Supabase Hosted)
+notify pgrst, 'reload schema';
 
 revoke execute on function public.xapi_lms_base_url() from public;
 revoke execute on function public.xapi_lms_base_url() from anon;
