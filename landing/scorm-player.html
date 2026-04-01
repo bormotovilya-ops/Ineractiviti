@@ -116,7 +116,24 @@
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.48.0';
     import { SUPABASE_URL, SUPABASE_ANON_KEY } from './supabase-config.js';
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    if (
+      typeof SUPABASE_URL !== 'string' ||
+      !SUPABASE_URL ||
+      typeof SUPABASE_ANON_KEY !== 'string' ||
+      !SUPABASE_ANON_KEY.trim()
+    ) {
+      document.getElementById('err').textContent =
+        'Не загружена конфигурация Supabase: проверьте, что рядом с scorm-player.html есть supabase-config.js с SUPABASE_URL и SUPABASE_ANON_KEY.';
+      throw new Error('supabase-config missing');
+    }
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: {
+        headers: {
+          apikey: SUPABASE_ANON_KEY
+        }
+      }
+    });
 
     const errEl = document.getElementById('err');
     const statusEl = document.getElementById('status');
