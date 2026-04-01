@@ -53,10 +53,28 @@ insert into public.platform_admins (user_id) values ('ВАШ_UUID');
    - **`INVITE_FROM_EMAIL`** — отправитель (например `onboarding@resend.dev` для теста или ваш домен в Resend).
 
 ```bash
+# Из корня репозитория (где лежит папка supabase/). Один раз привяжите проект:
+supabase login
+supabase link --project-ref ВАШ_REF   # ref из URL: https://supabase.com/dashboard/project/ВАШ_REF
+
 supabase secrets set RESEND_API_KEY=re_...
 supabase secrets set INVITE_FROM_EMAIL="Интерактивити <onboarding@resend.dev>"
 supabase functions deploy send-project-invite
 ```
+
+Проверка: в Dashboard → **Edge Functions** в списке должна быть функция **`send-project-invite`**. Если её нет — вызывать нечего, кабинет покажет ошибку.
+
+#### Сообщение «Failed to send a request to the Edge Function»
+
+Это **не** про SQL. Скрипт `tech/supabase-project-invite-email.sql` **не создаёт и не публикует** Edge Function — он только меняет PostgreSQL.
+
+Такая ошибка обычно значит одно из:
+
+1. **Функция не задеплоена** — выполните `supabase functions deploy send-project-invite` (см. команды выше) и убедитесь, что в Dashboard она появилась.
+2. **Кабинет смотрит на другой проект Supabase**, чем тот, куда вы деплоили — проверьте, что `SUPABASE_URL` в `landing/.env` совпадает с проектом в Dashboard (**Settings → API → Project URL**), затем снова `node landing/scripts/sync-supabase-config.mjs`.
+3. **Блокировщик рекламы / расширение** режет запросы к `*.supabase.co` — отключите для сайта кабинета или проверьте во вкладке Network в DevTools (запрос к `/functions/v1/send-project-invite`).
+
+Если функция вызывается, но письма нет — смотрите секцию ниже про **RESEND_API_KEY** и логи Resend.
 
 Ссылка в письме ведёт на `app.html#invite=<uuid>`. Если пользователь ещё не вошёл, токен сохраняется в `sessionStorage`, после входа с `konstr.html` / `index.html` открывается кабинет с тем же hash, приглашение принимается после загрузки `app.html`. Войти нужно под **тем же email**, что указан в приглашении.
 

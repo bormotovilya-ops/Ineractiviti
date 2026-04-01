@@ -1,0 +1,7 @@
+supabase:
+user: Interactiviti 
+pass: G5dpKXc,AfC5n.!
+https://gefieowdfimehhnqdiwk.supabase.co
+sb_publishable_P6YBUwpPIYJBoUHkDz2s9A_03CZzq9S
+postgresql://postgres:[YOUR-PASSWORD]@db.gefieowdfimehhnqdiwk.supabase.co:5432/postgres
+почта sendgrid GA3AZQ496Y4UBK732CJ2HX1D
