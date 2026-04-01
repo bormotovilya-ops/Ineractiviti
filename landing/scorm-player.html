@@ -1287,10 +1287,10 @@
 
       async function ingestXapiRpc(pEvent) {
         try {
-          const { error } = await supabase.rpc('ingest_event', { p_event: pEvent });
-          if (error && scormDebug()) console.warn('[xAPI] ingest_event', error);
+          const { error } = await supabase.rpc('xapi_ingest_event', { p_event: pEvent });
+          if (error && scormDebug()) console.warn('[xAPI] xapi_ingest_event', error);
         } catch (e) {
-          if (scormDebug()) console.warn('[xAPI] ingest_event', e);
+          if (scormDebug()) console.warn('[xAPI] xapi_ingest_event', e);
         }
       }
 

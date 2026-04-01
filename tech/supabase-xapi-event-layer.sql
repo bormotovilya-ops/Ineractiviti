@@ -489,6 +489,35 @@ grant execute on function public.ingest_event(jsonb) to service_role;
 grant execute on function public.xapi_statements_list(uuid, uuid, integer) to authenticated;
 grant execute on function public.xapi_statements_list(uuid, uuid, integer) to service_role;
 
+-- Обёртка для REST (клиент: rpc('xapi_ingest_event', { p_event })) — см. tech/supabase-xapi-42883-rest-workaround.sql
+create or replace function public.xapi_ingest_event(p_event jsonb)
+returns jsonb
+language sql
+security definer
+set search_path = public
+as $$
+  select public.ingest_event(p_event);
+$$;
+
+grant execute on function public.xapi_ingest_event(jsonb) to authenticated;
+grant execute on function public.xapi_ingest_event(jsonb) to service_role;
+
+do $g$
+begin
+  execute 'grant execute on function public.ingest_event(jsonb) to authenticator';
+exception when others then
+  null;
+end;
+$g$;
+
+do $g$
+begin
+  execute 'grant execute on function public.xapi_ingest_event(jsonb) to authenticator';
+exception when others then
+  null;
+end;
+$g$;
+
 -- PostgREST подхватывает новые RPC без перезапуска проекта (Supabase Hosted)
 notify pgrst, 'reload schema';
 
