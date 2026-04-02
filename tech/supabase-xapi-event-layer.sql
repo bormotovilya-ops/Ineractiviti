@@ -5,7 +5,7 @@
 -- После деплоя замените базовый URL LMS в public.xapi_lms_base_url() на продакшен-домен
 -- или добавьте строку в public.xapi_settings (см. ниже).
 
-create extension if not exists pgcrypto;
+-- pgcrypto не обязателен: idempotency через встроенный md5(text)
 
 -- ---------- Базовый URL LMS (для actor.homePage и activity id) ----------
 create table if not exists public.xapi_settings (
@@ -285,29 +285,23 @@ as $$
 $$;
 
 -- ---------- Idempotency (если клиент не передал ключ) ----------
+-- Встроенный md5(text) — без расширения pgcrypto (digest/ sha256 там недоступны без enable)
 create or replace function public._xapi_make_idempotency_key(p_event jsonb, p_actor uuid)
 returns text
 language sql
 stable
 as $$
-  select encode(
-    digest(
-      convert_to(
-        concat_ws(
-          '|',
-          p_actor::text,
-          coalesce(nullif(trim(both from p_event->>'type'), ''), ''),
-          coalesce(nullif(trim(both from p_event->>'course_id'), ''), ''),
-          coalesce(nullif(trim(both from p_event->>'lesson_id'), ''), ''),
-          coalesce(nullif(trim(both from p_event->>'question_id'), ''), ''),
-          coalesce(nullif(trim(both from p_event->>'occurred_at'), ''), ''),
-          coalesce(p_event->'payload'::text, '{}')
-        ),
-        'UTF8'
-      ),
-      'sha256'
-    ),
-    'hex'
+  select md5(
+    concat_ws(
+      '|',
+      p_actor::text,
+      coalesce(nullif(trim(both from p_event->>'type'), ''), ''),
+      coalesce(nullif(trim(both from p_event->>'course_id'), ''), ''),
+      coalesce(nullif(trim(both from p_event->>'lesson_id'), ''), ''),
+      coalesce(nullif(trim(both from p_event->>'question_id'), ''), ''),
+      coalesce(nullif(trim(both from p_event->>'occurred_at'), ''), ''),
+      coalesce(p_event->'payload'::text, '{}')
+    )
   );
 $$;
 

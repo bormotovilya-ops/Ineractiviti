@@ -4687,6 +4687,123 @@
       });
     }
 
+    function cmStatsDrawPieChart(canvas, labels, values, colors) {
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = (canvas.width = canvas.clientWidth || 280);
+      const h = (canvas.height = canvas.clientHeight || 200);
+      ctx.clearRect(0, 0, w, h);
+      const sum = values.reduce((a, b) => a + b, 0);
+      if (sum === 0) return;
+      const cols = colors || ['#60a5fa', '#facc15', '#22c55e', '#a5b4fc', '#f472b6'];
+      const legH = Math.min(50, labels.length * 14);
+      const pieH = h - legH - 10;
+      const rad = Math.min(w, pieH) / 2 - 12;
+      const cx = w / 2;
+      const cy = pieH / 2 + 5;
+      let start = -Math.PI / 2;
+      values.forEach((v, i) => {
+        const sweep = (v / sum) * 2 * Math.PI;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, rad, start, start + sweep);
+        ctx.closePath();
+        ctx.fillStyle = cols[i % cols.length];
+        ctx.fill();
+        start += sweep;
+      });
+      ctx.font = '10px system-ui, sans-serif';
+      const legY = h - legH + 8;
+      labels.forEach((l, i) => {
+        ctx.fillStyle = cols[i % cols.length];
+        ctx.fillRect(8, legY - 6 + i * 14, 10, 8);
+        ctx.fillStyle = 'rgba(226,232,240,0.95)';
+        ctx.fillText(values[i] > 0 ? `${l}: ${values[i]}` : l, 22, legY + i * 14);
+      });
+    }
+
+    function cmStatsDrawLineChart(canvas, labels, values, color) {
+      const ctx = canvas.getContext('2d');
+      const w = (canvas.width = canvas.clientWidth || 320);
+      const h = (canvas.height = canvas.clientHeight || 180);
+      ctx.clearRect(0, 0, w, h);
+      if (!labels.length) return;
+      let maxVal = Math.max.apply(null, values);
+      if (maxVal === 0) maxVal = 1;
+      const paddingLeft = 30;
+      const paddingRight = 10;
+      const paddingTop = 10;
+      const paddingBottom = 25;
+      const innerW = w - paddingLeft - paddingRight;
+      const innerH = h - paddingTop - paddingBottom;
+      ctx.strokeStyle = 'rgba(148,163,184,0.4)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(paddingLeft, paddingTop);
+      ctx.lineTo(paddingLeft, h - paddingBottom);
+      ctx.lineTo(w - paddingRight, h - paddingBottom);
+      ctx.stroke();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      labels.forEach((_, i) => {
+        const x = paddingLeft + (labels.length === 1 ? innerW / 2 : innerW * (i / (labels.length - 1)));
+        const y = paddingTop + innerH * (1 - values[i] / maxVal);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(148,163,184,0.9)';
+      ctx.font = '10px system-ui, -apple-system, BlinkMacSystemFont, sans-serif';
+      ctx.fillText('0', 4, h - paddingBottom + 3);
+      ctx.fillText(String(maxVal), 4, paddingTop + 4);
+      labels.forEach((label, i) => {
+        const x = paddingLeft + (labels.length === 1 ? innerW / 2 : innerW * (i / (labels.length - 1)));
+        const axisY = h - paddingBottom + 10;
+        ctx.save();
+        ctx.translate(x, axisY);
+        ctx.rotate(-Math.PI / 4);
+        ctx.fillText(label, 0, 0);
+        ctx.restore();
+        const y = paddingTop + innerH * (1 - values[i] / maxVal) - 6;
+        ctx.fillText(String(values[i]), x - 4, y);
+      });
+    }
+
+    function cmStatsDrawBarChart(canvas, labels, values, color) {
+      const ctx = canvas.getContext('2d');
+      const w = (canvas.width = canvas.clientWidth || 320);
+      const h = (canvas.height = canvas.clientHeight || 180);
+      ctx.clearRect(0, 0, w, h);
+      if (!labels.length) return;
+      let maxVal = Math.max.apply(null, values);
+      if (maxVal === 0) maxVal = 1;
+      const paddingLeft = 30;
+      const paddingRight = 10;
+      const paddingTop = 10;
+      const paddingBottom = 10;
+      const innerW = w - paddingLeft - paddingRight;
+      const innerH = h - paddingTop - paddingBottom;
+      const barH = (innerH / labels.length) * 0.6;
+      ctx.font = '10px system-ui, -apple-system, BlinkMacSystemFont, sans-serif';
+      values.forEach((val, i) => {
+        const yCenter = paddingTop + (innerH * (i + 0.5)) / labels.length;
+        const barWidth = innerW * (val / maxVal);
+        const y = yCenter - barH / 2;
+        ctx.fillStyle = color;
+        ctx.fillRect(paddingLeft, y, barWidth, barH);
+        ctx.fillStyle = 'rgba(148,163,184,0.9)';
+        ctx.fillText(labels[i], 4, yCenter + 3);
+        ctx.fillStyle = 'rgba(15,23,42,0.95)';
+        let textX = paddingLeft + Math.min(barWidth - 16, innerW - 20);
+        if (barWidth < 24) {
+          textX = paddingLeft + barWidth + 4;
+          ctx.fillStyle = 'rgba(226,232,240,0.95)';
+        }
+        ctx.fillText(String(val), textX, yCenter + 3);
+      });
+    }
+
     async function loadPeoplegamesAnalyticsForCourse(courseId) {
       if (!courseId) return { runs: [], wrongChoices: {} };
       try {
@@ -4799,130 +4916,14 @@
         const outcomeLabels = ['Уволен', 'Наградили коллег', 'Повышен'];
         const outcomeValues = [outcomeCounts.fired, outcomeCounts.rewarded, outcomeCounts.promoted];
 
-        function drawPieChart(canvas, labels, values, colors) {
-          if (!canvas) return;
-          const ctx = canvas.getContext('2d');
-          const w = canvas.width = canvas.clientWidth || 280;
-          const h = canvas.height = canvas.clientHeight || 200;
-          ctx.clearRect(0, 0, w, h);
-          const sum = values.reduce((a, b) => a + b, 0);
-          if (sum === 0) return;
-          const cols = colors || ['#60a5fa', '#facc15', '#22c55e', '#a5b4fc', '#f472b6'];
-          const legH = Math.min(50, labels.length * 14);
-          const pieH = h - legH - 10;
-          const rad = Math.min(w, pieH) / 2 - 12;
-          const cx = w / 2;
-          const cy = (pieH / 2) + 5;
-          let start = -Math.PI / 2;
-          values.forEach((v, i) => {
-            const sweep = (v / sum) * 2 * Math.PI;
-            ctx.beginPath();
-            ctx.moveTo(cx, cy);
-            ctx.arc(cx, cy, rad, start, start + sweep);
-            ctx.closePath();
-            ctx.fillStyle = cols[i % cols.length];
-            ctx.fill();
-            start += sweep;
-          });
-          ctx.font = '10px system-ui, sans-serif';
-          const legY = h - legH + 8;
-          labels.forEach((l, i) => {
-            ctx.fillStyle = cols[i % cols.length];
-            ctx.fillRect(8, legY - 6 + i * 14, 10, 8);
-            ctx.fillStyle = 'rgba(226,232,240,0.95)';
-            ctx.fillText((values[i] > 0 ? `${l}: ${values[i]}` : l), 22, legY + i * 14);
-          });
-        }
-
-        function drawLineChart(canvas, labels, values, color) {
-          const ctx = canvas.getContext('2d');
-          const w = canvas.width = canvas.clientWidth || 320;
-          const h = canvas.height = canvas.clientHeight || 180;
-          ctx.clearRect(0, 0, w, h);
-          if (!labels.length) return;
-          let maxVal = Math.max.apply(null, values);
-          if (maxVal === 0) maxVal = 1;
-          const paddingLeft = 30;
-          const paddingRight = 10;
-          const paddingTop = 10;
-          const paddingBottom = 25;
-          const innerW = w - paddingLeft - paddingRight;
-          const innerH = h - paddingTop - paddingBottom;
-          ctx.strokeStyle = 'rgba(148,163,184,0.4)';
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(paddingLeft, paddingTop);
-          ctx.lineTo(paddingLeft, h - paddingBottom);
-          ctx.lineTo(w - paddingRight, h - paddingBottom);
-          ctx.stroke();
-          ctx.strokeStyle = color;
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          labels.forEach((_, i) => {
-            const x = paddingLeft + (labels.length === 1 ? innerW / 2 : innerW * (i / (labels.length - 1)));
-            const y = paddingTop + innerH * (1 - values[i] / maxVal);
-            if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-          });
-          ctx.stroke();
-          ctx.fillStyle = 'rgba(148,163,184,0.9)';
-          ctx.font = '10px system-ui, -apple-system, BlinkMacSystemFont, sans-serif';
-          ctx.fillText('0', 4, h - paddingBottom + 3);
-          ctx.fillText(String(maxVal), 4, paddingTop + 4);
-          labels.forEach((label, i) => {
-            const x = paddingLeft + (labels.length === 1 ? innerW / 2 : innerW * (i / (labels.length - 1)));
-            const axisY = h - paddingBottom + 10;
-            ctx.save();
-            ctx.translate(x, axisY);
-            ctx.rotate(-Math.PI / 4);
-            ctx.fillText(label, 0, 0);
-            ctx.restore();
-            const y = paddingTop + innerH * (1 - values[i] / maxVal) - 6;
-            ctx.fillText(String(values[i]), x - 4, y);
-          });
-        }
-
-        function drawBarChart(canvas, labels, values, color) {
-          const ctx = canvas.getContext('2d');
-          const w = canvas.width = canvas.clientWidth || 320;
-          const h = canvas.height = canvas.clientHeight || 180;
-          ctx.clearRect(0, 0, w, h);
-          if (!labels.length) return;
-          let maxVal = Math.max.apply(null, values);
-          if (maxVal === 0) maxVal = 1;
-          const paddingLeft = 30;
-          const paddingRight = 10;
-          const paddingTop = 10;
-          const paddingBottom = 10;
-          const innerW = w - paddingLeft - paddingRight;
-          const innerH = h - paddingTop - paddingBottom;
-          const barH = (innerH / labels.length) * 0.6;
-          ctx.font = '10px system-ui, -apple-system, BlinkMacSystemFont, sans-serif';
-          values.forEach((val, i) => {
-            const yCenter = paddingTop + (innerH * (i + 0.5)) / labels.length;
-            const barWidth = innerW * (val / maxVal);
-            const y = yCenter - barH / 2;
-            ctx.fillStyle = color;
-            ctx.fillRect(paddingLeft, y, barWidth, barH);
-            ctx.fillStyle = 'rgba(148,163,184,0.9)';
-            ctx.fillText(labels[i], 4, yCenter + 3);
-            ctx.fillStyle = 'rgba(15,23,42,0.95)';
-            let textX = paddingLeft + Math.min(barWidth - 16, innerW - 20);
-            if (barWidth < 24) {
-              textX = paddingLeft + barWidth + 4;
-              ctx.fillStyle = 'rgba(226,232,240,0.95)';
-            }
-            ctx.fillText(String(val), textX, yCenter + 3);
-          });
-        }
-
         requestAnimationFrame(() => {
-          drawLineChart(daysCanvas, dayLabels, dayValues, '#60a5fa');
-          drawBarChart(ratingCanvas, ratingLabels, ratingValues, '#facc15');
-          drawLineChart(progressCanvas, progressLabels, progressValues, '#a5b4fc');
-          drawPieChart(chaptersPie, chLabels, chPieValues, ['#60a5fa', '#facc15', '#22c55e', '#a5b4fc', '#f472b6']);
-          drawBarChart(chaptersDiff, wrongChLabels, wrongByCh, '#ef4444');
-          drawPieChart(outcomesPie, outcomeLabels, outcomeValues, ['#ef4444', '#f59e0b', '#22c55e']);
-          drawBarChart(distCanvas, distLabels, distValues, '#22c55e');
+          cmStatsDrawLineChart(daysCanvas, dayLabels, dayValues, '#60a5fa');
+          cmStatsDrawBarChart(ratingCanvas, ratingLabels, ratingValues, '#facc15');
+          cmStatsDrawLineChart(progressCanvas, progressLabels, progressValues, '#a5b4fc');
+          cmStatsDrawPieChart(chaptersPie, chLabels, chPieValues, ['#60a5fa', '#facc15', '#22c55e', '#a5b4fc', '#f472b6']);
+          cmStatsDrawBarChart(chaptersDiff, wrongChLabels, wrongByCh, '#ef4444');
+          cmStatsDrawPieChart(outcomesPie, outcomeLabels, outcomeValues, ['#ef4444', '#f59e0b', '#22c55e']);
+          cmStatsDrawBarChart(distCanvas, distLabels, distValues, '#22c55e');
         });
 
         if (wrongList) {
@@ -4940,6 +4941,87 @@
           }
         }
       });
+    }
+
+    async function renderCourseModalXapiAnalytics(courseId) {
+      const summaryEl = document.getElementById('cm-xapi-summary');
+      const emptyEl = document.getElementById('cm-xapi-empty');
+      const verbsCanvas = document.getElementById('cm-xapi-verbs-pie');
+      const dayCanvas = document.getElementById('cm-xapi-by-day-canvas');
+      const usersCanvas = document.getElementById('cm-xapi-users-bar');
+      if (!summaryEl || !courseId) return;
+      summaryEl.textContent = 'Загрузка…';
+      if (emptyEl) {
+        emptyEl.hidden = true;
+        emptyEl.textContent = '';
+      }
+      try {
+        const { data, error } = await supabase.rpc('xapi_analytics_get', { p_course_id: courseId });
+        if (error) {
+          console.warn('xapi_analytics_get', error);
+          summaryEl.textContent = 'Не удалось загрузить активность (xAPI).';
+          if (emptyEl) {
+            emptyEl.hidden = false;
+            emptyEl.textContent = error.message || String(error);
+          }
+          return;
+        }
+        const p = data && typeof data === 'object' ? data : {};
+        const total = Number(p.total_events || 0);
+        const uniq = Number(p.unique_learners || 0);
+        summaryEl.textContent = `Всего событий: ${total} · Уникальных учеников: ${uniq}`;
+        const byVerb = Array.isArray(p.by_verb) ? p.by_verb : [];
+        const byDay = Array.isArray(p.by_day) ? p.by_day : [];
+        const topUsers = Array.isArray(p.top_users) ? p.top_users : [];
+        if (total === 0) {
+          if (emptyEl) {
+            emptyEl.hidden = false;
+            emptyEl.textContent =
+              'Записей xAPI по курсу пока нет — пройдите курс в плеере или проверьте ingest.';
+          }
+          [verbsCanvas, dayCanvas, usersCanvas].forEach((c) => {
+            if (c) {
+              const ctx = c.getContext('2d');
+              const w = (c.width = c.clientWidth || 280);
+              const h = (c.height = c.clientHeight || 160);
+              ctx.clearRect(0, 0, w, h);
+            }
+          });
+          return;
+        }
+        if (emptyEl) emptyEl.hidden = true;
+        const verbLabels = byVerb.map((v) => v.label || v.verb_id || '—');
+        const verbValues = byVerb.map((v) => Number(v.count || 0));
+        const dayLabels = byDay.map((d) => {
+          const s = d.date || '';
+          return s.length >= 10 ? s.slice(5, 10) : s;
+        });
+        const dayValues = byDay.map((d) => Number(d.count || 0));
+        const userLabels = topUsers.map((u) => {
+          const id = u.user_id != null ? String(u.user_id) : '';
+          return id ? `Уч. ${id.slice(0, 8)}…` : '—';
+        });
+        const userValues = topUsers.map((u) => Number(u.event_count || 0));
+        requestAnimationFrame(() => {
+          cmStatsDrawPieChart(verbsCanvas, verbLabels, verbValues, [
+            '#38bdf8',
+            '#22c55e',
+            '#f59e0b',
+            '#a78bfa',
+            '#f472b6',
+            '#94a3b8'
+          ]);
+          cmStatsDrawLineChart(dayCanvas, dayLabels, dayValues, '#38bdf8');
+          cmStatsDrawBarChart(usersCanvas, userLabels, userValues, '#a78bfa');
+        });
+      } catch (e) {
+        console.warn('xapi_analytics_get', e);
+        summaryEl.textContent = 'Ошибка загрузки активности.';
+        if (emptyEl) {
+          emptyEl.hidden = false;
+          emptyEl.textContent = e.message || String(e);
+        }
+      }
     }
 
     function openCourseCard(course, { canManage }) {
@@ -5009,6 +5091,7 @@
                   <button type="button" class="cm-analytics-tab" data-analytics-tab="chapters">Главы</button>
                   <button type="button" class="cm-analytics-tab" data-analytics-tab="outcomes">Исходы</button>
                   <button type="button" class="cm-analytics-tab" data-analytics-tab="traps">Ловушки</button>
+                  <button type="button" class="cm-analytics-tab" data-analytics-tab="activity">Активность</button>
                 </div>
                 <p id="cm-stats-total-runs" style="margin:0 0 .25rem;font-size:.82rem;"></p>
                 <p id="cm-stats-empty" class="cm-stats-muted" hidden>Данных пока нет — завершите хотя бы одно прохождение.</p>
@@ -5056,6 +5139,24 @@
                   <div class="cm-stats-card">
                     <h5>Варианты, где ошибались чаще всего</h5>
                     <ol id="cm-stats-wrong-choices-list" class="cm-stats-list"></ol>
+                  </div>
+                </div>
+                <div class="cm-analytics-panel" data-analytics-panel="activity" id="cm-panel-activity" hidden>
+                  <p id="cm-xapi-summary" class="cm-stats-muted" style="margin:0 0 .5rem;font-size:.82rem;">Загрузка…</p>
+                  <p id="cm-xapi-empty" class="cm-stats-muted" hidden></p>
+                  <div class="cm-stats-grid">
+                    <div class="cm-stats-card">
+                      <h5>События по типам (xAPI)</h5>
+                      <canvas id="cm-xapi-verbs-pie"></canvas>
+                    </div>
+                    <div class="cm-stats-card">
+                      <h5>События по дням</h5>
+                      <canvas id="cm-xapi-by-day-canvas"></canvas>
+                    </div>
+                  </div>
+                  <div class="cm-stats-card" style="margin-top:.65rem;">
+                    <h5>Топ учеников по числу событий</h5>
+                    <canvas id="cm-xapi-users-bar"></canvas>
                   </div>
                 </div>
                 <p class="cm-stats-muted" style="margin-top:.5rem;">Переключайте вкладки сверху</p>
@@ -5456,7 +5557,10 @@
             if (statsNeedSave) statsNeedSave.hidden = true;
             if (statsInner) statsInner.hidden = false;
             initCmCourseAnalyticsTabsOnce();
-            requestAnimationFrame(() => renderCourseModalPeoplegamesAnalytics(workingCourse.id));
+            requestAnimationFrame(() => {
+              renderCourseModalPeoplegamesAnalytics(workingCourse.id);
+              renderCourseModalXapiAnalytics(workingCourse.id);
+            });
           }
         }
       };
@@ -5490,7 +5594,10 @@
             await refreshCoursesListUi();
             const onStats = tabStats && tabStats.classList.contains('auth-tab-active');
             if (onStats && workingCourse.id) {
-              requestAnimationFrame(() => renderCourseModalPeoplegamesAnalytics(workingCourse.id));
+              requestAnimationFrame(() => {
+                renderCourseModalPeoplegamesAnalytics(workingCourse.id);
+                renderCourseModalXapiAnalytics(workingCourse.id);
+              });
             }
           } catch (e) {
             console.error(e);
