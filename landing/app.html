@@ -4947,6 +4947,7 @@
       const summaryEl = document.getElementById('cm-xapi-summary');
       const emptyEl = document.getElementById('cm-xapi-empty');
       const verbsCanvas = document.getElementById('cm-xapi-verbs-pie');
+      const interactionCanvas = document.getElementById('cm-xapi-interaction-pie');
       const dayCanvas = document.getElementById('cm-xapi-by-day-canvas');
       const usersCanvas = document.getElementById('cm-xapi-users-bar');
       if (!summaryEl || !courseId) return;
@@ -4971,6 +4972,7 @@
         const uniq = Number(p.unique_learners || 0);
         summaryEl.textContent = `Всего событий: ${total} · Уникальных учеников: ${uniq}`;
         const byVerb = Array.isArray(p.by_verb) ? p.by_verb : [];
+        const byInteraction = Array.isArray(p.by_interaction) ? p.by_interaction : [];
         const byDay = Array.isArray(p.by_day) ? p.by_day : [];
         const topUsers = Array.isArray(p.top_users) ? p.top_users : [];
         if (total === 0) {
@@ -4979,7 +4981,7 @@
             emptyEl.textContent =
               'Записей xAPI по курсу пока нет — пройдите курс в плеере или проверьте ingest.';
           }
-          [verbsCanvas, dayCanvas, usersCanvas].forEach((c) => {
+          [verbsCanvas, interactionCanvas, dayCanvas, usersCanvas].forEach((c) => {
             if (c) {
               const ctx = c.getContext('2d');
               const w = (c.width = c.clientWidth || 280);
@@ -4992,6 +4994,8 @@
         if (emptyEl) emptyEl.hidden = true;
         const verbLabels = byVerb.map((v) => v.label || v.verb_id || '—');
         const verbValues = byVerb.map((v) => Number(v.count || 0));
+        const interLabels = byInteraction.map((x) => x.label || x.code || '—');
+        const interValues = byInteraction.map((x) => Number(x.count || 0));
         const dayLabels = byDay.map((d) => {
           const s = d.date || '';
           return s.length >= 10 ? s.slice(5, 10) : s;
@@ -5010,6 +5014,16 @@
             '#a78bfa',
             '#f472b6',
             '#94a3b8'
+          ]);
+          cmStatsDrawPieChart(interactionCanvas, interLabels, interValues, [
+            '#22c55e',
+            '#ef4444',
+            '#fbbf24',
+            '#818cf8',
+            '#2dd4bf',
+            '#fb7185',
+            '#94a3b8',
+            '#c084fc'
           ]);
           cmStatsDrawLineChart(dayCanvas, dayLabels, dayValues, '#38bdf8');
           cmStatsDrawBarChart(usersCanvas, userLabels, userValues, '#a78bfa');
@@ -5143,20 +5157,27 @@
                 </div>
                 <div class="cm-analytics-panel" data-analytics-panel="activity" id="cm-panel-activity" hidden>
                   <p id="cm-xapi-summary" class="cm-stats-muted" style="margin:0 0 .5rem;font-size:.82rem;">Загрузка…</p>
+                  <p id="cm-xapi-summary-hint" class="cm-stats-muted" style="margin:0 0 .5rem;font-size:.78rem;opacity:.9;">Смысл события: верные/неверные ответы, подсказки, завершение сценария, шаги SCORM — см. круговую «По смыслу».</p>
                   <p id="cm-xapi-empty" class="cm-stats-muted" hidden></p>
                   <div class="cm-stats-grid">
                     <div class="cm-stats-card">
-                      <h5>События по типам (xAPI)</h5>
+                      <h5>По глаголам xAPI (техн.)</h5>
                       <canvas id="cm-xapi-verbs-pie"></canvas>
                     </div>
+                    <div class="cm-stats-card">
+                      <h5>По смыслу</h5>
+                      <canvas id="cm-xapi-interaction-pie"></canvas>
+                    </div>
+                  </div>
+                  <div class="cm-stats-grid" style="margin-top:.65rem;">
                     <div class="cm-stats-card">
                       <h5>События по дням</h5>
                       <canvas id="cm-xapi-by-day-canvas"></canvas>
                     </div>
-                  </div>
-                  <div class="cm-stats-card" style="margin-top:.65rem;">
-                    <h5>Топ учеников по числу событий</h5>
-                    <canvas id="cm-xapi-users-bar"></canvas>
+                    <div class="cm-stats-card">
+                      <h5>Топ учеников по числу событий</h5>
+                      <canvas id="cm-xapi-users-bar"></canvas>
+                    </div>
                   </div>
                 </div>
                 <p class="cm-stats-muted" style="margin-top:.5rem;">Переключайте вкладки сверху</p>

@@ -1328,7 +1328,7 @@
           course_id: courseId,
           lesson_id: lessonIdForXapi,
           occurred_at: new Date().toISOString(),
-          payload
+          payload: { ...payload, interaction: 'progress', source: 'scorm' }
         });
       }
 
@@ -1343,7 +1343,7 @@
           course_id: courseId,
           lesson_id: lessonIdForXapi,
           occurred_at: new Date().toISOString(),
-          payload
+          payload: { ...payload, interaction: 'session_end', source: 'scorm' }
         });
       }
 
@@ -1352,7 +1352,7 @@
         course_id: courseId,
         lesson_id: lessonIdForXapi,
         occurred_at: new Date().toISOString(),
-        payload: { attempt_id: attemptId }
+        payload: { attempt_id: attemptId, interaction: 'session_start', source: 'scorm' }
       });
 
       window.API = createScorm12Api({
@@ -1437,7 +1437,9 @@
                 payload: {
                   score: typeof r.points === 'number' ? r.points : 0,
                   response: typeof r.result === 'string' ? r.result : '',
-                  success: true
+                  success: true,
+                  interaction: 'course_completed',
+                  source: 'peoplegames'
                 }
               });
             }
@@ -1448,14 +1450,49 @@
             });
             if (error && scormDebug()) console.warn('[LMS] course_analytics_record_choice_event', error);
             if (!error) {
+              const ch = typeof d.chapter === 'string' && d.chapter ? d.chapter : undefined;
               await ingestXapiRpc({
                 type: 'peoplegames_wrong_choice',
                 course_id: courseId,
                 question_id: String(d.choiceId),
                 occurred_at: new Date().toISOString(),
-                payload: { success: false }
+                payload: {
+                  success: false,
+                  interaction: 'wrong_choice',
+                  source: 'peoplegames',
+                  chapter: ch
+                }
               });
             }
+          } else if (d.type === 'PEOPLE_GAMES_CORRECT_CHOICE' && d.choiceId) {
+            const ch = typeof d.chapter === 'string' && d.chapter ? d.chapter : undefined;
+            await ingestXapiRpc({
+              type: 'peoplegames_correct_choice',
+              course_id: courseId,
+              question_id: String(d.choiceId),
+              occurred_at: new Date().toISOString(),
+              payload: {
+                success: true,
+                interaction: 'correct_answer',
+                source: 'peoplegames',
+                chapter: ch
+              }
+            });
+          } else if (d.type === 'PEOPLE_GAMES_HINT_USED' && d.chapter) {
+            const slot = d.hintSlot != null && d.hintSlot !== '' ? String(d.hintSlot) : '';
+            const hintQid = 'hint_' + String(d.chapter) + (slot ? '_' + slot : '');
+            await ingestXapiRpc({
+              type: 'peoplegames_hint_used',
+              course_id: courseId,
+              question_id: hintQid,
+              occurred_at: new Date().toISOString(),
+              payload: {
+                interaction: 'hint',
+                source: 'peoplegames',
+                chapter: String(d.chapter),
+                hintSlot: slot || undefined
+              }
+            });
           }
         } catch (e) {
           if (scormDebug()) console.warn('[PeopleGames] message', e);

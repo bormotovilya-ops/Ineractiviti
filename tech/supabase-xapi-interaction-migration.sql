@@ -1,116 +1,16 @@
--- xAPI-совместимый слой событий (MVP) для LMS на Supabase.
--- Выполните в SQL Editor после project_courses, project_members и
--- tech/supabase-course-analytics-lms.sql (функция _course_analytics_assert_player_course_access).
---
--- После деплоя замените базовый URL LMS в public.xapi_lms_base_url() на продакшен-домен
--- или добавьте строку в public.xapi_settings (см. ниже).
+-- Семантика событий: context.extensions + колонка interaction для отчётов.
+-- Выполните в SQL Editor после существующей схемы xAPI.
+-- Если база развёрнута из актуального tech/supabase-xapi-event-layer.sql (с колонкой interaction),
+-- блоки ALTER/INDEX и CREATE OR REPLACE функций идемпотентны; при необходимости обновите только расхождения.
 
--- pgcrypto не обязателен: idempotency через встроенный md5(text)
-
--- ---------- Базовый URL LMS (для actor.homePage и activity id) ----------
-create table if not exists public.xapi_settings (
-  id smallint primary key default 1 check (id = 1),
-  lms_base_url text not null default 'https://YOUR_LMS_DOMAIN'
-);
-
-insert into public.xapi_settings (id, lms_base_url)
-values (1, 'https://YOUR_LMS_DOMAIN')
-on conflict (id) do nothing;
-
-create or replace function public.xapi_lms_base_url()
-returns text
-language sql
-stable
-security definer
-set search_path = public
-as $$
-  select coalesce(
-    nullif(trim(s.lms_base_url), ''),
-    'https://YOUR_LMS_DOMAIN'
-  )
-  from public.xapi_settings s
-  where s.id = 1;
-$$;
-
-alter table public.xapi_settings enable row level security;
-
--- Только через service role / владельца; клиентам не нужен прямой доступ
-revoke all on public.xapi_settings from public;
-revoke all on public.xapi_settings from anon;
-revoke all on public.xapi_settings from authenticated;
-
--- ---------- Таблица statement'ов ----------
-create table if not exists public.xapi_statements (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references auth.users (id) on delete cascade,
-  course_id uuid references public.project_courses (id) on delete set null,
-  verb_id text not null,
-  object_id text not null,
-  statement jsonb not null,
-  occurred_at timestamptz not null,
-  ingested_at timestamptz not null default now(),
-  idempotency_key text not null unique,
-  interaction text
-);
-
-create index if not exists xapi_statements_user_occurred_idx
-  on public.xapi_statements (user_id, occurred_at desc);
-
-create index if not exists xapi_statements_course_occurred_idx
-  on public.xapi_statements (course_id, occurred_at desc)
-  where course_id is not null;
+alter table public.xapi_statements
+  add column if not exists interaction text;
 
 create index if not exists xapi_statements_course_interaction_idx
   on public.xapi_statements (course_id, interaction)
   where course_id is not null;
 
-alter table public.xapi_statements enable row level security;
-
-revoke all on public.xapi_statements from public;
-grant select on public.xapi_statements to authenticated;
-
-drop policy if exists xapi_statements_select_own on public.xapi_statements;
-drop policy if exists xapi_statements_select_project_staff on public.xapi_statements;
-
-create policy xapi_statements_select_own
-  on public.xapi_statements
-  for select
-  to authenticated
-  using (user_id = auth.uid());
-
-create policy xapi_statements_select_project_staff
-  on public.xapi_statements
-  for select
-  to authenticated
-  using (
-    course_id is not null
-    and exists (
-      select 1
-      from public.project_courses pc
-      join public.project_members pm on pm.project_id = pc.project_id
-      where pc.id = xapi_statements.course_id
-        and pm.user_id = auth.uid()
-        and pm.role in ('admin', 'methodologist')
-    )
-  );
-
--- ---------- Вспомогательные: verb / display ----------
-create or replace function public._xapi_verb_display_en(p_verb_id text)
-returns text
-language sql
-immutable
-as $$
-  select case p_verb_id
-    when 'http://adlnet.gov/expapi/verbs/initialized' then 'Initialized'
-    when 'http://adlnet.gov/expapi/verbs/completed' then 'Completed'
-    when 'http://adlnet.gov/expapi/verbs/answered' then 'Answered'
-    when 'http://adlnet.gov/expapi/verbs/experienced' then 'Experienced'
-    when 'http://adlnet.gov/expapi/verbs/progressed' then 'Progressed'
-    else 'Verb'
-  end;
-$$;
-
--- ---------- Mapper: внутреннее событие → xAPI statement (jsonb); семантика в context.extensions ----------
+-- ---------- Mapper: extensions + новые типы PeopleGames ----------
 create or replace function public.map_internal_event_to_xapi(p_event jsonb)
 returns jsonb
 language plpgsql
@@ -310,47 +210,7 @@ begin
 end;
 $$;
 
--- ---------- Проверка минимальной валидности statement ----------
-create or replace function public._xapi_statement_is_valid(p_statement jsonb)
-returns boolean
-language sql
-immutable
-as $$
-  select
-    p_statement is not null
-    and p_statement ? 'actor'
-    and p_statement ? 'verb'
-    and p_statement ? 'object'
-    and coalesce(p_statement->'actor'->>'objectType', '') = 'Agent'
-    and coalesce(p_statement->'actor'->'account'->>'homePage', '') <> ''
-    and coalesce(p_statement->'actor'->'account'->>'name', '') <> ''
-    and coalesce(p_statement->'verb'->>'id', '') <> ''
-    and coalesce(p_statement->'object'->>'objectType', '') = 'Activity'
-    and coalesce(p_statement->'object'->>'id', '') <> '';
-$$;
-
--- ---------- Idempotency (если клиент не передал ключ) ----------
--- Встроенный md5(text) — без расширения pgcrypto (digest/ sha256 там недоступны без enable)
-create or replace function public._xapi_make_idempotency_key(p_event jsonb, p_actor uuid)
-returns text
-language sql
-stable
-as $$
-  select md5(
-    concat_ws(
-      '|',
-      p_actor::text,
-      coalesce(nullif(trim(both from p_event->>'type'), ''), ''),
-      coalesce(nullif(trim(both from p_event->>'course_id'), ''), ''),
-      coalesce(nullif(trim(both from p_event->>'lesson_id'), ''), ''),
-      coalesce(nullif(trim(both from p_event->>'question_id'), ''), ''),
-      coalesce(nullif(trim(both from p_event->>'occurred_at'), ''), ''),
-      coalesce(p_event->'payload'::text, '{}')
-    )
-  );
-$$;
-
--- ---------- Ingest ----------
+-- ---------- ingest: сохраняем interaction ----------
 create or replace function public.ingest_event(p_event jsonb)
 returns jsonb
 language plpgsql
@@ -378,7 +238,6 @@ begin
     return jsonb_build_object('stored', false, 'error', 'invalid_payload');
   end if;
 
-  -- user_id из события игнорируем; источник истины — JWT
   v_event := p_event - 'user_id' || jsonb_build_object('user_id', v_uid::text);
 
   if (v_event->>'course_id') is not null and length(trim(both from (v_event->>'course_id'))) > 0 then
@@ -457,127 +316,143 @@ begin
 end;
 $$;
 
--- ---------- Просмотр (отладка / кабинет) ----------
-create or replace function public.xapi_statements_list(
-  p_course_id uuid default null,
-  p_user_id uuid default null,
-  p_limit integer default 100
-)
+-- ---------- Аналитика: разрез по смыслу (interaction) ----------
+create or replace function public.xapi_analytics_get(p_course_id uuid)
 returns jsonb
 language plpgsql
 security definer
 set search_path = public
 as $$
 declare
-  v_caller uuid := auth.uid();
-  v_uid uuid;
-  v_lim int := greatest(1, least(coalesce(p_limit, 100), 500));
+  v_uid uuid := auth.uid();
   v_project uuid;
-  v_role text;
 begin
-  if v_caller is null then
+  if v_uid is null then
     raise exception 'Not authenticated';
   end if;
 
-  v_uid := coalesce(p_user_id, v_caller);
+  select pc.project_id into v_project
+  from public.project_courses pc
+  where pc.id = p_course_id;
 
-  if v_uid <> v_caller then
-    if p_course_id is null then
-      raise exception 'course_id required when filtering by another user';
-    end if;
+  if v_project is null then
+    raise exception 'Course not found';
+  end if;
 
-    select pc.project_id into v_project
-    from public.project_courses pc
-    where pc.id = p_course_id;
-
-    if v_project is null then
-      raise exception 'Course not found';
-    end if;
-
-    select pm.role into v_role
-    from public.project_members pm
+  if not exists (
+    select 1 from public.project_members pm
     where pm.project_id = v_project
-      and pm.user_id = v_caller
-    limit 1;
-
-    if v_role is null or v_role not in ('admin', 'methodologist') then
-      raise exception 'Forbidden';
-    end if;
+      and pm.user_id = v_uid
+      and pm.role in ('admin', 'methodologist')
+  ) then
+    raise exception 'Forbidden';
   end if;
 
-  if p_course_id is not null and v_uid = v_caller then
-    perform public._course_analytics_assert_player_course_access(p_course_id);
-  end if;
-
-  return coalesce(
-    (
-      select jsonb_agg(row_to_json(s)::jsonb)
-      from (
-        select
-          x.id,
-          x.user_id,
-          x.course_id,
-          x.verb_id,
-          x.object_id,
-          x.statement,
-          x.occurred_at,
-          x.ingested_at,
-          x.idempotency_key,
-          x.interaction
-        from public.xapi_statements x
-        where (p_course_id is null or x.course_id = p_course_id)
-          and x.user_id = v_uid
-        order by x.occurred_at desc
-        limit v_lim
-      ) s
-    ),
-    '[]'::jsonb
+  return jsonb_build_object(
+    'total_events',
+      (select count(*)::bigint from public.xapi_statements x where x.course_id = p_course_id),
+    'unique_learners',
+      (select count(distinct x.user_id)::bigint from public.xapi_statements x where x.course_id = p_course_id),
+    'by_verb',
+      coalesce(
+        (
+          select jsonb_agg(
+            jsonb_build_object(
+              'verb_id', v.verb_id,
+              'label',
+                case
+                  when v.verb_id like '%/initialized' then 'Инициализация'
+                  when v.verb_id like '%/completed' then 'Завершение'
+                  when v.verb_id like '%/answered' then 'Ответы'
+                  when v.verb_id like '%/experienced' then 'Просмотр'
+                  when v.verb_id like '%/progressed' then 'Прогресс'
+                  else v.verb_id
+                end,
+              'count', v.cnt
+            ) order by v.cnt desc
+          )
+          from (
+            select x.verb_id, count(*)::bigint as cnt
+            from public.xapi_statements x
+            where x.course_id = p_course_id
+            group by x.verb_id
+          ) v
+        ),
+        '[]'::jsonb
+      ),
+    'by_interaction',
+      coalesce(
+        (
+          select jsonb_agg(
+            jsonb_build_object(
+              'code', bx.ix,
+              'label',
+                case bx.ix
+                  when 'wrong_choice' then 'Неверный ответ'
+                  when 'correct_answer' then 'Верный ответ'
+                  when 'hint' then 'Подсказка'
+                  when 'course_completed' then 'Завершение сценария'
+                  when 'session_start' then 'Старт сессии (SCORM)'
+                  when 'progress' then 'Прогресс (SCORM)'
+                  when 'session_end' then 'Завершение сессии (SCORM)'
+                  when 'unknown' then 'Без типа (старые записи)'
+                  else bx.ix
+                end,
+              'count', bx.cnt
+            ) order by bx.cnt desc
+          )
+          from (
+            select coalesce(x.interaction, 'unknown') as ix, count(*)::bigint as cnt
+            from public.xapi_statements x
+            where x.course_id = p_course_id
+            group by coalesce(x.interaction, 'unknown')
+          ) bx
+        ),
+        '[]'::jsonb
+      ),
+    'by_day',
+      coalesce(
+        (
+          select jsonb_agg(
+            jsonb_build_object(
+              'date', d.d,
+              'count', d.cnt
+            ) order by d.d
+          )
+          from (
+            select to_char(x.occurred_at::date, 'YYYY-MM-DD') as d, count(*)::bigint as cnt
+            from public.xapi_statements x
+            where x.course_id = p_course_id
+            group by x.occurred_at::date
+          ) d
+        ),
+        '[]'::jsonb
+      ),
+    'top_users',
+      coalesce(
+        (
+          select jsonb_agg(
+            jsonb_build_object(
+              'user_id', u.uid,
+              'event_count', u.cnt
+            ) order by u.cnt desc
+          )
+          from (
+            select x.user_id as uid, count(*)::bigint as cnt
+            from public.xapi_statements x
+            where x.course_id = p_course_id
+            group by x.user_id
+            order by cnt desc
+            limit 10
+          ) u
+        ),
+        '[]'::jsonb
+      )
   );
 end;
 $$;
 
-grant execute on function public.map_internal_event_to_xapi(jsonb) to authenticated;
-grant execute on function public.ingest_event(jsonb) to authenticated;
-grant execute on function public.ingest_event(jsonb) to service_role;
-grant execute on function public.xapi_statements_list(uuid, uuid, integer) to authenticated;
-grant execute on function public.xapi_statements_list(uuid, uuid, integer) to service_role;
+grant execute on function public.xapi_analytics_get(uuid) to authenticated;
+grant execute on function public.xapi_analytics_get(uuid) to service_role;
 
--- Обёртка для REST (клиент: rpc('xapi_ingest_event', { p_event })) — см. tech/supabase-xapi-42883-rest-workaround.sql
-create or replace function public.xapi_ingest_event(p_event jsonb)
-returns jsonb
-language sql
-security definer
-set search_path = public
-as $$
-  select public.ingest_event(p_event);
-$$;
-
-grant execute on function public.xapi_ingest_event(jsonb) to authenticated;
-grant execute on function public.xapi_ingest_event(jsonb) to service_role;
-
-do $g$
-begin
-  execute 'grant execute on function public.ingest_event(jsonb) to authenticator';
-exception when others then
-  null;
-end;
-$g$;
-
-do $g$
-begin
-  execute 'grant execute on function public.xapi_ingest_event(jsonb) to authenticator';
-exception when others then
-  null;
-end;
-$g$;
-
--- PostgREST подхватывает новые RPC без перезапуска проекта (Supabase Hosted)
 notify pgrst, 'reload schema';
-
-revoke execute on function public.xapi_lms_base_url() from public;
-revoke execute on function public.xapi_lms_base_url() from anon;
--- authenticated не вызывает напрямую (только из map), но security definer читает
-
-revoke execute on function public._xapi_verb_display_en(text) from public;
-revoke execute on function public._xapi_statement_is_valid(jsonb) from public;
-revoke execute on function public._xapi_make_idempotency_key(jsonb, uuid) from public;

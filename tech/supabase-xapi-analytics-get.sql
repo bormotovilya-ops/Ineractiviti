@@ -1,5 +1,6 @@
 -- Агрегированная аналитика xAPI по курсу для кабинета (admin / methodologist).
 -- Выполните в SQL Editor после tech/supabase-xapi-event-layer.sql
+-- (должен совпадать с блоком xapi_analytics_get в tech/supabase-xapi-interaction-migration.sql)
 
 create or replace function public.xapi_analytics_get(p_course_id uuid)
 returns jsonb
@@ -61,6 +62,36 @@ begin
             where x.course_id = p_course_id
             group by x.verb_id
           ) v
+        ),
+        '[]'::jsonb
+      ),
+    'by_interaction',
+      coalesce(
+        (
+          select jsonb_agg(
+            jsonb_build_object(
+              'code', bx.ix,
+              'label',
+                case bx.ix
+                  when 'wrong_choice' then 'Неверный ответ'
+                  when 'correct_answer' then 'Верный ответ'
+                  when 'hint' then 'Подсказка'
+                  when 'course_completed' then 'Завершение сценария'
+                  when 'session_start' then 'Старт сессии (SCORM)'
+                  when 'progress' then 'Прогресс (SCORM)'
+                  when 'session_end' then 'Завершение сессии (SCORM)'
+                  when 'unknown' then 'Без типа (старые записи)'
+                  else bx.ix
+                end,
+              'count', bx.cnt
+            ) order by bx.cnt desc
+          )
+          from (
+            select coalesce(x.interaction, 'unknown') as ix, count(*)::bigint as cnt
+            from public.xapi_statements x
+            where x.course_id = p_course_id
+            group by coalesce(x.interaction, 'unknown')
+          ) bx
         ),
         '[]'::jsonb
       ),

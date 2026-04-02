@@ -3728,7 +3728,7 @@
         } catch (e) {}
       }
 
-      function trackWrongChoice(choiceId) {
+      function trackWrongChoice(choiceId, chapterNum) {
         try {
           var raw = localStorage.getItem(WRONG_CHOICES_STORAGE_KEY);
           var obj = raw ? JSON.parse(raw) : {};
@@ -3737,13 +3737,40 @@
           localStorage.setItem(WRONG_CHOICES_STORAGE_KEY, JSON.stringify(obj));
           if (window.parent && window.parent !== window) {
             try {
+              var chTag = (chapterNum >= 1 && chapterNum <= 5) ? ('ch' + chapterNum) : undefined;
               window.parent.postMessage({
                 type: 'PEOPLE_GAMES_WRONG_CHOICE',
                 choiceId: choiceId,
+                chapter: chTag,
                 courseId: getPeopleGamesCourseId()
               }, '*');
             } catch (e2) {}
           }
+        } catch (e) {}
+      }
+
+      function trackCorrectChoice(choiceId, chapterNum) {
+        try {
+          if (!choiceId || !window.parent || window.parent === window) return;
+          var chTag = (chapterNum >= 1 && chapterNum <= 5) ? ('ch' + chapterNum) : undefined;
+          window.parent.postMessage({
+            type: 'PEOPLE_GAMES_CORRECT_CHOICE',
+            choiceId: String(choiceId),
+            chapter: chTag,
+            courseId: getPeopleGamesCourseId()
+          }, '*');
+        } catch (e) {}
+      }
+
+      function trackHintUsed(chapterTag, hintSlot) {
+        try {
+          if (!chapterTag || !window.parent || window.parent === window) return;
+          window.parent.postMessage({
+            type: 'PEOPLE_GAMES_HINT_USED',
+            chapter: chapterTag,
+            hintSlot: hintSlot != null && hintSlot !== '' ? String(hintSlot) : undefined,
+            courseId: getPeopleGamesCourseId()
+          }, '*');
         } catch (e) {}
       }
 
@@ -3789,13 +3816,14 @@
       function applyAnswerScore(isCorrect, chapter, choiceId) {
         if (isCorrect) {
           /* +10 начисляется при открытии итогового слайда главы */
+          if (choiceId) trackCorrectChoice(choiceId, chapter);
         } else {
           if (chapter === 1) wrongCh1++;
           else if (chapter === 2) wrongCh2++;
           else if (chapter === 3) wrongCh3++;
           else if (chapter === 4) wrongCh4++;
           else if (chapter === 5) wrongCh5++;
-          if (choiceId) trackWrongChoice(choiceId);
+          if (choiceId) trackWrongChoice(choiceId, chapter);
         }
         if (chapter === 4) {
           ch4AwarenessDelta += isCorrect ? 10 : -10;
@@ -5101,6 +5129,7 @@
       function showPsychologistHint() {
         applyHintPenalty();
         hintUseCount++;
+        trackHintUsed('ch1');
         var box = document.getElementById('psychologist-hint-box');
         var btn = document.getElementById('btn-show-hint');
         if (box) showBerneHintWithAnimation(box);
@@ -5120,6 +5149,7 @@
           if (box && box.classList.contains('hidden')) {
             applyHintPenalty();
             hintUseCountCh2++;
+            trackHintUsed('ch2');
           }
           if (box) showBerneHintWithAnimation(box);
           hintUsedCh2 = true;
@@ -5131,6 +5161,7 @@
           if (box1 && box1.classList.contains('hidden')) {
             applyHintPenalty();
             hintUseCountCh3++;
+            trackHintUsed('ch3', '28');
           }
           if (box1) showBerneHintWithAnimation(box1);
           hintUsedCh3 = true;
@@ -5142,6 +5173,7 @@
           if (box2 && box2.classList.contains('hidden')) {
             applyHintPenalty();
             hintUseCountCh3++;
+            trackHintUsed('ch3', '33');
           }
           if (box2) showBerneHintWithAnimation(box2);
           hintUsedCh3 = true;
@@ -5153,6 +5185,7 @@
           if (ch4Box && ch4Box.classList.contains('hidden')) {
             applyHintPenalty();
             hintUseCountCh4++;
+            trackHintUsed('ch4');
           }
           if (ch4Box) showBerneHintWithAnimation(ch4Box);
           hintUsedCh4 = true;
@@ -5164,6 +5197,7 @@
           if (ch5Box && ch5Box.classList.contains('hidden')) {
             applyHintPenalty();
             hintUseCountCh5++;
+            trackHintUsed('ch5');
           }
           if (ch5Box) showBerneHintWithAnimation(ch5Box);
           hintUsedCh5 = true;
